@@ -255,6 +255,7 @@ class _TicketsState extends State<Tickets> {
   @override
   void initState() {
     // TODO: implement initState
+    print(usertype);
     super.initState();
     Future.delayed(Duration.zero, () async {
       fetchTickets();
@@ -266,7 +267,7 @@ class _TicketsState extends State<Tickets> {
     return Scaffold(
       appBar: AppBar(
           backgroundColor: Color(0Xff146bf7),
-          title: Container(
+          title: usertype!="client"?Container(
             child: TextField(
               style: TextStyle(color: Colors.white),
               cursorColor: Colors.white,
@@ -308,7 +309,7 @@ class _TicketsState extends State<Tickets> {
                   )
               ),
             ),
-          ),
+          ):Text('My Tickets'),
           actions: [
             PopupMenuButton(
                 icon: Icon(Icons.filter_alt_outlined),

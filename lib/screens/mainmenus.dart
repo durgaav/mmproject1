@@ -307,7 +307,9 @@ class _MainMenusState extends State<MainMenus> {
             ),
           ),
           Container(
-            padding: EdgeInsets.only(bottom: 20),
+            width: double.infinity,
+            alignment: Alignment.centerLeft,
+            padding: EdgeInsets.only(left: 10,bottom: 20),
             child: FloatingActionButton.extended(
               onPressed: () {
                 logout(context);
@@ -315,7 +317,7 @@ class _MainMenusState extends State<MainMenus> {
               label: Text("Logout"),
               icon: Icon(Icons.logout),
             ),
-          )
+          ),
         ],
       ),
     ));

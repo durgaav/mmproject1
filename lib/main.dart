@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:mmcustomerservice/screens/homepage.dart';
 import 'package:mmcustomerservice/screens/login.dart';
+import 'package:mmcustomerservice/test_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -48,7 +49,8 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: loginStatus=="true"?HomePage():LoginPage(),
+      // body: loginStatus=="true"?HomePage():LoginPage(),
+      body:Test()
     );
   }
 }

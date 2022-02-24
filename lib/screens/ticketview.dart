@@ -8,6 +8,7 @@ import 'package:flutter_email_sender/flutter_email_sender.dart' as mail;
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:mmcustomerservice/screens/ticket_assign.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:open_file/open_file.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -672,7 +673,6 @@ class _TicketViewPageState extends State<TicketViewPage> {
     var pref = await SharedPreferences.getInstance();
 
     setState(() {
-      ticketId = pref.getString('adm_modify_on')!;
       projectCode = pref.getString('project_Code')!;
       adm_update_by=pref.getString('adm_update_by')!;
       statusUpdateTime=pref.getString('statusUpdateTime')!;
@@ -803,7 +803,8 @@ class _TicketViewPageState extends State<TicketViewPage> {
                     child: FloatingActionButton(
                       child: Icon(Icons.add),
                       onPressed: () {
-                        assignDialog(context);
+                        // assignDialog(context);
+                        Navigator.push(context,MaterialPageRoute(builder: (context)=>TicketAssign(ticketId:ticketId,updatedBy: adm_update_by,)));
                       },
                     ),
                   ),

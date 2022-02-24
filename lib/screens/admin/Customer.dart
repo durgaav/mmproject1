@@ -27,7 +27,7 @@ class _CustomerState extends State<Customer> {
   String imgPath = "";
   String createdBy = '';
   bool clearSearch = false;
-  DateFormat formatter = DateFormat('dd-MM-yyyy hh:mm:ss a');
+  DateFormat formatter = DateFormat('dd-MM-yyyy hh:mm a');
   //Edittext
   TextEditingController searchController = new TextEditingController();
   TextEditingController compName = new TextEditingController(), usrNm = new TextEditingController(), passWd = new TextEditingController(),
@@ -560,6 +560,7 @@ class _CustomerState extends State<Customer> {
                       padding: const EdgeInsets.all(15.0),
                       child: InkWell(
                           child:Text("Load Failed, Tap here to retry !",
+
                             style: TextStyle(color: Colors.red, fontSize: 16),
                           ),
                           onTap: () => setState(()
