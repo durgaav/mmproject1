@@ -88,7 +88,7 @@ class Tickets {
     phonenumber = json['Phonenumber'];
     domainName = json['DomainName'];
     description = json['Description'];
-    status = json['Status'].toString().toLowerCase();
+    status = json['Status'];
     notification = json['Notification'];
     cusCreatedOn = json['Cus_CreatedOn'];
     cusModifiedOn = json['Cus_ModifiedOn'];
@@ -242,7 +242,7 @@ class TeamAssign {
     teamId = json['teamId'];
     username = json['Username'];
     email = json['Email'];
-    status = json['Status'];
+    status = json['Status'].toString().toLowerCase();
     admUpdatedOn = json['Adm_UpdatedOn'];
     admUpdatedBy = json['Adm_UpdatedBy'];
     admModifiedOn = json['Adm_ModifiedOn'];

@@ -79,34 +79,34 @@ class _TicketsState extends State<Tickets> {
 
 
     //Adding prefs
-    pref.setString("tickId", ticketDetails[index].tickets!.ticketsId.toString());
-    pref.setString("UserName", ticketDetails[index].tickets!.username.toString());
-    pref.setString("MailID", ticketDetails[index].tickets!.email.toString());
-    pref.setString("PhoneNum", ticketDetails[index].tickets!.phonenumber.toString());
-    pref.setString("DomainNm", ticketDetails[index].tickets!.domainName.toString());
-    pref.setString("Desc", ticketDetails[index].tickets!.description.toString());
-    pref.setString("Statuses", ticketDetails[index].tickets!.status.toString());
-    pref.setString("Notify", ticketDetails[index].tickets!.notification.toString());
-    pref.setString("cusCreatedOn", ticketDetails[index].tickets!.cusCreatedOn.toString());
-    pref.setString("cusModifiedOn", ticketDetails[index].tickets!.cusModifiedOn.toString());
-    pref.setString("admCreatedOn", ticketDetails[index].tickets!.admCreatedOn.toString());
-    pref.setString("admCreatedBy", ticketDetails[index].tickets!.admCreatedBy.toString());
-    pref.setString("admModifiedOn", ticketDetails[index].tickets!.admModifiedOn.toString());
-    pref.setString("admModifiedBy", ticketDetails[index].tickets!.admModifiedBy.toString());
-    pref.setString("admUpdatedOn", ticketDetails[index].tickets!.admUpdatedOn.toString());
-    pref.setString("admUpdatedBy", ticketDetails[index].tickets!.admUpdatedBy.toString());
-    pref.setString("tmStartUpdatedOn", ticketDetails[index].tickets!.tmStartUpdatedOn.toString());
-    pref.setString("tmStartUpdatedBy", ticketDetails[index].tickets!.tmStartUpdatedBy.toString());
-    pref.setString("tmStartModifiedOn", ticketDetails[index].tickets!.tmStartModifiedOn.toString());
-    pref.setString("tmStartModifiedBy", ticketDetails[index].tickets!.tmStartModifiedBy.toString());
-    pref.setString("tmProcessUpdatedOn", ticketDetails[index].tickets!.tmProcessUpdatedOn.toString());
-    pref.setString("tmProcessUpdatedBy", ticketDetails[index].tickets!.tmProcessUpdatedBy.toString());
-    pref.setString("tmProcessModifiedOn", ticketDetails[index].tickets!.tmProcessModifiedOn.toString());
-    pref.setString("tmProcessModifiedBy", ticketDetails[index].tickets!.tmProcessModifiedBy.toString());
-    pref.setString("tmCompleteUpdatedOn", ticketDetails[index].tickets!.tmCompleteUpdatedOn.toString());
-    pref.setString("tmCompleteUpdatedBy", ticketDetails[index].tickets!.tmCompleteUpdatedBy.toString());
-    pref.setString("tmCompleteModifiedOn", ticketDetails[index].tickets!.tmCompleteModifiedOn.toString());
-    pref.setString("tmCompleteModifiedBy", ticketDetails[index].tickets!.tmCompleteModifiedBy.toString());
+    pref.setString("tickId", ticketDetails[index].tickets!.ticketsId.toString()??'');
+    pref.setString("UserName", ticketDetails[index].tickets!.username.toString()??"");
+    pref.setString("MailID", ticketDetails[index].tickets!.email.toString()??'');
+    pref.setString("PhoneNum", ticketDetails[index].tickets!.phonenumber.toString()??'');
+    pref.setString("DomainNm", ticketDetails[index].tickets!.domainName.toString()??'');
+    pref.setString("Desc", ticketDetails[index].tickets!.description.toString()??'');
+    pref.setString("Statuses", ticketDetails[index].tickets!.status.toString()??'');
+    pref.setString("Notify", ticketDetails[index].tickets!.notification.toString()??'');
+    pref.setString("cusCreatedOn", ticketDetails[index].tickets!.cusCreatedOn.toString()??'');
+    pref.setString("cusModifiedOn", ticketDetails[index].tickets!.cusModifiedOn.toString()??'');
+    pref.setString("admCreatedOn", ticketDetails[index].tickets!.admCreatedOn.toString()??'');
+    pref.setString("admCreatedBy", ticketDetails[index].tickets!.admCreatedBy.toString()??'');
+    pref.setString("admModifiedOn", ticketDetails[index].tickets!.admModifiedOn.toString()??'');
+    pref.setString("admModifiedBy", ticketDetails[index].tickets!.admModifiedBy.toString()??'');
+    pref.setString("admUpdatedOn", ticketDetails[index].tickets!.admUpdatedOn.toString()??'');
+    pref.setString("admUpdatedBy", ticketDetails[index].tickets!.admUpdatedBy.toString()??'');
+    pref.setString("tmStartUpdatedOn", ticketDetails[index].tickets!.tmStartUpdatedOn.toString()??'');
+    pref.setString("tmStartUpdatedBy", ticketDetails[index].tickets!.tmStartUpdatedBy.toString()??'');
+    pref.setString("tmStartModifiedOn", ticketDetails[index].tickets!.tmStartModifiedOn.toString()??'');
+    pref.setString("tmStartModifiedBy", ticketDetails[index].tickets!.tmStartModifiedBy.toString()??'');
+    pref.setString("tmProcessUpdatedOn", ticketDetails[index].tickets!.tmProcessUpdatedOn.toString()??'');
+    pref.setString("tmProcessUpdatedBy", ticketDetails[index].tickets!.tmProcessUpdatedBy.toString()??'');
+    pref.setString("tmProcessModifiedOn", ticketDetails[index].tickets!.tmProcessModifiedOn.toString()??'');
+    pref.setString("tmProcessModifiedBy", ticketDetails[index].tickets!.tmProcessModifiedBy.toString()??'');
+    pref.setString("tmCompleteUpdatedOn", ticketDetails[index].tickets!.tmCompleteUpdatedOn.toString()??'');
+    pref.setString("tmCompleteUpdatedBy", ticketDetails[index].tickets!.tmCompleteUpdatedBy.toString()??'');
+    pref.setString("tmCompleteModifiedOn", ticketDetails[index].tickets!.tmCompleteModifiedOn.toString()??'');
+    pref.setString("tmCompleteModifiedBy", ticketDetails[index].tickets!.tmCompleteModifiedBy.toString()??'');
 
 
 
@@ -453,7 +453,7 @@ class _TicketsState extends State<Tickets> {
                             itemCount: ticketDetails.length,
                             itemBuilder: (BuildContext context, int index) {
                               return
-                                ticketDetails[index].tickets!.username!.toLowerCase().
+                                ticketDetails[index].tickets!.username.toString().toLowerCase().
                                 contains(searchText.toLowerCase()) ?
                               Column(
                                   children: <Widget>[
@@ -475,7 +475,7 @@ class _TicketsState extends State<Tickets> {
                                                   backgroundImage: AssetImage(
                                                       'assets/images/loginimg.png'),
                                                 ),
-                                                ticketDetails[index].tickets!.status!.toLowerCase() ==
+                                                ticketDetails[index].tickets!.status.toString().toLowerCase() ==
                                                     "completed"
                                                     ? Positioned(
                                                     left: 50,
@@ -485,7 +485,7 @@ class _TicketsState extends State<Tickets> {
                                                           .green,
                                                       radius: 8,
                                                     )
-                                                ):ticketDetails[index].tickets!.status!.toLowerCase() ==
+                                                ):ticketDetails[index].tickets!.status.toString().toLowerCase()==
                                                     "inprogress" ?
                                                 Positioned(
                                                     left: 50,
@@ -495,7 +495,7 @@ class _TicketsState extends State<Tickets> {
                                                           .yellowAccent,
                                                       radius: 8,
                                                     )
-                                                ) : ticketDetails[index].tickets!.status!.toLowerCase() ==
+                                                ) : ticketDetails[index].tickets!.status.toString().toLowerCase() ==
                                                     "new" ?
                                                 Positioned(
                                                     left: 50,
@@ -505,7 +505,7 @@ class _TicketsState extends State<Tickets> {
                                                           .blue,
                                                       radius: 8,
                                                     )
-                                                ):ticketDetails[index].tickets!.status!.toLowerCase() ==
+                                                ):ticketDetails[index].tickets!.status.toString().toLowerCase() ==
                                                     "started" ?
                                                 Positioned(
                                                     left: 50,
@@ -519,10 +519,10 @@ class _TicketsState extends State<Tickets> {
                                               ]
                                           ),
                                         ),
-                                        title: Text(ticketDetails[index].tickets!.username![0].toUpperCase()
-                                            + ticketDetails[index].tickets!.username!.substring(1), style: TextStyle(
-                                            fontSize: 17.5),),
-                                        subtitle: Text("Status : "+ticketDetails[index].tickets!.status!),
+                                        title: ticketDetails[index].tickets!.username!=null?Text(ticketDetails[index].tickets!.username[0].toUpperCase()
+                                            + ticketDetails[index].tickets!.username.substring(1), style: TextStyle(
+                                            fontSize: 17.5),):Text('Un named'),
+                                        subtitle: Text("Status : "+ticketDetails[index].tickets!.status.toString().toLowerCase()),
                                         trailing: IconButton(
                                           onPressed: () {
                                             passDataToView(index);
@@ -559,8 +559,8 @@ class _TicketsState extends State<Tickets> {
                         child:filtered.length>0?ListView.builder(
                             itemCount: ticketDetails.length,
                             itemBuilder: (BuildContext context, int index) {
-                                return ticketDetails[index].tickets!.status! == sortString ?
-                                ticketDetails[index].tickets!.username!.toLowerCase()
+                                return ticketDetails[index].tickets!.status.toString().toLowerCase() == sortString ?
+                                ticketDetails[index].tickets!.username.toString().toLowerCase()
                                     .contains(searchText.toLowerCase())
                                     ? Column(
                                     children: <Widget>[
@@ -577,7 +577,7 @@ class _TicketsState extends State<Tickets> {
                                                     backgroundImage: AssetImage(
                                                         'assets/images/loginimg.png'),
                                                   ),
-                                                  ticketDetails[index].tickets!.status! ==
+                                                  ticketDetails[index].tickets!.status.toString().toLowerCase() ==
                                                       "completed"
                                                       ? Positioned(
                                                       left: 50,
@@ -587,7 +587,7 @@ class _TicketsState extends State<Tickets> {
                                                             .green,
                                                         radius: 8,
                                                       )
-                                                  ):ticketDetails[index].tickets!.status!.toLowerCase() ==
+                                                  ):ticketDetails[index].tickets!.status.toString().toLowerCase() ==
                                                       "inprogress" ?
                                                   Positioned(
                                                       left: 50,
@@ -597,7 +597,7 @@ class _TicketsState extends State<Tickets> {
                                                             .yellowAccent,
                                                         radius: 8,
                                                       )
-                                                  ) : ticketDetails[index].tickets!.status!.toLowerCase() ==
+                                                  ) : ticketDetails[index].tickets!.status.toString().toLowerCase() ==
                                                       "new" ?
                                                   Positioned(
                                                       left: 50,
@@ -607,7 +607,7 @@ class _TicketsState extends State<Tickets> {
                                                             .blue,
                                                         radius: 8,
                                                       )
-                                                  ) : ticketDetails[index].tickets!.status!.toLowerCase() ==
+                                                  ) : ticketDetails[index].tickets!.status.toString().toLowerCase()==
                                                       "started" ? Positioned(
                                                       left: 50,
                                                       top: 40,
@@ -620,13 +620,13 @@ class _TicketsState extends State<Tickets> {
                                                 ]
                                             ),
                                           ),
-                                          title: Text(ticketDetails[index].tickets!.username![0]
+                                          title: Text(ticketDetails[index].tickets!.username[0]
                                               .toUpperCase()
                                               +
-                                              ticketDetails[index].tickets!.username!.substring(
+                                              ticketDetails[index].tickets!.username.substring(
                                                   1), style: TextStyle(
                                               fontSize: 17.5),),
-                                          subtitle: Text("Status : "+ticketDetails[index].tickets!.status!),
+                                          subtitle: Text("Status : "+ticketDetails[index].tickets!.status.toString().toLowerCase()),
                                           trailing: IconButton(
                                             onPressed: () {
                                               passDataToView(index);
