@@ -46,8 +46,8 @@ class Tickets {
   String tmCompleteUpdatedBy ="";
   String tmCompleteModifiedOn ="";
   String tmCompleteModifiedBy ="";
-  List<Files>? files;
-  List<TeamAssign>? teamAssign;
+  List<Files> files = [];
+  List<TeamAssign> teamAssign = [];
 
   Tickets(
       {required this.ticketsId,
@@ -88,7 +88,7 @@ class Tickets {
     phonenumber = json['Phonenumber'];
     domainName = json['DomainName'];
     description = json['Description'];
-    status = json['Status'];
+    status = json['Status'].toString().toLowerCase();
     notification = json['Notification'];
     cusCreatedOn = json['Cus_CreatedOn'];
     cusModifiedOn = json['Cus_ModifiedOn'];
@@ -113,13 +113,13 @@ class Tickets {
     if (json['Files'] != null) {
       files = <Files>[];
       json['Files'].forEach((v) {
-        files!.add(new Files.fromJson(v));
+        files.add(new Files.fromJson(v));
       });
     }
     if (json['TeamAssign'] != null) {
       teamAssign = <TeamAssign>[];
       json['TeamAssign'].forEach((v) {
-        teamAssign!.add(new TeamAssign.fromJson(v));
+        teamAssign.add(new TeamAssign.fromJson(v));
       });
     }
   }
@@ -155,10 +155,10 @@ class Tickets {
     data['Tm_Complete_ModifiedOn'] = this.tmCompleteModifiedOn;
     data['Tm_Complete_ModifiedBy'] = this.tmCompleteModifiedBy;
     if (this.files != null) {
-      data['Files'] = this.files!.map((v) => v.toJson()).toList();
+      data['Files'] = this.files.map((v) => v.toJson()).toList();
     }
     if (this.teamAssign != null) {
-      data['TeamAssign'] = this.teamAssign!.map((v) => v.toJson()).toList();
+      data['TeamAssign'] = this.teamAssign.map((v) => v.toJson()).toList();
     }
     return data;
   }

@@ -72,6 +72,7 @@ class _TicketViewPageState extends State<TicketViewPage> {
   bool checkSeo = false;
   bool _loading = false;
   double _progressValue = 0.0;
+  List<String> fromAPI = [];
   //endregion Variables
 
   //region Dialogs
@@ -674,6 +675,7 @@ class _TicketViewPageState extends State<TicketViewPage> {
     var pref = await SharedPreferences.getInstance();
 
     setState(() {
+     fromAPI = pref.getStringList('Files')!;
      ticketId = pref.getString("tickId")??'';
      Username = pref.getString("UserName")??'';
      Email = pref.getString("MailID")??'';
@@ -684,8 +686,8 @@ class _TicketViewPageState extends State<TicketViewPage> {
      Notification = pref.getString("Notify")??'';
      createdOn = pref.getString("cusCreatedOn")??'';
       // pref.getString("cusModifiedOn")??'';
-      // pref.getString("admCreatedOn")??'';
-      // pref.getString("admCreatedBy")??'';
+     adm_updte_on = pref.getString("admCreatedOn")??'';
+     adm_update_by = pref.getString("admUpdatedBy")??'';
      adm_modify_on = pref.getString("admModifiedOn")??'';
      adm_mod_by = pref.getString("admModifiedBy")??'';
      adm_updte_on = pref.getString("admUpdatedOn")??'';
@@ -837,14 +839,6 @@ class _TicketViewPageState extends State<TicketViewPage> {
                       style: TextStyle(fontSize: 15, color: Colors.black45)),
                   subtitle: Text(
                     '$Username',
-                    style: TextStyle(fontSize: 16, color: Colors.black),
-                  ),
-                ),
-                ListTile(
-                  title: Text('User project code',
-                      style: TextStyle(fontSize: 15, color: Colors.black45)),
-                  subtitle: Text(
-                    '$projectCode',
                     style: TextStyle(fontSize: 16, color: Colors.black),
                   ),
                 ),
@@ -1196,35 +1190,49 @@ class _TicketViewPageState extends State<TicketViewPage> {
                 style: TextStyle(fontSize: 15, color: Colors.black45),
               ),
               children: <Widget>[
-                ListTile(
-                  onTap: (){
-                    String filename = Screenshots.split("/").last;
-                    setState(() {
-                      downloadFile(Screenshots, Screenshots.split("/").last,
-                          'storage/emulated/0/Download');
-                    });
-                  },
-                  subtitle: Text(
-                    '${Screenshots.split("/").last}',
-                    style: TextStyle(fontSize: 14),
-                  ),
-                  title: Text(
-                    'Download file',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  trailing: IconButton(
-                    onPressed: () {
-                      String filename = Screenshots.split("/").last;
-                      setState(() {
-                        downloadFile(Screenshots, Screenshots.split("/").last,
-                            'storage/emulated/0/Download');
-                      });
-                    },
-                    icon: Icon(Icons.cloud_download),
-                    color: Colors.blue,
-                    iconSize: 40,
-                  ),
-                ),
+                fromAPI.isNotEmpty?
+                ListView.builder(
+                    itemCount: fromAPI.length,
+                    physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemBuilder: (context,index){
+                     return ListTile(
+                        onTap: (){
+                          String filename = Screenshots.split("/").last;
+                          setState(() {
+                            downloadFile(fromAPI[index], fromAPI[index].split("/").last,
+                                'storage/emulated/0/Download');
+                          });
+                        },
+                        subtitle: Text(
+                          '${fromAPI[index].split("/").last}',
+                          style: TextStyle(fontSize: 14),
+                        ),
+                        title: Text(
+                          'Download file',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        trailing: IconButton(
+                          onPressed: () {
+                            String filename = Screenshots.split("/").last;
+                            setState(() {
+                              downloadFile(fromAPI[index], fromAPI[index].split("/").last,
+                                  'storage/emulated/0/Download');
+                            });
+                          },
+                          icon: Icon(Icons.cloud_download),
+                          color: Colors.blue,
+                          iconSize: 40,
+                        ),
+                      );
+                    }
+                ):
+                Container(
+                      height: 50,
+                      child: Center(
+                        child:Text('No attachments found...')
+                      ),
+                    )
               ],
             ),
           ]),

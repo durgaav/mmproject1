@@ -56,51 +56,39 @@ class _CustomerState extends State<Customer> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children:<Widget> [
-                        GestureDetector(
-                            onTap: () async {
-                              print("image path" + imgPath);
-                              print("Entering to file picker........");
-                              FilePickerResult? result =
-                              await FilePicker.platform.pickFiles(
-                                type: FileType.image,
-                              );
-                              PlatformFile file = result.files.first;
-                              if (result != "") {
-                                setState(() {
-                                  imgPath = file.path.toString();
-                                });
-                                _image = new File(imgPath);
-                                extention = file.extension;
-                                print("this is image : " +
-                                    _image.absolute.path.toString());
-                              }
-                            },
-                            child: imgPath == ""
-                                ? CircleAvatar(
-                              radius: 40,
-                              backgroundColor: Colors.white,
-                              backgroundImage:
-                              AssetImage('assets/images/user.png'),
-                            )
-                                : CircleAvatar(
-                              radius: 40,
-                              backgroundColor: Colors.white,
-                              backgroundImage: FileImage(File('$imgPath')),
-                            )),
-                        Container(
-                          padding: EdgeInsets.only(left: 5),
-                          height: 40,
-                          width: 140,
-                          child: TextFormField(
-                            decoration: const InputDecoration(
-                              hintText: 'Enter project code',
-                            ),
-                            controller: projectCode,
-                            keyboardType: TextInputType.text,
-                          ),
-                        ),
+                       GestureDetector(
+                              onTap: () async {
+                                print("image path" + imgPath);
+                                print("Entering to file picker........");
+                                FilePickerResult? result =
+                                await FilePicker.platform.pickFiles(
+                                  type: FileType.image,
+                                );
+                                PlatformFile file = result.files.first;
+                                if (result != "") {
+                                  setState(() {
+                                    imgPath = file.path.toString();
+                                  });
+                                  _image = new File(imgPath);
+                                  extention = file.extension;
+                                  print("this is image : " +
+                                      _image.absolute.path.toString());
+                                }
+                              },
+                              child: imgPath == ""
+                                  ? CircleAvatar(
+                                radius: 50,
+                                backgroundColor: Colors.white,
+                                backgroundImage:
+                                AssetImage('assets/images/user.png'),
+                              ) : CircleAvatar(
+                                radius: 50,
+                                backgroundColor: Colors.white,
+                                backgroundImage: FileImage(File('$imgPath')),
+                              )),
+
                       ],
                     ),
                     TextFormField(
@@ -170,10 +158,11 @@ class _CustomerState extends State<Customer> {
                                       passWd.text.isEmpty ||
                                       mailId.text.isEmpty ||
                                       phnNum.text.length < 10 ||
-                                      _image.path == ''||clientNm.text.isEmpty||projectCode.text.length<5&&projectCode.text.isEmpty) {
+                                      _image.path == ''||
+                                      clientNm.text.isEmpty||projectCode.text.length<5&&projectCode.text.isEmpty) {
                                     print("value not entered......");
                                     Fluttertoast.showToast(
-                                        msg: 'Please check your values!',
+                                        msg: 'Please check your values! or Profile Image',
                                         toastLength: Toast.LENGTH_LONG,
                                         gravity: ToastGravity.BOTTOM,
                                         timeInSecForIosWeb: 1,
@@ -255,7 +244,6 @@ class _CustomerState extends State<Customer> {
         'Password': pass,
         'Email': mail,
         'Phonenumber': phn,
-        'Projectcode':proCode,
         'Createdon': formatter.format(DateTime.now()),
         'Createdby': '$createdBy'
       });
@@ -602,7 +590,7 @@ class _CustomerState extends State<Customer> {
                                               .toLowerCase(),
                                       style: TextStyle(fontSize: 17.5),
                                     ),
-                                    subtitle: Text(data[index].proectCode.toString()),
+                                    subtitle: Text(data[index].Email.toString(),maxLines: 1,),
                                     trailing: IconButton(
                                       onPressed: () {
                                         passDatatoScren(index);

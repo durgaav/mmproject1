@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -44,8 +45,20 @@ class _TicketsState extends State<Tickets> {
 
   //region Functions
   Future<void> passDataToView(int index) async{
+    List<String> files = [];
+
+    for(int i=0;i<ticketDetails[index].tickets!.files.length;i++){
+      // print(ticketDetails[index].tickets!.files![i].filepath);
+      files.add(ticketDetails[index].tickets!.files[i].filepath);
+    }
+
+
 
     var pref = await SharedPreferences.getInstance();
+    pref.remove('Files');
+    pref.setStringList('Files', files);
+
+    print(files);
 
     //Deleting prefs
     pref.remove("tickId");
@@ -76,7 +89,6 @@ class _TicketsState extends State<Tickets> {
     pref.remove("tmCompleteUpdatedBy");
     pref.remove("tmCompleteModifiedOn");
     pref.remove("tmCompleteModifiedBy");
-
 
     //Adding prefs
     pref.setString("tickId", ticketDetails[index].tickets!.ticketsId.toString()??'');
@@ -124,20 +136,29 @@ class _TicketsState extends State<Tickets> {
       }
       else if (usertype == "team") {
         response = await http.get(Uri.parse(
-            "https://mindmadetech.in/api/tickets/Teamtickets/$currentUser"));
+            "https://mindmadetech.in/api/tickets/Teamtickets/$currentUser")
+        );
       }
       else {
         response = await http.get(Uri.parse(
-            "https://mindmadetech.in/api/tickets/customertickets/$currentUser"));
+            "https://mindmadetech.in/api/tickets/listtest"
+        ));
       }
       print(response.statusCode);
       if (response.statusCode == 200) {
-        List body = [];
+        List body = jsonDecode(response.body);;
         setState(() {
           //tap again - visible
           retryVisible = false;
-          body = jsonDecode(response.body);
-          ticketDetails = body.map((e) => sampleTickets.fromJson(e)).toList();
+          if(usertype=="admin"){
+            ticketDetails = body.map((e) => sampleTickets.fromJson(e)).toList();
+          }else if(usertype == "client"){
+            print(currentUser);
+            List filtered = body.where((element) => element['Tickets']["Username"].toString()=="$currentUser").toList();
+            ticketDetails = filtered.map((e) => sampleTickets.fromJson(e)).toList();
+          }else{
+
+          }
         });
         Navigator.pop(context);
       }
@@ -471,49 +492,71 @@ class _TicketsState extends State<Tickets> {
                                         leading: Container(
                                           child: Stack(
                                               children: <Widget>[
-                                                CircleAvatar(radius: 40,
-                                                  backgroundImage: AssetImage(
-                                                      'assets/images/loginimg.png'),
+                                                CircleAvatar(
+                                                  radius: 35,
+                                                  backgroundColor: Colors.primaries[Random().nextInt(Colors.primaries.length)],
+                                                  child: Text(
+                                                      ticketDetails[index].tickets!.username!=null?
+                                                      ticketDetails[index].tickets!.username[0].toUpperCase():"Un named"[0].toUpperCase(),
+                                                      style: TextStyle(
+                                                      color: Colors.white,fontSize: 25,fontWeight: FontWeight.w900
+                                                  ),),
                                                 ),
                                                 ticketDetails[index].tickets!.status.toString().toLowerCase() ==
                                                     "completed"
                                                     ? Positioned(
                                                     left: 50,
-                                                    top: 40,
+                                                    top: 35,
                                                     child: CircleAvatar(
-                                                      backgroundColor: Colors
-                                                          .green,
-                                                      radius: 8,
+                                                      radius: 9,
+                                                      backgroundColor: Colors.white,
+                                                      child: CircleAvatar(
+                                                        backgroundColor: Colors
+                                                            .green,
+                                                        radius: 8,
+                                                      ),
                                                     )
                                                 ):ticketDetails[index].tickets!.status.toString().toLowerCase()==
                                                     "inprogress" ?
                                                 Positioned(
                                                     left: 50,
-                                                    top: 40,
+                                                    top: 35,
                                                     child: CircleAvatar(
-                                                      backgroundColor: Colors
-                                                          .yellowAccent,
-                                                      radius: 8,
+                                                      radius: 9,
+                                                      backgroundColor: Colors.white,
+                                                      child: CircleAvatar(
+                                                        backgroundColor: Colors
+                                                            .yellowAccent,
+                                                        radius: 8,
+                                                      ),
                                                     )
-                                                ) : ticketDetails[index].tickets!.status.toString().toLowerCase() ==
+                                                ) : ticketDetails[index].tickets!.status.toString() ==
                                                     "new" ?
                                                 Positioned(
                                                     left: 50,
-                                                    top: 40,
-                                                    child: CircleAvatar(
-                                                      backgroundColor: Colors
-                                                          .blue,
-                                                      radius: 8,
+                                                    top: 35,
+                                                    child:CircleAvatar(
+                                                      radius: 9,
+                                                      backgroundColor: Colors.white,
+                                                      child: CircleAvatar(
+                                                        backgroundColor: Colors
+                                                            .blue,
+                                                        radius: 8,
+                                                      ),
                                                     )
                                                 ):ticketDetails[index].tickets!.status.toString().toLowerCase() ==
                                                     "started" ?
                                                 Positioned(
                                                     left: 50,
-                                                    top: 40,
+                                                    top: 35,
                                                     child: CircleAvatar(
-                                                      backgroundColor: Colors
-                                                          .red,
-                                                      radius: 8,
+                                                      radius: 9,
+                                                      backgroundColor: Colors.white,
+                                                      child: CircleAvatar(
+                                                        backgroundColor: Colors
+                                                            .red,
+                                                        radius: 8,
+                                                      ),
                                                     )
                                                 ):SizedBox()
                                               ]
@@ -573,59 +616,78 @@ class _TicketsState extends State<Tickets> {
                                           leading: Container(
                                             child: Stack(
                                                 children: <Widget>[
-                                                  CircleAvatar(radius: 40,
-                                                    backgroundImage: AssetImage(
-                                                        'assets/images/loginimg.png'),
+                                                  CircleAvatar(
+                                                    radius: 35,
+                                                    backgroundColor: Colors.primaries[Random().nextInt(Colors.primaries.length)],
+                                                    child: Text(
+                                                      ticketDetails[index].tickets!.username!=null?
+                                                      ticketDetails[index].tickets!.username[0].toUpperCase():"Un named"[0].toUpperCase(),
+                                                      style: TextStyle(
+                                                      color: Colors.white,fontSize: 25,fontWeight: FontWeight.w900
+                                                    ),),
                                                   ),
                                                   ticketDetails[index].tickets!.status.toString().toLowerCase() ==
                                                       "completed"
                                                       ? Positioned(
                                                       left: 50,
-                                                      top: 40,
+                                                      top: 35,
                                                       child: CircleAvatar(
-                                                        backgroundColor: Colors
-                                                            .green,
-                                                        radius: 8,
+                                                        radius: 9,
+                                                        backgroundColor: Colors.white,
+                                                        child: CircleAvatar(
+                                                          backgroundColor: Colors
+                                                              .green,
+                                                          radius: 8,
+                                                        ),
                                                       )
                                                   ):ticketDetails[index].tickets!.status.toString().toLowerCase() ==
                                                       "inprogress" ?
                                                   Positioned(
                                                       left: 50,
-                                                      top: 40,
+                                                      top: 35,
                                                       child: CircleAvatar(
-                                                        backgroundColor: Colors
-                                                            .yellowAccent,
-                                                        radius: 8,
+                                                        radius: 9,
+                                                        backgroundColor: Colors.white,
+                                                        child: CircleAvatar(
+                                                          backgroundColor: Colors
+                                                              .yellowAccent,
+                                                          radius: 8,
+                                                        ),
                                                       )
                                                   ) : ticketDetails[index].tickets!.status.toString().toLowerCase() ==
                                                       "new" ?
                                                   Positioned(
                                                       left: 50,
-                                                      top: 40,
+                                                      top: 35,
                                                       child: CircleAvatar(
-                                                        backgroundColor: Colors
-                                                            .blue,
-                                                        radius: 8,
+                                                        radius: 9,
+                                                        backgroundColor: Colors.white,
+                                                        child: CircleAvatar(
+                                                          backgroundColor: Colors
+                                                              .blue,
+                                                          radius: 8,
+                                                        ),
                                                       )
                                                   ) : ticketDetails[index].tickets!.status.toString().toLowerCase()==
                                                       "started" ? Positioned(
                                                       left: 50,
-                                                      top: 40,
+                                                      top: 35,
                                                       child: CircleAvatar(
-                                                        backgroundColor: Colors
-                                                            .red,
-                                                        radius: 8,
+                                                        radius: 9,
+                                                        backgroundColor: Colors.white,
+                                                        child: CircleAvatar(
+                                                          backgroundColor: Colors
+                                                              .red,
+                                                          radius: 8,
+                                                        ),
                                                       )
                                                   ) : SizedBox()
                                                 ]
                                             ),
                                           ),
-                                          title: Text(ticketDetails[index].tickets!.username[0]
-                                              .toUpperCase()
-                                              +
-                                              ticketDetails[index].tickets!.username.substring(
-                                                  1), style: TextStyle(
-                                              fontSize: 17.5),),
+                                          title: ticketDetails[index].tickets!.username!=null?Text(ticketDetails[index].tickets!.username[0].toUpperCase()
+                                              + ticketDetails[index].tickets!.username.substring(1), style: TextStyle(
+                                              fontSize: 17.5),):Text('Un named'),
                                           subtitle: Text("Status : "+ticketDetails[index].tickets!.status.toString().toLowerCase()),
                                           trailing: IconButton(
                                             onPressed: () {
