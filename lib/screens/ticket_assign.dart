@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import "package:flutter/material.dart";
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
@@ -21,6 +22,7 @@ class _TicketAssignState extends State<TicketAssign> {
 
   String ticketId = "";
   String updatedBy = '';
+  String description = '';
   _TicketAssignState({required this.ticketId,required this.updatedBy});
 
   String? currentUser = '';
@@ -70,6 +72,7 @@ class _TicketAssignState extends State<TicketAssign> {
           }
         });
         Navigator.pop(context);
+
       }
       else{
         hasNetwork();
@@ -170,6 +173,7 @@ class _TicketAssignState extends State<TicketAssign> {
 
     if (response.statusCode == 200) {
       Navigator.pop(context);
+      Navigator.pop(context);
       Fluttertoast.showToast(
           msg: "Team assigned!",
           toastLength: Toast.LENGTH_LONG,
@@ -200,6 +204,7 @@ class _TicketAssignState extends State<TicketAssign> {
     var pref = await SharedPreferences.getInstance();
     setState(() {
       currentUser = pref.getString('username')!;
+      description = pref.getString('Desc')!;
     });
     print(currentUser);
   }
@@ -243,6 +248,37 @@ class _TicketAssignState extends State<TicketAssign> {
         ),
         appBar: AppBar(
           actions: [
+            IconButton(
+                onPressed: (){
+                  showModalBottomSheet(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                     ),
+                      context: context, builder: (context){
+                        return Container(
+                          padding: EdgeInsets.all(15),
+                          height: 250,
+                          child: SingleChildScrollView(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text("User's Report",style: TextStyle(
+                                  color: Colors.red , fontSize: 20,fontWeight: FontWeight.bold
+                                ),),
+                                SizedBox(height: 20,),
+                                Text('$description',style: TextStyle(
+                                    color: Colors.black , fontSize: 15
+                                ),textAlign: TextAlign.center,),
+                              ],
+                            ),
+                          ),
+                        );
+                  }
+                  );
+                },
+                icon: Icon(Icons.info)
+            ),
             PopupMenuButton(
                 icon: Icon(Icons.filter_alt_outlined),
                 itemBuilder: (context) =>

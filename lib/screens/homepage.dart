@@ -609,7 +609,7 @@ class _HomePageState extends State<HomePage> {
                     children:<Widget> [
                       IconButton(
                         padding: EdgeInsets.only(right: 20),
-                        icon: const Icon(Icons.add_alert,size: 30,),
+                        icon: const Icon(Icons.notifications,size: 30,),
                         onPressed: (){
                           Navigator.push(context,
                             MaterialPageRoute(builder: (context)=>NotifScreen()),);

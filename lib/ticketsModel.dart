@@ -18,68 +18,68 @@ class sampleTickets {
 }
 
 class Tickets {
-  int? ticketsId;
-  String? username;
-  String? email;
-  String? phonenumber;
-  String? domainName;
-  String? description;
-  String? status;
-  String? notification;
-  String? cusCreatedOn;
-  Null? cusModifiedOn;
-  Null? admCreatedOn;
-  Null? admCreatedBy;
-  String? admUpdatedOn;
-  String? admUpdatedBy;
-  Null? admModifiedOn;
-  Null? admModifiedBy;
-  String? tmStartUpdatedOn;
-  String? tmStartUpdatedBy;
-  Null? tmStartModifiedOn;
-  Null? tmStartModifiedBy;
-  String? tmProcessUpdatedOn;
-  String? tmProcessUpdatedBy;
-  Null? tmProcessModifiedOn;
-  Null? tmProcessModifiedBy;
-  String? tmCompleteUpdatedOn;
-  String? tmCompleteUpdatedBy;
-  Null? tmCompleteModifiedOn;
-  Null? tmCompleteModifiedBy;
+  int ticketsId = 0;
+  String username ="";
+  String email ="";
+  String phonenumber ="";
+  String domainName ="";
+  String description ="";
+  String status ="";
+  String notification ="";
+  String cusCreatedOn ="";
+  String cusModifiedOn ="";
+  String admCreatedOn ="";
+  String admCreatedBy ="";
+  String admUpdatedOn ="";
+  String admUpdatedBy ="";
+  String admModifiedOn ="";
+  String admModifiedBy ="";
+  String tmStartUpdatedOn ="";
+  String tmStartUpdatedBy ="";
+  String tmStartModifiedOn ="";
+  String tmStartModifiedBy ="";
+  String tmProcessUpdatedOn ="";
+  String tmProcessUpdatedBy ="";
+  String tmProcessModifiedOn ="";
+  String tmProcessModifiedBy ="";
+  String tmCompleteUpdatedOn ="";
+  String tmCompleteUpdatedBy ="";
+  String tmCompleteModifiedOn ="";
+  String tmCompleteModifiedBy ="";
   List<Files>? files;
   List<TeamAssign>? teamAssign;
 
   Tickets(
       {required this.ticketsId,
-        this.username,
-        this.email,
-        this.phonenumber,
-        this.domainName,
-        this.description,
-        this.status,
-        this.notification,
-        this.cusCreatedOn,
-        this.cusModifiedOn,
-        this.admCreatedOn,
-        this.admCreatedBy,
-        this.admUpdatedOn,
-        this.admUpdatedBy,
-        this.admModifiedOn,
-        this.admModifiedBy,
-        this.tmStartUpdatedOn,
-        this.tmStartUpdatedBy,
-        this.tmStartModifiedOn,
-        this.tmStartModifiedBy,
-        this.tmProcessUpdatedOn,
-        this.tmProcessUpdatedBy,
-        this.tmProcessModifiedOn,
-        this.tmProcessModifiedBy,
-        this.tmCompleteUpdatedOn,
-        this.tmCompleteUpdatedBy,
-        this.tmCompleteModifiedOn,
-        this.tmCompleteModifiedBy,
-        this.files,
-        this.teamAssign});
+        required this.username,
+        required this.email,
+        required this.phonenumber,
+        required this.domainName,
+        required this.description,
+        required this.status,
+        required this.notification,
+        required this.cusCreatedOn,
+        required this.cusModifiedOn,
+        required this.admCreatedOn,
+        required this.admCreatedBy,
+        required this.admUpdatedOn,
+        required this.admUpdatedBy,
+        required this.admModifiedOn,
+        required this.admModifiedBy,
+        required this.tmStartUpdatedOn,
+        required this.tmStartUpdatedBy,
+        required this.tmStartModifiedOn,
+        required this.tmStartModifiedBy,
+        required this.tmProcessUpdatedOn,
+        required this.tmProcessUpdatedBy,
+        required this.tmProcessModifiedOn,
+        required this.tmProcessModifiedBy,
+        required this.tmCompleteUpdatedOn,
+        required this.tmCompleteUpdatedBy,
+        required this.tmCompleteModifiedOn,
+        required this.tmCompleteModifiedBy,
+        required this.files,
+        required this.teamAssign});
 
   Tickets.fromJson(Map<String, dynamic> json) {
     ticketsId = json['ticketsId'];
@@ -88,7 +88,7 @@ class Tickets {
     phonenumber = json['Phonenumber'];
     domainName = json['DomainName'];
     description = json['Description'];
-    status = json['Status'];
+    status = json['Status'].toString().toLowerCase();
     notification = json['Notification'];
     cusCreatedOn = json['Cus_CreatedOn'];
     cusModifiedOn = json['Cus_ModifiedOn'];
@@ -165,11 +165,11 @@ class Tickets {
 }
 
 class Files {
-  int? fileId;
-  int? ticketsId;
-  String? filepath;
+  int fileId = 0;
+  int ticketsId = 0;
+  String filepath = "";
 
-  Files({this.fileId, this.ticketsId, this.filepath});
+  Files({required this.fileId, required this.ticketsId, required this.filepath});
 
   Files.fromJson(Map<String, dynamic> json) {
     fileId = json['fileId'];
@@ -187,54 +187,54 @@ class Files {
 }
 
 class TeamAssign {
-  int? ticketsAssignId;
-  int? ticketsId;
-  int? teamId;
-  Null? username;
-  Null? email;
-  String? status;
-  String? admUpdatedOn;
-  String? admUpdatedBy;
-  Null? admModifiedOn;
-  Null? admModifiedBy;
-  String? tmStartUpdatedOn;
-  String? tmStartUpdatedBy;
-  Null? tmStartModifiedOn;
-  Null? tmStartModifiedBy;
-  String? tmProcessUpdatedOn;
-  String? tmProcessUpdatedBy;
-  Null? tmProcessModifiedOn;
-  Null? tmProcessModifiedBy;
-  String? tmCompleteUpdatedOn;
-  String? tmCompleteUpdatedBy;
-  Null? tmCompleteModifiedOn;
-  Null? tmCompleteModifiedBy;
-  String? isdeleted;
+  int ticketsAssignId = 0;
+  int ticketsId = 0;
+  int teamId = 0;
+  String username = "";
+  String email= "";
+  String status= "";
+  String admUpdatedOn= "";
+  String admUpdatedBy= "";
+  String admModifiedOn= "";
+  String admModifiedBy= "";
+  String tmStartUpdatedOn= "";
+  String tmStartUpdatedBy= "";
+  String tmStartModifiedOn= "";
+  String tmStartModifiedBy= "";
+  String tmProcessUpdatedOn= "";
+  String tmProcessUpdatedBy= "";
+  String tmProcessModifiedOn= "";
+  String tmProcessModifiedBy= "";
+  String tmCompleteUpdatedOn= "";
+  String tmCompleteUpdatedBy= "";
+  String tmCompleteModifiedOn= "";
+  String tmCompleteModifiedBy= "";
+  String isdeleted= "";
 
   TeamAssign(
-      {this.ticketsAssignId,
-        this.ticketsId,
-        this.teamId,
-        this.username,
-        this.email,
-        this.status,
-        this.admUpdatedOn,
-        this.admUpdatedBy,
-        this.admModifiedOn,
-        this.admModifiedBy,
-        this.tmStartUpdatedOn,
-        this.tmStartUpdatedBy,
-        this.tmStartModifiedOn,
-        this.tmStartModifiedBy,
-        this.tmProcessUpdatedOn,
-        this.tmProcessUpdatedBy,
-        this.tmProcessModifiedOn,
-        this.tmProcessModifiedBy,
-        this.tmCompleteUpdatedOn,
-        this.tmCompleteUpdatedBy,
-        this.tmCompleteModifiedOn,
-        this.tmCompleteModifiedBy,
-        this.isdeleted});
+      {required this.ticketsAssignId,
+        required this.ticketsId,
+        required this.teamId,
+        required this.username,
+        required this.email,
+        required this.status,
+        required this.admUpdatedOn,
+        required this.admUpdatedBy,
+        required this.admModifiedOn,
+        required this.admModifiedBy,
+        required this.tmStartUpdatedOn,
+        required this.tmStartUpdatedBy,
+        required this.tmStartModifiedOn,
+        required this.tmStartModifiedBy,
+        required this.tmProcessUpdatedOn,
+        required this.tmProcessUpdatedBy,
+        required this.tmProcessModifiedOn,
+        required this.tmProcessModifiedBy,
+        required this.tmCompleteUpdatedOn,
+        required this.tmCompleteUpdatedBy,
+        required this.tmCompleteModifiedOn,
+        required this.tmCompleteModifiedBy,
+        required this.isdeleted});
 
   TeamAssign.fromJson(Map<String, dynamic> json) {
     ticketsAssignId = json['tickets_assignId'];

@@ -21,11 +21,12 @@ class TicketViewPage extends StatefulWidget {
 class _TicketViewPageState extends State<TicketViewPage> {
   //region Strings
   String ticketId = '';
+  String Notification='';
   String Username = '';
   String Email = '';
   String Phonenumber = '';
   String DomainName = '';
-  String Date = '';
+  String CusCreatedOn = '';
   String Description = '';
   String Team = '';
   String Status = '';
@@ -673,34 +674,34 @@ class _TicketViewPageState extends State<TicketViewPage> {
     var pref = await SharedPreferences.getInstance();
 
     setState(() {
-      projectCode = pref.getString('project_Code')!;
-      adm_update_by=pref.getString('adm_update_by')!;
-      statusUpdateTime=pref.getString('statusUpdateTime')!;
-      Description=pref.getString('Description')!;
-      tm_CompModby=pref.getString('tm_CompModby')!;
-      DomainName=pref.getString('DomainName')!;
-      Screenshots=pref.getString('Screenshots')!;
-      tm_procesModBy=pref.getString('tm_procesModBy')!;
-      Date=pref.getString( 'Date')!;
-      Email=pref.getString('Email')!;
-      tm_cmpleUpdOn= pref.getString('tm_cmpleUpdOn')!;
-      createdOn =pref.getString('createdOn')!;
-      ticketId=pref.getString( 'ticketId')!;
-      adm_mod_by=pref.getString('adm_mod_by')!;
-      adm_updte_on=pref.getString('adm_updte_on')!;
-      tm_compleupBy =pref.getString('tm_compleupBy')!;
-      Username=pref.getString( 'Username')!;
-      Phonenumber= pref.getString('Phonenumber')!;
-      Status=pref.getString( 'Status')!;
-      tm_startupdateBy=pref.getString('tm_startupdateBy')!;
-      tm_procesupdBy=pref.getString('tm_procesupdBy')!;
-      tm_procesModOn=pref.getString('tm_procesModOn')!;
-      tm_CompModOn=pref.getString('tm_CompModOn')!;
-      tm_startModBy =pref.getString('tm_startModBy')!;
-      Team= pref.getString('Team')!;
-      tm_startupdateon=pref.getString('tm_startupdateon')!;
-      tm_procesupdOn =pref.getString('tm_procesupdOn')!;
-      tm_startModon =pref.getString('tm_startModon')!;
+     ticketId = pref.getString("tickId")!;
+     Username = pref.getString("UserName")!;
+     Email = pref.getString("MailID")!;
+     Phonenumber = pref.getString("PhoneNum")!;
+     DomainName = pref.getString("DomainNm")!;
+     Description = pref.getString("Desc")!;
+     Status = pref.getString("Statuses")!;
+     Notification = pref.getString("Notify")!;
+     createdOn = pref.getString("cusCreatedOn")!;
+      // pref.getString("cusModifiedOn")!;
+      // pref.getString("admCreatedOn")!;
+      // pref.getString("admCreatedBy")!;
+     adm_modify_on = pref.getString("admModifiedOn")!;
+     adm_mod_by = pref.getString("admModifiedBy")!;
+     adm_updte_on = pref.getString("admUpdatedOn")!;
+     adm_mod_by = pref.getString("admUpdatedBy")!;
+     tm_startupdateon = pref.getString("tmStartUpdatedOn")!;
+     tm_startupdateBy = pref.getString("tmStartUpdatedBy")!;
+     tm_startModon = pref.getString("tmStartModifiedOn")!;
+     tm_startModBy = pref.getString("tmStartModifiedBy")!;
+     tm_procesupdOn = pref.getString("tmProcessUpdatedOn")!;
+     tm_procesupdBy= pref.getString("tmProcessUpdatedBy")!;
+     tm_procesModOn = pref.getString("tmProcessModifiedOn")!;
+     tm_procesModBy = pref.getString("tmProcessModifiedBy")!;
+     tm_startupdateon = pref.getString("tmCompleteUpdatedOn")!;
+     tm_startupdateBy = pref.getString("tmCompleteUpdatedBy")!;
+     tm_startModon = pref.getString("tmCompleteModifiedOn")!;
+     tm_startModBy = pref.getString("tmCompleteModifiedBy")!;
     });
 
   }

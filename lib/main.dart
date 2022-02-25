@@ -49,8 +49,8 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // body: loginStatus=="true"?HomePage():LoginPage(),
-      body:Test()
+      body: loginStatus=="true"?HomePage():LoginPage(),
+      // body:Test()
     );
   }
 }

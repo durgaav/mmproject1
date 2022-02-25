@@ -4,6 +4,8 @@ import 'package:flutter/cupertino.dart';
 import'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mmcustomerservice/screens/ticketview.dart';
+import 'package:mmcustomerservice/test_screen.dart';
+import 'package:mmcustomerservice/ticketsModel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Tickets extends StatefulWidget {
@@ -27,7 +29,7 @@ class _TicketsState extends State<Tickets> {
 
   //region Variables
   String sortString = "user";
-  List<GetTicket> ticketDetails = [];
+  List<sampleTickets> ticketDetails = [];
   TextEditingController searchController = new TextEditingController();
   String searchText = "";
   String hintText = "Search";
@@ -42,87 +44,71 @@ class _TicketsState extends State<Tickets> {
 
   //region Functions
   Future<void> passDataToView(int index) async{
-    String des='',dev='',seo='',ser='';
-    if(ticketDetails[index].design=='y'){
-      setState(() {
-        des = 'Design';
-      });
-    }if(ticketDetails[index].development=='y'){
-      setState(() {
-        dev = 'Development';
-      });
-    }if(ticketDetails[index].seo=='y'){
-      setState(() {
-        seo = 'Seo';
-      });
-    }if(ticketDetails[index].server=='y'){
-      setState(() {
-        ser = 'Server';
-      });
-    }
+
     var pref = await SharedPreferences.getInstance();
-    //Removing prefs
-    pref.remove('adm_modify_on');
-    pref.remove('adm_update_by');
-    pref.remove('statusUpdateTime');
-    pref.remove('Description');
-    pref.remove('tm_CompModby');
-    pref.remove('DomainName');
-    pref.remove('Screenshots');
-    pref.remove('tm_procesModBy');
-    pref.remove( 'Date');
-    pref.remove('Email');
-    pref.remove('tm_cmpleUpdOn');
-    pref.remove('createdOn');
-    pref.remove( 'ticketId');
-    pref.remove('adm_mod_by');
-    pref.remove('adm_updte_on');
-    pref.remove('tm_compleupBy');
-    pref.remove( 'Username');
-    pref.remove('Phonenumber');
-    pref.remove( 'Status');
-    pref.remove('tm_startupdateBy');
-    pref.remove('tm_procesupdBy');
-    pref.remove('tm_procesModOn');
-    pref.remove('tm_CompModOn');
-    pref.remove('tm_startModBy');
-    pref.remove('Team');
-    pref.remove('tm_startupdateon');
-    pref.remove('tm_procesupdOn');
-    pref.remove('tm_startModon');
-    pref.remove('project_Code');
 
-      pref.setString('adm_modify_on',ticketDetails[index].admModifiedOn??'');
-      pref.setString('project_Code',ticketDetails[index].projectCode??'');
-      pref.setString('adm_update_by',ticketDetails[index].admUpdatedBy??'');
-      pref.setString('statusUpdateTime',ticketDetails[index].status??'');
-      pref.setString('Description',ticketDetails[index].description??'');
-      pref.setString('tm_CompModby',ticketDetails[index].tmCompleteModifiedBy??'');
-      pref.setString('DomainName', ticketDetails[index].domainName??'');
-      pref.setString('Screenshots', ticketDetails[index].screenshots??'');
-      pref.setString('tm_procesModBy',ticketDetails[index].tmProcessModifiedBy??'');
-      pref.setString( 'Date', ticketDetails[index].cusCreatedOn??'');
-      pref.setString('Email',ticketDetails[index].email??'');
-      pref.setString('tm_cmpleUpdOn',ticketDetails[index].tmCompleteUpdatedOn??'');
-      pref.setString('createdOn',ticketDetails[index].cusCreatedOn??'');
-      pref.setString( 'ticketId', ticketDetails[index].ticketsId??'');
-      pref.setString('adm_mod_by',ticketDetails[index].admModifiedBy??'');
-      pref.setString('adm_updte_on', ticketDetails[index].admUpdatedOn??'');
-      pref.setString('tm_compleupBy',ticketDetails[index].tmCompleteUpdatedBy??'');
-      pref.setString( 'Username',ticketDetails[index].username??'');
-      pref.setString('Phonenumber', ticketDetails[index].phonenumber??'');
-      pref.setString( 'Status', ticketDetails[index].status??'');
-      pref.setString('tm_startupdateBy', ticketDetails[index].tmStartUpdatedBy??'');
-      pref.setString('tm_procesupdBy',ticketDetails[index].tmProcessUpdatedBy??'');
-      pref.setString('tm_procesModOn',ticketDetails[index].tmProcessModifiedOn??'');
-      pref.setString('tm_CompModOn',ticketDetails[index].tmCompleteModifiedOn??'');
-      pref.setString('tm_startModBy',ticketDetails[index].tmStartModifiedBy??'');
-      pref.setString('Team',des+" "+dev+" "+seo+" "+ser??'');
-      pref.setString('tm_startupdateon', ticketDetails[index].tmStartUpdatedOn??'');
-      pref.setString('tm_procesupdOn', ticketDetails[index].tmProcessUpdatedOn??'');
-      pref.setString('tm_startModon',ticketDetails[index].tmStartModifiedOn??'');
+    //Deleting prefs
+    pref.remove("tickId");
+    pref.remove("UserName");
+    pref.remove("MailID");
+    pref.remove("PhoneNum");
+    pref.remove("DomainNm");
+    pref.remove("Desc");
+    pref.remove("Statuses");
+    pref.remove("Notify");
+    pref.remove("cusCreatedOn");
+    pref.remove("cusModifiedOn");
+    pref.remove("admCreatedOn");
+    pref.remove("admCreatedBy");
+    pref.remove("admModifiedOn");
+    pref.remove("admModifiedBy");
+    pref.remove("admUpdatedOn");
+    pref.remove("admUpdatedBy");
+    pref.remove("tmStartUpdatedOn");
+    pref.remove("tmStartUpdatedBy");
+    pref.remove("tmStartModifiedOn");
+    pref.remove("tmStartModifiedBy");
+    pref.remove("tmProcessUpdatedOn");
+    pref.remove("tmProcessUpdatedBy");
+    pref.remove("tmProcessModifiedOn");
+    pref.remove("tmProcessModifiedBy");
+    pref.remove("tmCompleteUpdatedOn");
+    pref.remove("tmCompleteUpdatedBy");
+    pref.remove("tmCompleteModifiedOn");
+    pref.remove("tmCompleteModifiedBy");
 
-    //Loading prefs
+
+    //Adding prefs
+    pref.setString("tickId", ticketDetails[index].tickets!.ticketsId.toString());
+    pref.setString("UserName", ticketDetails[index].tickets!.username.toString());
+    pref.setString("MailID", ticketDetails[index].tickets!.email.toString());
+    pref.setString("PhoneNum", ticketDetails[index].tickets!.phonenumber.toString());
+    pref.setString("DomainNm", ticketDetails[index].tickets!.domainName.toString());
+    pref.setString("Desc", ticketDetails[index].tickets!.description.toString());
+    pref.setString("Statuses", ticketDetails[index].tickets!.status.toString());
+    pref.setString("Notify", ticketDetails[index].tickets!.notification.toString());
+    pref.setString("cusCreatedOn", ticketDetails[index].tickets!.cusCreatedOn.toString());
+    pref.setString("cusModifiedOn", ticketDetails[index].tickets!.cusModifiedOn.toString());
+    pref.setString("admCreatedOn", ticketDetails[index].tickets!.admCreatedOn.toString());
+    pref.setString("admCreatedBy", ticketDetails[index].tickets!.admCreatedBy.toString());
+    pref.setString("admModifiedOn", ticketDetails[index].tickets!.admModifiedOn.toString());
+    pref.setString("admModifiedBy", ticketDetails[index].tickets!.admModifiedBy.toString());
+    pref.setString("admUpdatedOn", ticketDetails[index].tickets!.admUpdatedOn.toString());
+    pref.setString("admUpdatedBy", ticketDetails[index].tickets!.admUpdatedBy.toString());
+    pref.setString("tmStartUpdatedOn", ticketDetails[index].tickets!.tmStartUpdatedOn.toString());
+    pref.setString("tmStartUpdatedBy", ticketDetails[index].tickets!.tmStartUpdatedBy.toString());
+    pref.setString("tmStartModifiedOn", ticketDetails[index].tickets!.tmStartModifiedOn.toString());
+    pref.setString("tmStartModifiedBy", ticketDetails[index].tickets!.tmStartModifiedBy.toString());
+    pref.setString("tmProcessUpdatedOn", ticketDetails[index].tickets!.tmProcessUpdatedOn.toString());
+    pref.setString("tmProcessUpdatedBy", ticketDetails[index].tickets!.tmProcessUpdatedBy.toString());
+    pref.setString("tmProcessModifiedOn", ticketDetails[index].tickets!.tmProcessModifiedOn.toString());
+    pref.setString("tmProcessModifiedBy", ticketDetails[index].tickets!.tmProcessModifiedBy.toString());
+    pref.setString("tmCompleteUpdatedOn", ticketDetails[index].tickets!.tmCompleteUpdatedOn.toString());
+    pref.setString("tmCompleteUpdatedBy", ticketDetails[index].tickets!.tmCompleteUpdatedBy.toString());
+    pref.setString("tmCompleteModifiedOn", ticketDetails[index].tickets!.tmCompleteModifiedOn.toString());
+    pref.setString("tmCompleteModifiedBy", ticketDetails[index].tickets!.tmCompleteModifiedBy.toString());
+
+
 
     Navigator.push(context,MaterialPageRoute(builder: (context)=>TicketViewPage()));
 
@@ -134,7 +120,7 @@ class _TicketsState extends State<Tickets> {
       http.Response response;
       if (usertype == "admin") {
         response =
-        await http.get(Uri.parse("https://mindmadetech.in/api/tickets/list"));
+        await http.get(Uri.parse("https://mindmadetech.in/api/tickets/listtest"));
       }
       else if (usertype == "team") {
         response = await http.get(Uri.parse(
@@ -151,7 +137,7 @@ class _TicketsState extends State<Tickets> {
           //tap again - visible
           retryVisible = false;
           body = jsonDecode(response.body);
-          ticketDetails = body.map((e) => GetTicket.fromJson(e)).toList();
+          ticketDetails = body.map((e) => sampleTickets.fromJson(e)).toList();
         });
         Navigator.pop(context);
       }
@@ -327,7 +313,7 @@ class _TicketsState extends State<Tickets> {
                         isVisible = false;
                         isSorted = true;
                         FocusScope.of(context).unfocus();
-                        filtered = ticketDetails.where((element) => element.status=='$sortString').toList();
+                        filtered = ticketDetails.where((element) => element.tickets!.status=='$sortString').toList();
                       });
                     },
                     child:Row(
@@ -352,7 +338,7 @@ class _TicketsState extends State<Tickets> {
                           isVisible = false;
                           isSorted = true;
                           print(sortString);
-                          filtered = ticketDetails.where((element) => element.status=='$sortString').toList();
+                          filtered = ticketDetails.where((element) => element.tickets!.status=='$sortString').toList();
                         });
                       },
                       child: Row(
@@ -373,7 +359,7 @@ class _TicketsState extends State<Tickets> {
                           sortString = "new";
                           isVisible = false;
                           isSorted = true;
-                          filtered = ticketDetails.where((element) => element.status=='$sortString').toList();
+                          filtered = ticketDetails.where((element) =>element.tickets!.status=='$sortString').toList();
                         });
                       },
                       child: Row(
@@ -394,7 +380,7 @@ class _TicketsState extends State<Tickets> {
                           sortString = "started";
                           isVisible = false;
                           isSorted = true;
-                          filtered = ticketDetails.where((element) => element.status=='$sortString').toList();
+                          filtered = ticketDetails.where((element) => element.tickets!.status=='$sortString').toList();
                         });
                       },
                       child: Row(
@@ -466,12 +452,19 @@ class _TicketsState extends State<Tickets> {
                         child: ticketDetails.length>0?ListView.builder(
                             itemCount: ticketDetails.length,
                             itemBuilder: (BuildContext context, int index) {
-                              return ticketDetails[index].username.toLowerCase().contains(searchText.toLowerCase()) ?
+                              return
+                                ticketDetails[index].tickets!.username!.toLowerCase().
+                                contains(searchText.toLowerCase()) ?
                               Column(
                                   children: <Widget>[
                                     Container(
                                       height: 70,
                                       child: ListTile(
+                                        onLongPress: (){
+                                          Navigator.push(context,MaterialPageRoute(builder: (context)
+                                              => Test()
+                                          ));
+                                        },
                                         onTap: () {
                                           passDataToView(index);
                                         },
@@ -482,7 +475,7 @@ class _TicketsState extends State<Tickets> {
                                                   backgroundImage: AssetImage(
                                                       'assets/images/loginimg.png'),
                                                 ),
-                                                ticketDetails[index].status.toLowerCase() ==
+                                                ticketDetails[index].tickets!.status!.toLowerCase() ==
                                                     "completed"
                                                     ? Positioned(
                                                     left: 50,
@@ -492,7 +485,7 @@ class _TicketsState extends State<Tickets> {
                                                           .green,
                                                       radius: 8,
                                                     )
-                                                ):ticketDetails[index].status.toLowerCase() ==
+                                                ):ticketDetails[index].tickets!.status!.toLowerCase() ==
                                                     "inprogress" ?
                                                 Positioned(
                                                     left: 50,
@@ -502,7 +495,7 @@ class _TicketsState extends State<Tickets> {
                                                           .yellowAccent,
                                                       radius: 8,
                                                     )
-                                                ) : ticketDetails[index].status.toLowerCase() ==
+                                                ) : ticketDetails[index].tickets!.status!.toLowerCase() ==
                                                     "new" ?
                                                 Positioned(
                                                     left: 50,
@@ -512,7 +505,7 @@ class _TicketsState extends State<Tickets> {
                                                           .blue,
                                                       radius: 8,
                                                     )
-                                                ):ticketDetails[index].status.toLowerCase() ==
+                                                ):ticketDetails[index].tickets!.status!.toLowerCase() ==
                                                     "started" ?
                                                 Positioned(
                                                     left: 50,
@@ -526,9 +519,10 @@ class _TicketsState extends State<Tickets> {
                                               ]
                                           ),
                                         ),
-                                        title: Text(ticketDetails[index].username[0].toUpperCase() +ticketDetails[index].username.substring(1), style: TextStyle(
+                                        title: Text(ticketDetails[index].tickets!.username![0].toUpperCase()
+                                            + ticketDetails[index].tickets!.username!.substring(1), style: TextStyle(
                                             fontSize: 17.5),),
-                                        subtitle: Text("Status : "+ticketDetails[index].status),
+                                        subtitle: Text("Status : "+ticketDetails[index].tickets!.status!),
                                         trailing: IconButton(
                                           onPressed: () {
                                             passDataToView(index);
@@ -565,8 +559,8 @@ class _TicketsState extends State<Tickets> {
                         child:filtered.length>0?ListView.builder(
                             itemCount: ticketDetails.length,
                             itemBuilder: (BuildContext context, int index) {
-                                return ticketDetails[index].status == sortString ?
-                                ticketDetails[index].username.toLowerCase()
+                                return ticketDetails[index].tickets!.status! == sortString ?
+                                ticketDetails[index].tickets!.username!.toLowerCase()
                                     .contains(searchText.toLowerCase())
                                     ? Column(
                                     children: <Widget>[
@@ -583,7 +577,7 @@ class _TicketsState extends State<Tickets> {
                                                     backgroundImage: AssetImage(
                                                         'assets/images/loginimg.png'),
                                                   ),
-                                                  ticketDetails[index].status ==
+                                                  ticketDetails[index].tickets!.status! ==
                                                       "completed"
                                                       ? Positioned(
                                                       left: 50,
@@ -593,7 +587,7 @@ class _TicketsState extends State<Tickets> {
                                                             .green,
                                                         radius: 8,
                                                       )
-                                                  ):ticketDetails[index].status.toLowerCase() ==
+                                                  ):ticketDetails[index].tickets!.status!.toLowerCase() ==
                                                       "inprogress" ?
                                                   Positioned(
                                                       left: 50,
@@ -603,7 +597,7 @@ class _TicketsState extends State<Tickets> {
                                                             .yellowAccent,
                                                         radius: 8,
                                                       )
-                                                  ) : ticketDetails[index].status.toLowerCase() ==
+                                                  ) : ticketDetails[index].tickets!.status!.toLowerCase() ==
                                                       "new" ?
                                                   Positioned(
                                                       left: 50,
@@ -613,7 +607,7 @@ class _TicketsState extends State<Tickets> {
                                                             .blue,
                                                         radius: 8,
                                                       )
-                                                  ) : ticketDetails[index].status.toLowerCase() ==
+                                                  ) : ticketDetails[index].tickets!.status!.toLowerCase() ==
                                                       "started" ? Positioned(
                                                       left: 50,
                                                       top: 40,
@@ -626,13 +620,13 @@ class _TicketsState extends State<Tickets> {
                                                 ]
                                             ),
                                           ),
-                                          title: Text(ticketDetails[index].username[0]
+                                          title: Text(ticketDetails[index].tickets!.username![0]
                                               .toUpperCase()
                                               +
-                                              ticketDetails[index].username.substring(
+                                              ticketDetails[index].tickets!.username!.substring(
                                                   1), style: TextStyle(
                                               fontSize: 17.5),),
-                                          subtitle: Text("Status : "+ticketDetails[index].status),
+                                          subtitle: Text("Status : "+ticketDetails[index].tickets!.status!),
                                           trailing: IconButton(
                                             onPressed: () {
                                               passDataToView(index);
