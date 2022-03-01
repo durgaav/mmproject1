@@ -83,7 +83,7 @@ class _UnRegTickets_ViewState extends State<UnRegTickets_View> {
                           Navigator.of(context).pop();
 
                         }, child: Text('Cancel',
-                            style: TextStyle(fontSize: 15,color: Colors.blue))),
+                            style: TextStyle(fontSize: 13,color: Colors.blue))),
                         FlatButton(onPressed: (){
                           setState(() {
                             ApproveTicket(registerId,status='Reject',context);
@@ -92,7 +92,7 @@ class _UnRegTickets_ViewState extends State<UnRegTickets_View> {
                           Navigator.of(context).pop();
 
                         }, child: Text('Reject',
-                            style: TextStyle(fontSize: 15,color: Colors.blue))),
+                            style: TextStyle(fontSize: 13,color: Colors.blue))),
                         FlatButton(onPressed: (){
                           setState(() {
                             ApproveTicket(registerId,status='Approved',context);
@@ -101,7 +101,7 @@ class _UnRegTickets_ViewState extends State<UnRegTickets_View> {
                           Navigator.of(context).pop();
 
                         }, child: Text('Approve',
-                            style: TextStyle(fontSize: 15,color: Colors.blue))),
+                            style: TextStyle(fontSize: 13,color: Colors.blue))),
 
                       ],
                     )
@@ -219,6 +219,8 @@ class _UnRegTickets_ViewState extends State<UnRegTickets_View> {
              fontSize: 15.0
          );
        }else if("$status"=='Approved'){
+
+
 
          Fluttertoast.showToast(
              msg: 'Approved successfully!',

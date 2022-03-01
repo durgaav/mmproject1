@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mmcustomerservice/screens/admin/Customer.dart';
+import 'package:mmcustomerservice/screens/admin/unregister_tickets.dart';
 import 'package:mmcustomerservice/screens/login.dart';
 import 'package:mmcustomerservice/screens/admin/team.dart';
 import 'package:mmcustomerservice/screens/ticketpage.dart';
@@ -27,11 +28,13 @@ class _MainMenusState extends State<MainMenus> {
   bool isHover = false;
   bool isHover1 = false;
   bool isHover2 = false;
+  bool isHover3 = false;
   bool usersMenu = false;
   bool teamMenu = false;
   bool ticketMenu = false;
   int timeNow = DateTime.now().hour;
   String greetings = '';
+  bool nonRegister = false;
 
   String greetingMessage() {
       if (timeNow <= 12) {
@@ -63,6 +66,7 @@ class _MainMenusState extends State<MainMenus> {
           if (usertype == "admin") {
             usersMenu = true;
             teamMenu = true;
+            nonRegister = true;
             ticketMenu = true;
           } else {
             ticketMenu = true;
@@ -306,7 +310,72 @@ class _MainMenusState extends State<MainMenus> {
                       ),
                     ),
                   ),
+                ),
+
+                Visibility(
+                  visible: nonRegister,
+                  child: Container(
+                    width: 200,
+                    margin: EdgeInsets.only(left: 30, top: 15),
+                    child: MouseRegion(
+                      onHover: (v) {
+                        setState(() {
+                          isHover3 = true;
+                        });
+                      },
+                      onExit: (v) {
+                        setState(() {
+                          isHover3 = false;
+                        });
+                      },
+                      child: AnimatedContainer(
+                        duration: Duration(milliseconds: 200),
+                        child: AnimatedDefaultTextStyle(
+                          style: TextStyle(
+                            color: isHover3 ? Colors.blue : Colors.black,
+                            fontSize: 20,
+                          ),
+                          duration: Duration(milliseconds: 150),
+                          child: InkWell(
+                            highlightColor: Colors.black12,
+                            borderRadius: BorderRadius.circular(60.0),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => UnRegister_Tickets(
+                                        usertype: usertype,
+                                        currentUser: currentUser)),
+                              );
+                            },
+                            child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: <Widget>[
+                                  Container(
+                                    padding: EdgeInsets.only(
+                                        left: 20, bottom: 20, top: 15),
+                                    child: Icon(
+                                      Icons.dns_sharp,
+                                      color:
+                                      isHover3 ? Colors.blue : Colors.black,
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.only(
+                                        left: 25, bottom: 20, top: 15),
+                                    child: Text(
+                                      'Other Tickets',
+                                    ),
+                                  ),
+                                ]),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 )
+
+
               ],
             ),
           ),
