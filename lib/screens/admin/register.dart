@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:path/path.dart' as Path;
+import 'package:http_parser/http_parser.dart';
 
 class Register extends StatefulWidget {
   const Register({Key? key}) : super(key: key);
@@ -26,7 +29,7 @@ class _RegisterState extends State<Register> {
   File _Profileimg = new File("");
   String extention = "*";
   String imgPath = "";
-  DateFormat formatter = DateFormat('dd-MM-yyyy hh:mm:ss a');
+  DateFormat formatter = DateFormat('dd-MM-yyyy hh:mm a');
   bool _obscured = true;
 
 
@@ -45,12 +48,13 @@ class _RegisterState extends State<Register> {
         'Phonenumber': phno,
         'DomainName':doname,
         'Description':description,
-        'Createdon': formatter.format(DateTime.now()),
+        'CreatedOn': formatter.format(DateTime.now()),
       });
-      // request.files.add(await http.MultipartFile.fromPath('file', _Profileimg.path, filename: Path.basename(_Profileimg.path),
-      //     contentType: MediaType.parse("image/$extention")
-      //   )
-      //     );
+      request.files.add(await http.MultipartFile.fromPath('file', _Profileimg.path, filename: Path.basename(_Profileimg.path),
+          contentType: MediaType.parse("image/$extention")
+        )
+          );
+
       http.StreamedResponse response = await request.send();
       if (response.statusCode == 200) {
         String res = await response.stream.bytesToString();
@@ -67,11 +71,8 @@ class _RegisterState extends State<Register> {
               fontSize: 15.0);
           return response;
         } else {
-          Navigator.of(context, rootNavigator: true).pop();
-          Navigator.of(context, rootNavigator: true).pop();
-          setState(() {
-            //   fetchCustomer();
-          });
+          // Navigator.of(context, rootNavigator: true).pop();
+          // Navigator.of(context, rootNavigator: true).pop();
           Fluttertoast.showToast(
               msg: 'Customer added successfully!',
               toastLength: Toast.LENGTH_LONG,
@@ -106,8 +107,6 @@ class _RegisterState extends State<Register> {
           fontSize: 15.0);
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {

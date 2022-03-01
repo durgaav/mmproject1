@@ -44,7 +44,7 @@ class _UnRegister_TicketsState extends State<UnRegister_Tickets> {
         });
       }
       else {
-      //  Navigator.pop(context);
+        Navigator.pop(context);
         onNetworkChecking();
       }
     }
@@ -54,7 +54,7 @@ class _UnRegister_TicketsState extends State<UnRegister_Tickets> {
       setState(() {
         retryVisible = true;
       });
-    //  Navigator.pop(context);
+      Navigator.pop(context);
       onNetworkChecking();
     }
   }
@@ -176,6 +176,7 @@ class _UnRegister_TicketsState extends State<UnRegister_Tickets> {
       ),
       body: SingleChildScrollView(
         child: Container(
+         // padding: EdgeInsets.only(bottom: 10),
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
           child: RefreshIndicator(
@@ -199,10 +200,13 @@ class _UnRegister_TicketsState extends State<UnRegister_Tickets> {
                   ),
                 ),
                 Container(
+                    padding: EdgeInsets.only(bottom: 10),
                   height: MediaQuery.of(context).size.height,
                   width: MediaQuery.of(context).size.width,
                   child: ListView.builder(
                     itemCount: unRegTickets.length,
+                      shrinkWrap: true,
+                     // physics: NeverScrollableScrollPhysics(),
                       itemBuilder: (BuildContext context,int index){
                     return Container(
                       child:
@@ -211,9 +215,9 @@ class _UnRegister_TicketsState extends State<UnRegister_Tickets> {
                           ticketsDataToView(index);
                         },
                         leading: CircleAvatar(backgroundImage: NetworkImage(unRegTickets[index].logo),),
-                          title: Text(unRegTickets[index].username[0].toUpperCase()+unRegTickets[index].username.substring(1), style: TextStyle(
+                          title: Text(unRegTickets[index].username!=null?unRegTickets[index].username[0].toUpperCase()+unRegTickets[index].username.substring(1):'unnamed', style: TextStyle(
                               fontSize: 17.5),),
-                        subtitle: Text(unRegTickets[index].createdOn),
+                        subtitle: Text(unRegTickets[index].createdOn!=null?unRegTickets[index].createdOn:'not found'),
                         trailing: IconButton(
                           onPressed: () {
                             ticketsDataToView(index);

@@ -113,67 +113,136 @@ class _UnRegTickets_ViewState extends State<UnRegTickets_View> {
       );
   }
 
+  // Future AddUnRegUser(String cmpyname, String username, String pass, String email, String phonenumber, String cliname,BuildContext context) async {
+  //   try {
+  //     final request = http.MultipartRequest(
+  //         'POST', Uri.parse('https://mindmadetech.in/api/customer/new'));
+  //     request.headers['Content-Type'] = 'multipart/form-data';
+  //     request.fields.addAll({
+  //       'Companyname': cmpyname,
+  //       'Clientname': cliname,
+  //       'Username': username,
+  //       'Password': pass,
+  //       'Email': email,
+  //       'Phonenumber': phonenumber,
+  //       'Createdon': formatter.format(DateTime.now()),
+  //      // 'Createdby': '$createdBy'
+  //     });
+  //     request.files.add(await http.MultipartFile.fromPath('file', _image.path,
+  //         filename: Path.basename(_image.path),
+  //         contentType: MediaType.parse("image/$extention")));
+  //
+  //     http.StreamedResponse response = await request.send();
+  //     if (response.statusCode == 200) {
+  //       String res = await response.stream.bytesToString();
+  //       if (res.contains("Username already Exists!")) {
+  //         Navigator.of(context, rootNavigator: true).pop();
+  //         Navigator.of(context, rootNavigator: true).pop();
+  //         Fluttertoast.showToast(
+  //             msg: 'Username already Exists!',
+  //             toastLength: Toast.LENGTH_LONG,
+  //             gravity: ToastGravity.BOTTOM,
+  //             timeInSecForIosWeb: 1,
+  //             backgroundColor: Colors.red,
+  //             textColor: Colors.white,
+  //             fontSize: 15.0);
+  //         return response;
+  //       } else {
+  //         Navigator.of(context, rootNavigator: true).pop();
+  //         Navigator.of(context, rootNavigator: true).pop();
+  //         setState(() {
+  //           fetchCustomer();
+  //         });
+  //         Fluttertoast.showToast(
+  //             msg: 'Customer added successfully!',
+  //             toastLength: Toast.LENGTH_LONG,
+  //             gravity: ToastGravity.BOTTOM,
+  //             timeInSecForIosWeb: 1,
+  //             backgroundColor: Colors.green,
+  //             textColor: Colors.white,
+  //             fontSize: 15.0
+  //         );
+  //       }
+  //     } else {
+  //       onNetworkChecking();
+  //       print(await response.stream.bytesToString());
+  //       print(response.statusCode);
+  //       print(response.reasonPhrase);
+  //       Fluttertoast.showToast(
+  //           msg: response.reasonPhrase.toString(),
+  //           toastLength: Toast.LENGTH_LONG,
+  //           gravity: ToastGravity.BOTTOM,
+  //           timeInSecForIosWeb: 1,
+  //           backgroundColor: Colors.red,
+  //           textColor: Colors.white,
+  //           fontSize: 15.0);
+  //     }
+  //   }catch(ex){
+  //     onNetworkChecking();
+  //     Fluttertoast.showToast(
+  //         msg: 'Something went wrong',
+  //         toastLength: Toast.LENGTH_LONG,
+  //         gravity: ToastGravity.BOTTOM,
+  //         timeInSecForIosWeb: 1,
+  //         backgroundColor: Colors.red,
+  //         textColor: Colors.white,
+  //         fontSize: 15.0);
+  //   }
+  // }
+
 
 
   Future<void> ApproveTicket(String usersId,String Status,BuildContext context) async {
-    print(usersId);
-    var headers = {
-      'Content-Type': 'application/json'
-    };
-    var request = http.Request('PUT', Uri.parse('https://mindmadetech.in/api/unregisteredcustomer/statusupdate/$registerId'));
-    request.body = json.encode(<String,String>{
-      "Status": "$status",
-    });
-    request.headers.addAll(headers);
+   try {
+     print(usersId);
+     var headers = {
+       'Content-Type': 'application/json'
+     };
+     var request = http.Request('PUT', Uri.parse(
+         'https://mindmadetech.in/api/unregisteredcustomer/statusupdate/$registerId'));
+     request.body = json.encode(<String, String>{
+       "Status": "$status",
+     });
+     request.headers.addAll(headers);
+     http.StreamedResponse response = await request.send();
+     print(response.statusCode);
+     if (response.statusCode == 200) {
+       String s = await response.stream.bytesToString();
+       if("$status"== 'Reject'){
+         Fluttertoast.showToast(
+             msg: 'Reject Successfully',
+             toastLength: Toast.LENGTH_LONG,
+             gravity: ToastGravity.BOTTOM,
+             timeInSecForIosWeb: 1,
+             backgroundColor: Colors.green,
+             textColor: Colors.white,
+             fontSize: 15.0
+         );
+       }else if("$status"=='Approved'){
 
-    http.StreamedResponse response = await request.send();
-    if (response.statusCode == 200) {
-      String s = await response.stream.bytesToString();
-      if(s.contains("Status: Reject")){
-        print(response.statusCode);
-        print('rEJECT SUCCESS');
-        Navigator.of(context,rootNavigator: true).pop();
-        Fluttertoast.showToast(
-            msg: 'Reject Successfully',
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.green,
-            textColor: Colors.white,
-            fontSize: 15.0
-        );
-        Navigator.of(context,rootNavigator: true).pop();
-
-      }else{
-        if(s.contains("Status: Approved")){
-             Navigator.of(context,rootNavigator: true).pop();
-            Fluttertoast.showToast(
-                msg: 'Approved successfully!',
-                toastLength: Toast.LENGTH_LONG,
-                gravity: ToastGravity.BOTTOM,
-                timeInSecForIosWeb: 1,
-                backgroundColor: Colors.red,
-                textColor: Colors.white,
-                fontSize: 15.0
-            );
-             Navigator.of(context,rootNavigator: true).pop();
-        }
-      }
+         Fluttertoast.showToast(
+             msg: 'Approved successfully!',
+             toastLength: Toast.LENGTH_LONG,
+             gravity: ToastGravity.BOTTOM,
+             timeInSecForIosWeb: 1,
+             backgroundColor: Colors.red,
+             textColor: Colors.white,
+             fontSize: 15.0
+         );
+       }
+     }
+   }catch(Exception){
+     print(Exception);
+     Fluttertoast.showToast(
+         msg: 'Something went wrong',
+         toastLength: Toast.LENGTH_LONG,
+         gravity: ToastGravity.BOTTOM,
+         timeInSecForIosWeb: 1,
+         backgroundColor: Colors.red,
+         textColor: Colors.white,
+         fontSize: 15.0);
+   }
     }
-    else {
-      print(response.reasonPhrase);
-      Navigator.of(context,rootNavigator: true).pop();
-      Fluttertoast.showToast(
-          msg: response.reasonPhrase.toString(),
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 15.0
-      );
-    }
-  }
 
 
 
@@ -217,7 +286,7 @@ class _UnRegTickets_ViewState extends State<UnRegTickets_View> {
                   ),
                   Container(
                     margin: EdgeInsets.only(top:10),
-                    child: Text(username,style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
+                    child: Text(username[0].toUpperCase()+username.substring(1),style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
                   )
                 ],
               ),
@@ -347,4 +416,3 @@ class _UnRegTickets_ViewState extends State<UnRegTickets_View> {
     );
   }
 }
-// https://mindmadetech.in/api/unregisteredcustomer/statusupdate/1
