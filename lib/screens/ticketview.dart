@@ -9,16 +9,25 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:mmcustomerservice/screens/ticket_assign.dart';
+import 'package:mmcustomerservice/ticketsModel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:open_file/open_file.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'image_screen.dart';
 
 class TicketViewPage extends StatefulWidget {
+
+  List<TeamAssign> tmAssignList = [];
+  TicketViewPage({required this.tmAssignList});
+
   @override
-  _TicketViewPageState createState() => _TicketViewPageState();
+  _TicketViewPageState createState() => _TicketViewPageState(tmAssignList: tmAssignList);
 }
 class _TicketViewPageState extends State<TicketViewPage> {
+
+  List<TeamAssign> tmAssignList = [];
+  _TicketViewPageState({required this.tmAssignList});
+
   //region Strings
   String ticketId = '';
   String Notification='';
@@ -49,6 +58,7 @@ class _TicketViewPageState extends State<TicketViewPage> {
       tm_compleupBy = '',
       tm_CompModOn = "",
       tm_CompModby = "" , projectCode = "";
+      String server = '',seo = '',design = '',development = '';
   //endregion Strings
 
   //region Variables
@@ -63,7 +73,7 @@ class _TicketViewPageState extends State<TicketViewPage> {
   String alertText = 'Updating...';
   bool adDateVisi = false;
   final List<String> status = ["Completed", "Inprogress", "Started"];
-  DateFormat formatter = DateFormat('dd-MM-yyyy hh:mm:ss a');
+  DateFormat formatter = DateFormat('dd-MM-yyyy hh:mm a');
   int _total = 0, _received = 0;
   final List<int> _bytes = [];
   bool checkDesign = false;
@@ -73,137 +83,10 @@ class _TicketViewPageState extends State<TicketViewPage> {
   bool _loading = false;
   double _progressValue = 0.0;
   List<String> fromAPI = [];
+  String teamId = "0";
   //endregion Variables
 
   //region Dialogs
-  Future<void> assignDialog(BuildContext context) async {
-    return showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (context) {
-          return StatefulBuilder(
-              builder: (context, setState){
-                return AlertDialog(
-                  scrollable: true,
-                  content: Column(
-                    children: <Widget>[
-                      Row(
-                        children: <Widget>[
-                          Text(
-                            'Team assign for Ticket $ticketId',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Container(
-                        padding: EdgeInsets.all(4),
-                        width: double.infinity,
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Select team(s)',
-                          style: TextStyle(
-                            color: Colors.blue,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                      CheckboxListTile(
-                        title: const Text('Design'),
-                        autofocus: false,
-                        activeColor: Colors.blue,
-                        checkColor: Colors.white,
-                        selected: checkDesign,
-                        value: checkDesign,
-                        onChanged: (bool? value) {
-                          setState(() {
-                            checkDesign = value!;
-                            print(checkDesign);
-                          });
-                        },
-                      ),
-                      CheckboxListTile(
-                        title: const Text('Development'),
-                        autofocus: false,
-                        activeColor: Colors.blue,
-                        checkColor: Colors.white,
-                        selected: checkDev,
-                        value: checkDev,
-                        onChanged: (bool? value) {
-                          setState(() {
-                            checkDev = value!;
-                            print(checkDev);
-                          });
-                        },
-                      ),
-                      CheckboxListTile(
-                        title: const Text('Server'),
-                        autofocus: false,
-                        activeColor: Colors.blue,
-                        checkColor: Colors.white,
-                        selected: checkSer,
-                        value: checkSer,
-                        onChanged: (bool? value) {
-                          setState(() {
-                            checkSer = value!;
-                            print(checkSer);
-                          });
-                        },
-                      ),
-                      CheckboxListTile(
-                        title: const Text('SEO'),
-                        autofocus: false,
-                        activeColor: Colors.blue,
-                        checkColor: Colors.white,
-                        selected: checkSeo,
-                        value: checkSeo,
-                        onChanged: (bool? value) {
-                          setState(() {
-                            checkSeo = value!;
-                            print(checkSeo);
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                  actions: <Widget>[
-                    FlatButton(
-                      onPressed: (){
-                        Navigator.pop(context);
-                      },
-                      child:Text('Cancel', style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 18,
-                      )),
-                    ),
-                    FlatButton(
-                      onPressed: (){
-                        if(checkDesign!=true && checkDev!=true && checkSer!=true && checkSeo!=true){
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Please select atleast one team!'),
-                                backgroundColor: Colors.red,
-                                behavior: SnackBarBehavior.floating,
-                              )
-                          );
-                        }else{
-                          assignTeam(checkDesign ,checkDev ,checkSer,checkSeo, ticketId, context);
-                        }
-                      },
-                      child:Text('Assign', style: TextStyle(
-                        color: Colors.blue,
-                        fontSize: 18,
-                      )),)
-                  ],
-                );
-              }
-
-          );
-        });
-  }
 
   Future<void> updateStatusDialog(BuildContext context) async {
     return showDialog(
@@ -406,87 +289,7 @@ class _TicketViewPageState extends State<TicketViewPage> {
 
   //region Functions
   //tm assign
-  Future<void> assignTeam(bool design,bool dev,bool ser,bool seo, String id, BuildContext context) async {
-    showAlert(context, 'Please wait...');
-    String des = 'n' , devlop= 'n', serv = 'n' , seoTm = 'n';
-    String designTm = 'Design',devTm = 'Development' , servTm = 'Server',seotm = 'Seo';
 
-    if(design==true){
-      setState(() {
-        des='y';
-        Team = Team+" "+designTm;
-      });
-    }
-    if(dev==true){
-      setState(() {
-        devlop='y';
-        Team = Team+" "+devTm;
-      });
-    }
-    if(ser==true){
-      setState(() {
-        serv='y';
-        Team = Team+" "+servTm;
-      });
-    }
-    if(seo==true){
-      setState(() {
-        seoTm='y';
-        Team = Team+" "+seotm;
-      });
-    }
-
-    try{
-      var headers = {'Content-Type': 'application/json'};
-      var request = http.Request('PUT',
-          Uri.parse('https://mindmadetech.in/api/tickets/team/update/$id'));
-      request.body = json.encode({
-        "Design": des,
-        "Development": devlop,
-        "Seo": seoTm,
-        "Server": serv,
-        "Adm_UpdatedOn": formatter.format(DateTime.now()),
-        "Adm_UpdatedBy": "$createdBy"
-      });
-      request.headers.addAll(headers);
-      http.StreamedResponse response = await request.send();
-      if (response.statusCode == 200) {
-        String res = await response.stream.bytesToString();
-        setState(() {
-          Team = Team;
-          Navigator.pop(context);
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('Assigned team successfully!'),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-          ));
-        }); //print(await response.stream.bytesToString());
-      } else {
-        print(response.reasonPhrase);
-        setState(() {
-          Navigator.pop(context);
-          Navigator.pop(context);
-          onNetworkChecking();
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(response.reasonPhrase.toString()),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-          ));
-        });
-      }
-    }catch(ex){
-      Navigator.pop(context);
-      Navigator.pop(context);
-      onNetworkChecking();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Check your connection'),
-        backgroundColor: Colors.red,
-        behavior: SnackBarBehavior.floating,
-      ));
-    }
-
-  }
 
   //Sending mail
   Future<void> Updateemail(String dropdown, context) async {
@@ -568,6 +371,9 @@ class _TicketViewPageState extends State<TicketViewPage> {
 
   //Status update tm
   Future<void> statusUpdate(String id , String val) async {
+    var pref = await SharedPreferences.getInstance();
+    String assignId = pref.getString('tickAssignId')??'';
+    print("Id..............."+assignId);
     showAlert(context,"Updating...");
     String fieldOn='' , fieldBy='' ;
     if(val == 'Inprogress'){
@@ -590,9 +396,11 @@ class _TicketViewPageState extends State<TicketViewPage> {
     try {
       var headers = {'Content-Type': 'application/json'};
       var request = http.Request('PUT',
-          Uri.parse('https://mindmadetech.in/api/tickets/status/update/$id'));
+          Uri.parse('https://mindmadetech.in/api/tickets/status/update'));
       request.body = json.encode({
         "Status": val.toLowerCase(),
+        "ticketsId" : ticketId,
+        "tickets_assignId" : tmAssignList[0].ticketsAssignId,
         fieldOn: formatter.format(DateTime.now()),
         fieldBy: createdBy
       });
@@ -608,7 +416,8 @@ class _TicketViewPageState extends State<TicketViewPage> {
             timeInSecForIosWeb: 1,
             backgroundColor: Colors.green,
             textColor: Colors.white,
-            fontSize: 15.0);
+            fontSize: 15.0
+        );
         Navigator.pop(context);
         setState(() {
           if (val == "Started") {
@@ -675,7 +484,26 @@ class _TicketViewPageState extends State<TicketViewPage> {
     var pref = await SharedPreferences.getInstance();
 
     setState(() {
+
+      teamId = pref.getString('teamMemId')??'';
+
+      print('Team id......... $teamId');
+
+      List<TeamAssign> list = tmAssignList.where((element) => element.teamId.toString() == teamId).toList();
+      tmAssignList = list.toList();
+
+      print('Filtered with ID ....' + tmAssignList.toString());
+
+      for(int i = 0 ; i<tmAssignList.length;i++){
+        print(tmAssignList[i].ticketsAssignId.toString() + " tmId"+tmAssignList[i].teamId.toString() );
+      }
+
+
      fromAPI = pref.getStringList('Files')!;
+     server = pref.getString('server')??'';
+     seo = pref.getString('seo')??'';
+     design = pref.getString('design')??'';
+     development = pref.getString('development')??'';
      ticketId = pref.getString("tickId")??'';
      Username = pref.getString("UserName")??'';
      Email = pref.getString("MailID")??'';
@@ -700,8 +528,8 @@ class _TicketViewPageState extends State<TicketViewPage> {
      tm_procesupdBy= pref.getString("tmProcessUpdatedBy")??'';
      tm_procesModOn = pref.getString("tmProcessModifiedOn")??'';
      tm_procesModBy = pref.getString("tmProcessModifiedBy")??'';
-     tm_startupdateon = pref.getString("tmCompleteUpdatedOn")??'';
-     tm_startupdateBy = pref.getString("tmCompleteUpdatedBy")??'';
+     tm_cmpleUpdOn = pref.getString("tmCompleteUpdatedOn")??'';
+     tm_compleupBy = pref.getString("tmCompleteUpdatedBy")??'';
      tm_startModon = pref.getString("tmCompleteModifiedOn")??'';
      tm_startModBy = pref.getString("tmCompleteModifiedBy")??'';
     });
@@ -1015,15 +843,42 @@ class _TicketViewPageState extends State<TicketViewPage> {
                 style: TextStyle(fontSize: 15, color: Colors.black45),
               ),
               children: <Widget>[
-                ListTile(
-                  title: Text('Assigned team(s)',
-                      style: TextStyle(fontSize: 15, color: Colors.black45)),
-                  subtitle: Text(
-                    '$Team',
-                    style: TextStyle(fontSize: 16, color: Colors.black),
-                  ),
-                ),
-                ListTile(
+                userType=='admin'?Column(
+                  children: [
+                    Text('Assigned Teams', style: TextStyle(fontSize: 17.0)),
+                    SizedBox(height: 10,),
+                    Container(
+                      child: Table(
+                        defaultColumnWidth: FixedColumnWidth(90.0),
+                        border: TableBorder.all(
+                            color: Colors.black,
+                            style: BorderStyle.solid,
+                            width: 1),
+                        children: [
+                          TableRow( children: [
+                            Column(children:[Text('Server', style: TextStyle(fontSize: 13.0))]),
+                            Column(children:[Text('SEO', style: TextStyle(fontSize: 13.0))]),
+                            Column(children:[Text('Design', style: TextStyle(fontSize: 13.0))]),
+                            Column(children:[Text('Development', style: TextStyle(fontSize: 13.0))]),
+                          ]),
+                          TableRow( children: [
+                            Column(children:[
+                              server=="y"?Icon(Icons.done,color: Colors.green,):
+                                      Icon(Icons.close,color: Colors.red,)
+                            ]),
+                            Column(children:[seo=="y"?Icon(Icons.done,color: Colors.green,):
+                            Icon(Icons.close,color: Colors.red,)]),
+                            Column(children:[design=="y"?Icon(Icons.done,color: Colors.green,):
+                            Icon(Icons.close,color: Colors.red,)]),
+                            Column(children:[development=="y"?Icon(Icons.done,color: Colors.green,):
+                            Icon(Icons.close,color: Colors.red,)]),
+                          ]),
+                        ],
+                      ),
+                    ),
+                  ],
+                ):Container(),
+                  ListTile(
                   title: Text('Team started on',
                       style: TextStyle(fontSize: 15, color: Colors.black45)),
                   subtitle: Text(

@@ -53,6 +53,9 @@ class _MainMenusState extends State<MainMenus> {
     // TODO: implement initState
     super.initState();
     greetingMessage();
+
+    print("Current user........"+currentUser);
+
     setState(() {
       greetings = greetingMessage();
       Future.delayed(Duration.zero, () async {
@@ -269,6 +272,7 @@ class _MainMenusState extends State<MainMenus> {
                             highlightColor: Colors.black12,
                             borderRadius: BorderRadius.circular(60.0),
                             onTap: () {
+                              print("Current user........"+currentUser);
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(

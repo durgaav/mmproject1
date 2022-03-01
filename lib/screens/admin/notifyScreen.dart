@@ -4,9 +4,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:mmcustomerservice/screens/data.dart';
 import 'package:mmcustomerservice/screens/ticketpage.dart';
+import 'package:mmcustomerservice/ticketsModel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../ticketview.dart';
+import 'package:provider/provider.dart';
 
 class NotifScreen extends StatefulWidget {
   @override
@@ -22,7 +25,8 @@ class _NotifScreenState extends State<NotifScreen> {
   List<bool> color = [];
   bool tileVisible = true;
   bool allCleared = false;
-  List<GetTicket> dataNotifi = [];
+  List<TicketModel> ticketDetails = [];
+  String teamId = '';
   //endregion Vars
 
   //region Functions
@@ -65,7 +69,7 @@ class _NotifScreenState extends State<NotifScreen> {
         for (int i = 0; i < body.length; i++) {
           color.add(false);
         }
-        dataNotifi = body.map((e) => GetTicket.fromJson(e)).toList();
+        ticketDetails = body.map((e) => TicketModel.fromJson(e)).toList();
         setState(() {
           count = body.length;
           if (body.length == 0) {
@@ -172,87 +176,91 @@ class _NotifScreenState extends State<NotifScreen> {
 
   //Passing data to screens by prefs
   Future<void> passData(int index) async{
-    String des='',dev='',seo='',ser='';
-    if(dataNotifi[index].design=='y'){
-      setState(() {
-        des = 'Design';
-      });
-    }if(dataNotifi[index].development=='y'){
-      setState(() {
-        dev = 'Development';
-      });
-    }if(dataNotifi[index].seo=='y'){
-      setState(() {
-        seo = 'Seo';
-      });
-    }if(dataNotifi[index].server=='y'){
-      setState(() {
-        ser = 'Server';
-      });
-    }
+    List<String> files = [];
+    List<String> teamAssignId = [];
     var pref = await SharedPreferences.getInstance();
-    //Removing prefs
-    pref.remove('adm_modify_on');
-    pref.remove('adm_update_by');
-    pref.remove('statusUpdateTime');
-    pref.remove('Description');
-    pref.remove('tm_CompModby');
-    pref.remove('DomainName');
-    pref.remove('Screenshots');
-    pref.remove('tm_procesModBy');
-    pref.remove( 'Date');
-    pref.remove('Email');
-    pref.remove('tm_cmpleUpdOn');
-    pref.remove('createdOn');
-    pref.remove( 'ticketId');
-    pref.remove('adm_mod_by');
-    pref.remove('adm_updte_on');
-    pref.remove('tm_compleupBy');
-    pref.remove( 'Username');
-    pref.remove('Phonenumber');
-    pref.remove( 'Status');
-    pref.remove('tm_startupdateBy');
-    pref.remove('tm_procesupdBy');
-    pref.remove('tm_procesModOn');
-    pref.remove('tm_CompModOn');
-    pref.remove('tm_startModBy');
-    pref.remove('Team');
-    pref.remove('tm_startupdateon');
-    pref.remove('tm_procesupdOn');
-    pref.remove('tm_startModon');
+    List<TeamAssign> teamTick = [];
 
-    //Loading prefs
-    pref.setString('adm_modify_on',dataNotifi[index].admModifiedOn??'');
-    pref.setString('adm_update_by',dataNotifi[index].admUpdatedBy??'');
-    pref.setString('statusUpdateTime',dataNotifi[index].status??'');
-    pref.setString('Description',dataNotifi[index].description??'');
-    pref.setString('tm_CompModby',dataNotifi[index].tmCompleteModifiedBy??'');
-    pref.setString('DomainName', dataNotifi[index].domainName??'');
-    pref.setString('Screenshots', dataNotifi[index].screenshots??'');
-    pref.setString('tm_procesModBy',dataNotifi[index].tmProcessModifiedBy??'');
-    pref.setString( 'Date', dataNotifi[index].cusCreatedOn??'');
-    pref.setString('Email',dataNotifi[index].email??'');
-    pref.setString('tm_cmpleUpdOn',dataNotifi[index].tmCompleteUpdatedOn??'');
-    pref.setString('createdOn',dataNotifi[index].cusCreatedOn??'');
-    pref.setString( 'ticketId', dataNotifi[index].ticketsId??'');
-    pref.setString('adm_mod_by',dataNotifi[index].admModifiedBy??'');
-    pref.setString('adm_updte_on', dataNotifi[index].admUpdatedOn??'');
-    pref.setString('tm_compleupBy',dataNotifi[index].tmCompleteUpdatedBy??'');
-    pref.setString( 'Username',dataNotifi[index].username??'');
-    pref.setString('Phonenumber', dataNotifi[index].phonenumber??'');
-    pref.setString( 'Status', dataNotifi[index].status??'');
-    pref.setString('tm_startupdateBy', dataNotifi[index].tmStartUpdatedBy??'');
-    pref.setString('tm_procesupdBy',dataNotifi[index].tmProcessUpdatedBy??'');
-    pref.setString('tm_procesModOn',dataNotifi[index].tmProcessModifiedOn??'');
-    pref.setString('tm_CompModOn',dataNotifi[index].tmCompleteModifiedOn??'');
-    pref.setString('tm_startModBy',dataNotifi[index].tmStartModifiedBy??'');
-    pref.setString('Team',des+" "+dev+" "+seo+" "+ser??'');
-    pref.setString('tm_startupdateon', dataNotifi[index].tmStartUpdatedOn??'');
-    pref.setString('tm_procesupdOn', dataNotifi[index].tmProcessUpdatedOn??'');
-    pref.setString('tm_startModon',dataNotifi[index].tmStartModifiedOn??'');
+    for(int i=0;i<ticketDetails[index].files.length;i++){
+      // print(ticketDetails[index].tickets!.files![i].filepath);
+      files.add(ticketDetails[index].files[i].filepath);
+    };
 
-    Navigator.push(context,MaterialPageRoute(builder: (context)=>TicketViewPage()));
+    pref.remove('Files');
+    pref.setStringList('Files', files);
 
+    pref.setString('teamMemId', teamId.toString());
+
+    teamTick = ticketDetails[index].teamAssign.toList();
+
+    pref.remove("tickId");
+    pref.remove("server");
+    pref.remove("seo");
+    pref.remove("design");
+    pref.remove("development");
+    pref.remove("UserName");
+    pref.remove("MailID");
+    pref.remove("PhoneNum");
+    pref.remove("DomainNm");
+    pref.remove("Desc");
+    pref.remove("Statuses");
+    pref.remove("Notify");
+    pref.remove("cusCreatedOn");
+    pref.remove("cusModifiedOn");
+    pref.remove("admCreatedOn");
+    pref.remove("admCreatedBy");
+    pref.remove("admModifiedOn");
+    pref.remove("admModifiedBy");
+    pref.remove("admUpdatedOn");
+    pref.remove("admUpdatedBy");
+    pref.remove("tmStartUpdatedOn");
+    pref.remove("tmStartUpdatedBy");
+    pref.remove("tmStartModifiedOn");
+    pref.remove("tmStartModifiedBy");
+    pref.remove("tmProcessUpdatedOn");
+    pref.remove("tmProcessUpdatedBy");
+    pref.remove("tmProcessModifiedOn");
+    pref.remove("tmProcessModifiedBy");
+    pref.remove("tmCompleteUpdatedOn");
+    pref.remove("tmCompleteUpdatedBy");
+    pref.remove("tmCompleteModifiedOn");
+    pref.remove("tmCompleteModifiedBy");
+
+    //Adding prefs
+    pref.setString('server', ticketDetails[index].server.toString()??'');
+    pref.setString('seo', ticketDetails[index].seo.toString()??'');
+    pref.setString('design', ticketDetails[index].design.toString()??'');
+    pref.setString('development', ticketDetails[index].development.toString()??'');
+    pref.setString("tickId", ticketDetails[index].ticketsId.toString()??'');
+    pref.setString("UserName", ticketDetails[index].username.toString()??"");
+    pref.setString("MailID", ticketDetails[index].email.toString()??'');
+    pref.setString("PhoneNum", ticketDetails[index].phonenumber.toString()??'');
+    pref.setString("DomainNm", ticketDetails[index].domainName.toString()??'');
+    pref.setString("Desc", ticketDetails[index].description.toString()??'');
+    pref.setString("Statuses", ticketDetails[index].status.toString()??'');
+    pref.setString("Notify", ticketDetails[index].notification.toString()??'');
+    pref.setString("cusCreatedOn", ticketDetails[index].cusCreatedOn.toString()??'');
+    pref.setString("cusModifiedOn", ticketDetails[index].cusModifiedOn.toString()??'');
+    pref.setString("admCreatedOn", ticketDetails[index].admCreatedOn.toString()??'');
+    pref.setString("admCreatedBy", ticketDetails[index].admCreatedBy.toString()??'');
+    pref.setString("admModifiedOn", ticketDetails[index].admModifiedOn.toString()??'');
+    pref.setString("admModifiedBy", ticketDetails[index].admModifiedBy.toString()??'');
+    pref.setString("admUpdatedOn", ticketDetails[index].admUpdatedOn.toString()??'');
+    pref.setString("admUpdatedBy", ticketDetails[index].admUpdatedBy.toString()??'');
+    pref.setString("tmStartUpdatedOn", ticketDetails[index].tmStartUpdatedOn.toString()??'');
+    pref.setString("tmStartUpdatedBy", ticketDetails[index].tmStartUpdatedBy.toString()??'');
+    pref.setString("tmStartModifiedOn", ticketDetails[index].tmStartModifiedOn.toString()??'');
+    pref.setString("tmStartModifiedBy", ticketDetails[index].tmStartModifiedBy.toString()??'');
+    pref.setString("tmProcessUpdatedOn", ticketDetails[index].tmProcessUpdatedOn.toString()??'');
+    pref.setString("tmProcessUpdatedBy", ticketDetails[index].tmProcessUpdatedBy.toString()??'');
+    pref.setString("tmProcessModifiedOn", ticketDetails[index].tmProcessModifiedOn.toString()??'');
+    pref.setString("tmProcessModifiedBy", ticketDetails[index].tmProcessModifiedBy.toString()??'');
+    pref.setString("tmCompleteUpdatedOn", ticketDetails[index].tmCompleteUpdatedOn.toString()??'');
+    pref.setString("tmCompleteUpdatedBy", ticketDetails[index].tmCompleteUpdatedBy.toString()??'');
+    pref.setString("tmCompleteModifiedOn", ticketDetails[index].tmCompleteModifiedOn.toString()??'');
+    pref.setString("tmCompleteModifiedBy", ticketDetails[index].tmCompleteModifiedBy.toString()??'');
+
+    Navigator.push(context,MaterialPageRoute(builder: (context)=>TicketViewPage(tmAssignList: teamTick,)));
   }
 
   //endregion Functions
@@ -265,6 +273,14 @@ class _NotifScreenState extends State<NotifScreen> {
       fetchNotify();
     });
   }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    print(count);
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -303,7 +319,7 @@ class _NotifScreenState extends State<NotifScreen> {
                       width: MediaQuery.of(context).size.width,
                       height: MediaQuery.of(context).size.height * 0.9,
                       child:ListView.builder(
-                        itemCount: dataNotifi.length,
+                        itemCount: ticketDetails.length,
                         itemBuilder: (BuildContext context, int index) {
                           return Container(
                               height:60,
@@ -313,10 +329,11 @@ class _NotifScreenState extends State<NotifScreen> {
                                     onTap: (){
                                       color[index]==false?setState(() {
                                         passData(index);
-                                        clearNotify(dataNotifi[index].ticketsId.toString());
+                                        clearNotify(ticketDetails[index].ticketsId.toString());
                                         color.removeAt(index);
                                         color.insert(index, true);
                                         count = count-1;
+                                        context.read<Data>().setCount(count);
                                         if(count==0){
                                           setState(() {
                                             tileVisible=false;
@@ -328,12 +345,12 @@ class _NotifScreenState extends State<NotifScreen> {
                                       });
                                     },
                                     leading: Icon(Icons.notifications,size: 30,color:color[index]==false?Colors.green:Colors.black26,),
-                                    title: Text(dataNotifi[index].username.toString(),style:
+                                    title: Text(ticketDetails[index].username.toString(),style:
                                     TextStyle(color: Colors.black,fontSize: 16,fontWeight:color[index]==false?bold:normal)
                                       ,),
                                     // subtitle: Text(snapshot.data![index].email,style:
                                     // TextStyle(color: Colors.red,fontSize: 13)),
-                                    trailing: Text("Ticket Id : "+dataNotifi[index].ticketsId.toString()
+                                    trailing: Text("Ticket Id : "+ticketDetails[index].ticketsId.toString()
                                         ,style:
                                         TextStyle(fontWeight: bold,fontSize: 12)
                                     ),

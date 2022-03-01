@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'package:mmcustomerservice/screens/data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as Path;
 import 'package:http_parser/http_parser.dart';
 import 'dart:io';
+import 'package:provider/provider.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'mainmenus.dart';
@@ -586,6 +588,25 @@ class _HomePageState extends State<HomePage> {
   }
   @override
   Widget build(BuildContext context) {
+    // context.watch<Data>().getcounter();
+    print(context.watch<Data>().getcounter());
+    print(notifyUnSeenCount);
+    if(notifyUnSeenCount > 0){
+      setState(() {
+        opacity = 1.0;
+        notifyUnSeenCount = notifyUnSeenCount;
+      });
+    }else if(context.watch<Data>().getcounter() > 0){
+      setState(() {
+        notifyUnSeenCount = context.watch<Data>().getcounter();
+      });
+    }else if(context.watch<Data>().getcounter() == 0 && notifyUnSeenCount > 0){
+      setState(() {
+        opacity = 0.0;
+        // notifyUnSeenCount = notifyUnSeenCount;
+      });
+    }
+
     TextEditingController userController = TextEditingController(text: "$currentUser");
     return Scaffold(
         drawer:MainMenus(usertype: usertype, currentUser: currentUser),
@@ -630,14 +651,14 @@ class _HomePageState extends State<HomePage> {
                                 radius: 10,
                                 child: Padding(
                                   padding: const EdgeInsets.only(bottom: 2),
-                                  child: Text("$notifyUnSeenCount",style: TextStyle(color:Colors.white,fontSize: 10,fontWeight: FontWeight.bold),),
+                                  child:
+                                  Text(notifyUnSeenCount.toString()
+                                    ,style: TextStyle(color:Colors.white,fontSize: 10,fontWeight: FontWeight.bold),),
                                 ),
                               ),
                             ),
                           ),
                         ),
-
-
                     ],
                   ),
                 ),
@@ -767,119 +788,6 @@ class _HomePageState extends State<HomePage> {
                                     );
                                 }),
                           ),
-                          // Visibility(
-                          //     visible: imgvisible,
-                          //     child: Column(
-                          //       children: [
-                          //         Container(
-                          //           child:Text("Images",style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
-                          //         ),
-                          //         Container(
-                          //           height:200,
-                          //           width:double.infinity,
-                          //           child:GridView.builder(
-                          //               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          //                 crossAxisCount: 3,
-                          //                 mainAxisSpacing: 10,),
-                          //               itemCount: _images.length,
-                          //               padding: EdgeInsets.all(8.0),
-                          //               itemBuilder: (BuildContext context, int index) {
-                          //                 return Container(
-                          //                     margin: EdgeInsets.only(right: 10),
-                          //                     width: 72,
-                          //                     child:Stack(
-                          //                       children: [
-                          //                         Container(
-                          //                             width: 320,
-                          //                             child: GestureDetector(
-                          //                                 child: Image.file(_images[index], fit: BoxFit.cover))
-                          //                         ),
-                          //                         Positioned(
-                          //                           right: 0.1,
-                          //                           child: InkWell(
-                          //                             child: Icon(
-                          //                               Icons.remove_circle,
-                          //                               size: 20,
-                          //                               color: Colors.red,
-                          //                             ),
-                          //                             onTap: () {
-                          //                               _images.removeAt(index);
-                          //                               setState(() {
-                          //                                 if (_images.length == -1) {
-                          //                                   imageremove = false;
-                          //                                 }});
-                          //                             },),
-                          //                         )
-                          //                       ],
-                          //                     )
-                          //                 );}
-                          //           ),
-                          //         )
-                          //       ],
-                          //     )
-                          // ),
-                          // Visibility(
-                          //     visible: filevisible,
-                          //     child:Column(
-                          //       children: [
-                          //         Container(
-                          //           padding: EdgeInsets.only(top:5),
-                          //           child:Text("Other files",style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
-                          //         ),
-                          //         Container(
-                          //           height:200,
-                          //           width:double.infinity,
-                          //           child:ListView.builder(
-                          //               scrollDirection: Axis.horizontal,
-                          //               itemCount: _dataList.length,
-                          //               padding: EdgeInsets.all(8.0),
-                          //               itemBuilder: (BuildContext context,
-                          //                   int index) {
-                          //                 return Container(
-                          //                     margin: EdgeInsets.only(right: 10),
-                          //                     width: 72,
-                          //                     child: Stack(
-                          //                         children: <Widget>[
-                          //                           Container(
-                          //                               height: 70,
-                          //                               color: Colors.white,
-                          //                               child:
-                          //                               (_dataList.contains('pdf'))?
-                          //                               //Text("pdffff",style: TextStyle(color: Colors.red),):
-                          //                               Image(image: AssetImage('assets/images/pdficon.png'),) :
-                          //                               (_dataList.contains('zip'))?
-                          //                               Image(image: AssetImage('assets/images/zip.jpeg')) :
-                          //                               (_dataList.contains('doc'))?
-                          //                               Image(image: AssetImage('assets/images/doc.jpeg')):
-                          //                               (_dataList.contains('docx'))?
-                          //                               Image(image: AssetImage('assets/images/doc.jpeg')):Container()
-                          //                           ),
-                          //                           Positioned(
-                          //                             right: 0.1,
-                          //                             child: InkWell(
-                          //                               child: Icon(
-                          //                                 Icons.remove_circle,
-                          //                                 size: 20,
-                          //                                 color: Colors.red,
-                          //                               ),
-                          //                               onTap: () {
-                          //                                 _dataList.removeAt(index);
-                          //                                 setState(() {
-                          //                                   if (_dataList.length == -1) {
-                          //                                     fileremove = false;
-                          //                                   }
-                          //                                 });
-                          //                               },
-                          //                             ),
-                          //                           )
-                          //                         ]
-                          //                     )
-                          //                 );}
-                          //           ),
-                          //         )
-                          //       ],
-                          //     )
-                          // )
                         ],
                       ),
                     )

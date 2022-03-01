@@ -1,56 +1,46 @@
-class sampleTickets {
-  Tickets? tickets;
-
-  sampleTickets({this.tickets});
-
-  sampleTickets.fromJson(Map<String, dynamic> json) {
-    tickets =
-    json['Tickets'] != null ? new Tickets.fromJson(json['Tickets']) : null;
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (this.tickets != null) {
-      data['Tickets'] = this.tickets!.toJson();
-    }
-    return data;
-  }
-}
-
-class Tickets {
+class TicketModel {
   int ticketsId = 0;
-  String username ="";
-  String email ="";
-  String phonenumber ="";
-  String domainName ="";
-  String description ="";
-  String status ="";
-  String notification ="";
-  String cusCreatedOn ="";
-  String cusModifiedOn ="";
-  String admCreatedOn ="";
-  String admCreatedBy ="";
-  String admUpdatedOn ="";
-  String admUpdatedBy ="";
-  String admModifiedOn ="";
-  String admModifiedBy ="";
-  String tmStartUpdatedOn ="";
-  String tmStartUpdatedBy ="";
-  String tmStartModifiedOn ="";
-  String tmStartModifiedBy ="";
-  String tmProcessUpdatedOn ="";
-  String tmProcessUpdatedBy ="";
-  String tmProcessModifiedOn ="";
-  String tmProcessModifiedBy ="";
-  String tmCompleteUpdatedOn ="";
-  String tmCompleteUpdatedBy ="";
-  String tmCompleteModifiedOn ="";
-  String tmCompleteModifiedBy ="";
+  String username = "";
+  String email= "";
+  String phonenumber= "";
+  String domainName= "";
+  String description= "";
+  String status= "";
+  String server = "";
+  String design = "";
+  String seo = "";
+  String development = "";
+  String notification= "";
+  String cusCreatedOn= "";
+  String cusModifiedOn= "";
+  String admCreatedOn= "";
+  String admCreatedBy= "";
+  String admUpdatedOn= "";
+  String admUpdatedBy="";
+  String admModifiedOn="";
+  String admModifiedBy="";
+  String tmStartUpdatedOn="";
+  String tmStartUpdatedBy="";
+  String tmStartModifiedOn="";
+  String tmStartModifiedBy="";
+  String tmProcessUpdatedOn="";
+  String tmProcessUpdatedBy="";
+  String tmProcessModifiedOn="";
+  String tmProcessModifiedBy="";
+  String tmCompleteUpdatedOn="";
+  String tmCompleteUpdatedBy="";
+  String tmCompleteModifiedOn="";
+  String tmCompleteModifiedBy="";
   List<Files> files = [];
   List<TeamAssign> teamAssign = [];
 
-  Tickets(
-      {required this.ticketsId,
+  TicketModel(
+      {
+        required this.server,
+        required this.seo,
+        required this.design,
+        required this.development,
+        required this.ticketsId,
         required this.username,
         required this.email,
         required this.phonenumber,
@@ -81,14 +71,19 @@ class Tickets {
         required this.files,
         required this.teamAssign});
 
-  Tickets.fromJson(Map<String, dynamic> json) {
+  TicketModel.fromJson(Map<String, dynamic> json) {
     ticketsId = json['ticketsId'];
     username = json['Username'];
     email = json['Email'];
     phonenumber = json['Phonenumber'];
     domainName = json['DomainName'];
     description = json['Description'];
-    status = json['Status'].toString().toLowerCase();
+    status = json['Status'];
+    server = json['Server'];
+    seo = json['Seo'];
+    development = json['Development'];
+    design = json['Design'];
+    status = json['Status'];
     notification = json['Notification'];
     cusCreatedOn = json['Cus_CreatedOn'];
     cusModifiedOn = json['Cus_ModifiedOn'];
@@ -165,9 +160,9 @@ class Tickets {
 }
 
 class Files {
-  int fileId = 0;
-  int ticketsId = 0;
-  String filepath = "";
+  int fileId =0;
+  int ticketsId=0;
+  String filepath='';
 
   Files({required this.fileId, required this.ticketsId, required this.filepath});
 
@@ -187,29 +182,29 @@ class Files {
 }
 
 class TeamAssign {
-  int ticketsAssignId = 0;
-  int ticketsId = 0;
-  int teamId = 0;
-  String username = "";
-  String email= "";
-  String status= "";
-  String admUpdatedOn= "";
-  String admUpdatedBy= "";
-  String admModifiedOn= "";
-  String admModifiedBy= "";
-  String tmStartUpdatedOn= "";
-  String tmStartUpdatedBy= "";
-  String tmStartModifiedOn= "";
-  String tmStartModifiedBy= "";
-  String tmProcessUpdatedOn= "";
-  String tmProcessUpdatedBy= "";
-  String tmProcessModifiedOn= "";
-  String tmProcessModifiedBy= "";
-  String tmCompleteUpdatedOn= "";
-  String tmCompleteUpdatedBy= "";
-  String tmCompleteModifiedOn= "";
-  String tmCompleteModifiedBy= "";
-  String isdeleted= "";
+  int ticketsAssignId=0;
+  int ticketsId=0;
+  int teamId=0;
+  String username="";
+  String email="";
+  String status="";
+  String admUpdatedOn="";
+  String admUpdatedBy="";
+  String admModifiedOn="";
+  String admModifiedBy="";
+  String tmStartUpdatedOn="";
+  String tmStartUpdatedBy="";
+  String tmStartModifiedOn="";
+  String tmStartModifiedBy="";
+  String tmProcessUpdatedOn="";
+  String tmProcessUpdatedBy="";
+  String tmProcessModifiedOn="";
+  String tmProcessModifiedBy="";
+  String tmCompleteUpdatedOn="";
+  String tmCompleteUpdatedBy="";
+  String tmCompleteModifiedOn="";
+  String tmCompleteModifiedBy="";
+  String isdeleted="";
 
   TeamAssign(
       {required this.ticketsAssignId,
@@ -242,7 +237,7 @@ class TeamAssign {
     teamId = json['teamId'];
     username = json['Username'];
     email = json['Email'];
-    status = json['Status'].toString().toLowerCase();
+    status = json['Status'];
     admUpdatedOn = json['Adm_UpdatedOn'];
     admUpdatedBy = json['Adm_UpdatedBy'];
     admModifiedOn = json['Adm_ModifiedOn'];

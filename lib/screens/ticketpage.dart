@@ -5,9 +5,9 @@ import 'package:flutter/cupertino.dart';
 import'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mmcustomerservice/screens/ticketview.dart';
-import 'package:mmcustomerservice/test_screen.dart';
 import 'package:mmcustomerservice/ticketsModel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 class Tickets extends StatefulWidget {
   String usertype='';
@@ -30,7 +30,7 @@ class _TicketsState extends State<Tickets> {
 
   //region Variables
   String sortString = "user";
-  List<sampleTickets> ticketDetails = [];
+  List<TicketModel> ticketDetails = [];
   TextEditingController searchController = new TextEditingController();
   String searchText = "";
   String hintText = "Search";
@@ -39,6 +39,8 @@ class _TicketsState extends State<Tickets> {
   bool isVisible = true;
   bool isSorted = false;
   List filtered = [];
+  String choice = '';
+  int teamId = 0;
   //retry
   bool retryVisible = false;
   //endregion Variables
@@ -46,84 +48,107 @@ class _TicketsState extends State<Tickets> {
   //region Functions
   Future<void> passDataToView(int index) async{
     List<String> files = [];
-
-    for(int i=0;i<ticketDetails[index].tickets!.files.length;i++){
-      // print(ticketDetails[index].tickets!.files![i].filepath);
-      files.add(ticketDetails[index].tickets!.files[i].filepath);
-    }
-
-
-
+    List<String> teamAssignId = [];
     var pref = await SharedPreferences.getInstance();
+    List<TeamAssign> teamTick = [];
+
+    for(int i=0;i<ticketDetails[index].files.length;i++){
+      // print(ticketDetails[index].tickets!.files![i].filepath);
+      files.add(ticketDetails[index].files[i].filepath);
+    };
+
     pref.remove('Files');
     pref.setStringList('Files', files);
 
-    print(files);
+    pref.setString('teamMemId', teamId.toString());
 
-    //Deleting prefs
-    pref.remove("tickId");
-    pref.remove("UserName");
-    pref.remove("MailID");
-    pref.remove("PhoneNum");
-    pref.remove("DomainNm");
-    pref.remove("Desc");
-    pref.remove("Statuses");
-    pref.remove("Notify");
-    pref.remove("cusCreatedOn");
-    pref.remove("cusModifiedOn");
-    pref.remove("admCreatedOn");
-    pref.remove("admCreatedBy");
-    pref.remove("admModifiedOn");
-    pref.remove("admModifiedBy");
-    pref.remove("admUpdatedOn");
-    pref.remove("admUpdatedBy");
-    pref.remove("tmStartUpdatedOn");
-    pref.remove("tmStartUpdatedBy");
-    pref.remove("tmStartModifiedOn");
-    pref.remove("tmStartModifiedBy");
-    pref.remove("tmProcessUpdatedOn");
-    pref.remove("tmProcessUpdatedBy");
-    pref.remove("tmProcessModifiedOn");
-    pref.remove("tmProcessModifiedBy");
-    pref.remove("tmCompleteUpdatedOn");
-    pref.remove("tmCompleteUpdatedBy");
-    pref.remove("tmCompleteModifiedOn");
-    pref.remove("tmCompleteModifiedBy");
+    teamTick = ticketDetails[index].teamAssign.toList();
 
-    //Adding prefs
-    pref.setString("tickId", ticketDetails[index].tickets!.ticketsId.toString()??'');
-    pref.setString("UserName", ticketDetails[index].tickets!.username.toString()??"");
-    pref.setString("MailID", ticketDetails[index].tickets!.email.toString()??'');
-    pref.setString("PhoneNum", ticketDetails[index].tickets!.phonenumber.toString()??'');
-    pref.setString("DomainNm", ticketDetails[index].tickets!.domainName.toString()??'');
-    pref.setString("Desc", ticketDetails[index].tickets!.description.toString()??'');
-    pref.setString("Statuses", ticketDetails[index].tickets!.status.toString()??'');
-    pref.setString("Notify", ticketDetails[index].tickets!.notification.toString()??'');
-    pref.setString("cusCreatedOn", ticketDetails[index].tickets!.cusCreatedOn.toString()??'');
-    pref.setString("cusModifiedOn", ticketDetails[index].tickets!.cusModifiedOn.toString()??'');
-    pref.setString("admCreatedOn", ticketDetails[index].tickets!.admCreatedOn.toString()??'');
-    pref.setString("admCreatedBy", ticketDetails[index].tickets!.admCreatedBy.toString()??'');
-    pref.setString("admModifiedOn", ticketDetails[index].tickets!.admModifiedOn.toString()??'');
-    pref.setString("admModifiedBy", ticketDetails[index].tickets!.admModifiedBy.toString()??'');
-    pref.setString("admUpdatedOn", ticketDetails[index].tickets!.admUpdatedOn.toString()??'');
-    pref.setString("admUpdatedBy", ticketDetails[index].tickets!.admUpdatedBy.toString()??'');
-    pref.setString("tmStartUpdatedOn", ticketDetails[index].tickets!.tmStartUpdatedOn.toString()??'');
-    pref.setString("tmStartUpdatedBy", ticketDetails[index].tickets!.tmStartUpdatedBy.toString()??'');
-    pref.setString("tmStartModifiedOn", ticketDetails[index].tickets!.tmStartModifiedOn.toString()??'');
-    pref.setString("tmStartModifiedBy", ticketDetails[index].tickets!.tmStartModifiedBy.toString()??'');
-    pref.setString("tmProcessUpdatedOn", ticketDetails[index].tickets!.tmProcessUpdatedOn.toString()??'');
-    pref.setString("tmProcessUpdatedBy", ticketDetails[index].tickets!.tmProcessUpdatedBy.toString()??'');
-    pref.setString("tmProcessModifiedOn", ticketDetails[index].tickets!.tmProcessModifiedOn.toString()??'');
-    pref.setString("tmProcessModifiedBy", ticketDetails[index].tickets!.tmProcessModifiedBy.toString()??'');
-    pref.setString("tmCompleteUpdatedOn", ticketDetails[index].tickets!.tmCompleteUpdatedOn.toString()??'');
-    pref.setString("tmCompleteUpdatedBy", ticketDetails[index].tickets!.tmCompleteUpdatedBy.toString()??'');
-    pref.setString("tmCompleteModifiedOn", ticketDetails[index].tickets!.tmCompleteModifiedOn.toString()??'');
-    pref.setString("tmCompleteModifiedBy", ticketDetails[index].tickets!.tmCompleteModifiedBy.toString()??'');
+      pref.remove("tickId");
+      pref.remove("server");
+      pref.remove("seo");
+      pref.remove("design");
+      pref.remove("development");
+      pref.remove("UserName");
+      pref.remove("MailID");
+      pref.remove("PhoneNum");
+      pref.remove("DomainNm");
+      pref.remove("Desc");
+      pref.remove("Statuses");
+      pref.remove("Notify");
+      pref.remove("cusCreatedOn");
+      pref.remove("cusModifiedOn");
+      pref.remove("admCreatedOn");
+      pref.remove("admCreatedBy");
+      pref.remove("admModifiedOn");
+      pref.remove("admModifiedBy");
+      pref.remove("admUpdatedOn");
+      pref.remove("admUpdatedBy");
+      pref.remove("tmStartUpdatedOn");
+      pref.remove("tmStartUpdatedBy");
+      pref.remove("tmStartModifiedOn");
+      pref.remove("tmStartModifiedBy");
+      pref.remove("tmProcessUpdatedOn");
+      pref.remove("tmProcessUpdatedBy");
+      pref.remove("tmProcessModifiedOn");
+      pref.remove("tmProcessModifiedBy");
+      pref.remove("tmCompleteUpdatedOn");
+      pref.remove("tmCompleteUpdatedBy");
+      pref.remove("tmCompleteModifiedOn");
+      pref.remove("tmCompleteModifiedBy");
 
+      //Adding prefs
+      pref.setString('server', ticketDetails[index].server.toString()??'');
+      pref.setString('seo', ticketDetails[index].seo.toString()??'');
+      pref.setString('design', ticketDetails[index].design.toString()??'');
+      pref.setString('development', ticketDetails[index].development.toString()??'');
+      pref.setString("tickId", ticketDetails[index].ticketsId.toString()??'');
+      pref.setString("UserName", ticketDetails[index].username.toString()??"");
+      pref.setString("MailID", ticketDetails[index].email.toString()??'');
+      pref.setString("PhoneNum", ticketDetails[index].phonenumber.toString()??'');
+      pref.setString("DomainNm", ticketDetails[index].domainName.toString()??'');
+      pref.setString("Desc", ticketDetails[index].description.toString()??'');
+      pref.setString("Statuses", ticketDetails[index].status.toString()??'');
+      pref.setString("Notify", ticketDetails[index].notification.toString()??'');
+      pref.setString("cusCreatedOn", ticketDetails[index].cusCreatedOn.toString()??'');
+      pref.setString("cusModifiedOn", ticketDetails[index].cusModifiedOn.toString()??'');
+      pref.setString("admCreatedOn", ticketDetails[index].admCreatedOn.toString()??'');
+      pref.setString("admCreatedBy", ticketDetails[index].admCreatedBy.toString()??'');
+      pref.setString("admModifiedOn", ticketDetails[index].admModifiedOn.toString()??'');
+      pref.setString("admModifiedBy", ticketDetails[index].admModifiedBy.toString()??'');
+      pref.setString("admUpdatedOn", ticketDetails[index].admUpdatedOn.toString()??'');
+      pref.setString("admUpdatedBy", ticketDetails[index].admUpdatedBy.toString()??'');
+      pref.setString("tmStartUpdatedOn", ticketDetails[index].tmStartUpdatedOn.toString()??'');
+      pref.setString("tmStartUpdatedBy", ticketDetails[index].tmStartUpdatedBy.toString()??'');
+      pref.setString("tmStartModifiedOn", ticketDetails[index].tmStartModifiedOn.toString()??'');
+      pref.setString("tmStartModifiedBy", ticketDetails[index].tmStartModifiedBy.toString()??'');
+      pref.setString("tmProcessUpdatedOn", ticketDetails[index].tmProcessUpdatedOn.toString()??'');
+      pref.setString("tmProcessUpdatedBy", ticketDetails[index].tmProcessUpdatedBy.toString()??'');
+      pref.setString("tmProcessModifiedOn", ticketDetails[index].tmProcessModifiedOn.toString()??'');
+      pref.setString("tmProcessModifiedBy", ticketDetails[index].tmProcessModifiedBy.toString()??'');
+      pref.setString("tmCompleteUpdatedOn", ticketDetails[index].tmCompleteUpdatedOn.toString()??'');
+      pref.setString("tmCompleteUpdatedBy", ticketDetails[index].tmCompleteUpdatedBy.toString()??'');
+      pref.setString("tmCompleteModifiedOn", ticketDetails[index].tmCompleteModifiedOn.toString()??'');
+      pref.setString("tmCompleteModifiedBy", ticketDetails[index].tmCompleteModifiedBy.toString()??'');
 
+      Navigator.push(context,MaterialPageRoute(builder: (context)=>TicketViewPage(tmAssignList: teamTick,)));
 
-    Navigator.push(context,MaterialPageRoute(builder: (context)=>TicketViewPage()));
+  }
 
+  Future<void> fetchTeams() async{
+    print('Current user...... $currentUser');
+    http.Response res = await http.get(
+      Uri.parse('https://mindmadetech.in/api/team/list')
+    );
+    if(res.statusCode==200){
+      List body = json.decode(res.body);
+      List team = body.where((e)=>e['Username']=='${currentUser}').toList();
+      print(team[0]['teamId']);
+      setState(() {
+        teamId = team[0]['teamId'];
+        print("team iddddd....."+teamId.toString());
+      });
+    }
   }
 
   Future<void> fetchTickets() async {
@@ -136,29 +161,21 @@ class _TicketsState extends State<Tickets> {
       }
       else if (usertype == "team") {
         response = await http.get(Uri.parse(
-            "https://mindmadetech.in/api/tickets/Teamtickets/$currentUser")
+            "https://mindmadetech.in/api/tickets/Teamtickets/$currentUser"
+        )
         );
       }
       else {
         response = await http.get(Uri.parse(
-            "https://mindmadetech.in/api/tickets/listtest"
+            "https://mindmadetech.in/api/tickets/customertickets/$currentUser"
         ));
       }
       print(response.statusCode);
       if (response.statusCode == 200) {
-        List body = jsonDecode(response.body);;
+        List body = jsonDecode(response.body);
         setState(() {
-          //tap again - visible
-          retryVisible = false;
-          if(usertype=="admin"){
-            ticketDetails = body.map((e) => sampleTickets.fromJson(e)).toList();
-          }else if(usertype == "client"){
-            print(currentUser);
-            List filtered = body.where((element) => element['Tickets']["Username"].toString()=="$currentUser").toList();
-            ticketDetails = filtered.map((e) => sampleTickets.fromJson(e)).toList();
-          }else{
-
-          }
+            retryVisible = false;
+            ticketDetails = body.map((e) => TicketModel.fromJson(e)).toList();
         });
         Navigator.pop(context);
       }
@@ -168,6 +185,7 @@ class _TicketsState extends State<Tickets> {
       }
     }
     catch (Exception) {
+      print(Exception);
       //tap again - visible
       setState(() {
         retryVisible = true;
@@ -265,7 +283,12 @@ class _TicketsState extends State<Tickets> {
     print(usertype);
     super.initState();
     Future.delayed(Duration.zero, () async {
-      fetchTickets();
+      if(usertype == 'team'){
+        fetchTickets();
+        fetchTeams();
+      }else{
+        fetchTickets();
+      }
     });
   }
 
@@ -334,7 +357,7 @@ class _TicketsState extends State<Tickets> {
                         isVisible = false;
                         isSorted = true;
                         FocusScope.of(context).unfocus();
-                        filtered = ticketDetails.where((element) => element.tickets!.status=='$sortString').toList();
+                        filtered = ticketDetails.where((element) => element.status.toLowerCase()=='$sortString').toList();
                       });
                     },
                     child:Row(
@@ -350,7 +373,6 @@ class _TicketsState extends State<Tickets> {
                     value: 1,
                   ),
                   PopupMenuItem(
-
                       onTap: () {
                         setState(() {
                           FocusScope.of(context).unfocus();
@@ -359,7 +381,7 @@ class _TicketsState extends State<Tickets> {
                           isVisible = false;
                           isSorted = true;
                           print(sortString);
-                          filtered = ticketDetails.where((element) => element.tickets!.status=='$sortString').toList();
+                          filtered = ticketDetails.where((element) => element.status.toLowerCase()=='$sortString').toList();
                         });
                       },
                       child: Row(
@@ -380,7 +402,7 @@ class _TicketsState extends State<Tickets> {
                           sortString = "new";
                           isVisible = false;
                           isSorted = true;
-                          filtered = ticketDetails.where((element) =>element.tickets!.status=='$sortString').toList();
+                          filtered = ticketDetails.where((element) =>element.status.toLowerCase()=='$sortString').toList();
                         });
                       },
                       child: Row(
@@ -401,7 +423,7 @@ class _TicketsState extends State<Tickets> {
                           sortString = "started";
                           isVisible = false;
                           isSorted = true;
-                          filtered = ticketDetails.where((element) => element.tickets!.status=='$sortString').toList();
+                          filtered = ticketDetails.where((element) => element.status.toLowerCase()=='$sortString').toList();
                         });
                       },
                       child: Row(
@@ -439,6 +461,7 @@ class _TicketsState extends State<Tickets> {
             )
           ]
       ),
+
       body: SingleChildScrollView(
           child: Container(
             child: RefreshIndicator(
@@ -474,7 +497,7 @@ class _TicketsState extends State<Tickets> {
                             itemCount: ticketDetails.length,
                             itemBuilder: (BuildContext context, int index) {
                               return
-                                ticketDetails[index].tickets!.username.toString().toLowerCase().
+                                ticketDetails[index].username.toString().toLowerCase().
                                 contains(searchText.toLowerCase()) ?
                               Column(
                                   children: <Widget>[
@@ -482,9 +505,9 @@ class _TicketsState extends State<Tickets> {
                                       height: 70,
                                       child: ListTile(
                                         onLongPress: (){
-                                          Navigator.push(context,MaterialPageRoute(builder: (context)
-                                              => Test()
-                                          ));
+                                          // Navigator.push(context,MaterialPageRoute(builder: (context)
+                                          //     => Test()
+                                          // ));
                                         },
                                         onTap: () {
                                           passDataToView(index);
@@ -496,13 +519,13 @@ class _TicketsState extends State<Tickets> {
                                                   radius: 35,
                                                   backgroundColor: Colors.primaries[Random().nextInt(Colors.primaries.length)],
                                                   child: Text(
-                                                      ticketDetails[index].tickets!.username!=null?
-                                                      ticketDetails[index].tickets!.username[0].toUpperCase():"Un named"[0].toUpperCase(),
+                                                      ticketDetails[index].username!=null?
+                                                      ticketDetails[index].username[0].toUpperCase():"Un named"[0].toUpperCase(),
                                                       style: TextStyle(
                                                       color: Colors.white,fontSize: 25,fontWeight: FontWeight.w900
                                                   ),),
                                                 ),
-                                                ticketDetails[index].tickets!.status.toString().toLowerCase() ==
+                                                ticketDetails[index].status.toString().toLowerCase() ==
                                                     "completed"
                                                     ? Positioned(
                                                     left: 50,
@@ -516,7 +539,7 @@ class _TicketsState extends State<Tickets> {
                                                         radius: 8,
                                                       ),
                                                     )
-                                                ):ticketDetails[index].tickets!.status.toString().toLowerCase()==
+                                                ):ticketDetails[index].status.toString().toLowerCase()==
                                                     "inprogress" ?
                                                 Positioned(
                                                     left: 50,
@@ -530,7 +553,7 @@ class _TicketsState extends State<Tickets> {
                                                         radius: 8,
                                                       ),
                                                     )
-                                                ) : ticketDetails[index].tickets!.status.toString() ==
+                                                ) : ticketDetails[index].status.toString().toLowerCase() ==
                                                     "new" ?
                                                 Positioned(
                                                     left: 50,
@@ -544,7 +567,7 @@ class _TicketsState extends State<Tickets> {
                                                         radius: 8,
                                                       ),
                                                     )
-                                                ):ticketDetails[index].tickets!.status.toString().toLowerCase() ==
+                                                ):ticketDetails[index].status.toString().toLowerCase() ==
                                                     "started" ?
                                                 Positioned(
                                                     left: 50,
@@ -562,10 +585,14 @@ class _TicketsState extends State<Tickets> {
                                               ]
                                           ),
                                         ),
-                                        title: ticketDetails[index].tickets!.username!=null?Text(ticketDetails[index].tickets!.username[0].toUpperCase()
-                                            + ticketDetails[index].tickets!.username.substring(1), style: TextStyle(
-                                            fontSize: 17.5),):Text('Un named'),
-                                        subtitle: Text("Status : "+ticketDetails[index].tickets!.status.toString().toLowerCase()),
+                                        title: ticketDetails[index].username!=null?
+                                        Text(
+                                           choice == "email"?ticketDetails[index].email:
+                                             ticketDetails[index].username[0].toUpperCase()
+                                            + ticketDetails[index].username.substring(1)
+                                          , style: TextStyle(
+                                            fontSize: 17.5),maxLines: 1,):Text('Un named'),
+                                        subtitle: Text("Status : "+ticketDetails[index].status.toString().toLowerCase()),
                                         trailing: IconButton(
                                           onPressed: () {
                                             passDataToView(index);
@@ -602,8 +629,8 @@ class _TicketsState extends State<Tickets> {
                         child:filtered.length>0?ListView.builder(
                             itemCount: ticketDetails.length,
                             itemBuilder: (BuildContext context, int index) {
-                                return ticketDetails[index].tickets!.status.toString().toLowerCase() == sortString ?
-                                ticketDetails[index].tickets!.username.toString().toLowerCase()
+                                return ticketDetails[index].status.toString().toLowerCase() == sortString ?
+                                ticketDetails[index].username.toString().toLowerCase()
                                     .contains(searchText.toLowerCase())
                                     ? Column(
                                     children: <Widget>[
@@ -620,13 +647,13 @@ class _TicketsState extends State<Tickets> {
                                                     radius: 35,
                                                     backgroundColor: Colors.primaries[Random().nextInt(Colors.primaries.length)],
                                                     child: Text(
-                                                      ticketDetails[index].tickets!.username!=null?
-                                                      ticketDetails[index].tickets!.username[0].toUpperCase():"Un named"[0].toUpperCase(),
+                                                      ticketDetails[index].username!=null?
+                                                      ticketDetails[index].username[0].toUpperCase():"Un named"[0].toUpperCase(),
                                                       style: TextStyle(
                                                       color: Colors.white,fontSize: 25,fontWeight: FontWeight.w900
                                                     ),),
                                                   ),
-                                                  ticketDetails[index].tickets!.status.toString().toLowerCase() ==
+                                                  ticketDetails[index].status.toString().toLowerCase() ==
                                                       "completed"
                                                       ? Positioned(
                                                       left: 50,
@@ -640,7 +667,7 @@ class _TicketsState extends State<Tickets> {
                                                           radius: 8,
                                                         ),
                                                       )
-                                                  ):ticketDetails[index].tickets!.status.toString().toLowerCase() ==
+                                                  ):ticketDetails[index].status.toString().toLowerCase() ==
                                                       "inprogress" ?
                                                   Positioned(
                                                       left: 50,
@@ -654,7 +681,7 @@ class _TicketsState extends State<Tickets> {
                                                           radius: 8,
                                                         ),
                                                       )
-                                                  ) : ticketDetails[index].tickets!.status.toString().toLowerCase() ==
+                                                  ) : ticketDetails[index].status.toString().toLowerCase() ==
                                                       "new" ?
                                                   Positioned(
                                                       left: 50,
@@ -668,7 +695,7 @@ class _TicketsState extends State<Tickets> {
                                                           radius: 8,
                                                         ),
                                                       )
-                                                  ) : ticketDetails[index].tickets!.status.toString().toLowerCase()==
+                                                  ) : ticketDetails[index].status.toString().toLowerCase()==
                                                       "started" ? Positioned(
                                                       left: 50,
                                                       top: 35,
@@ -685,10 +712,10 @@ class _TicketsState extends State<Tickets> {
                                                 ]
                                             ),
                                           ),
-                                          title: ticketDetails[index].tickets!.username!=null?Text(ticketDetails[index].tickets!.username[0].toUpperCase()
-                                              + ticketDetails[index].tickets!.username.substring(1), style: TextStyle(
+                                          title: ticketDetails[index].username!=null?Text(ticketDetails[index].username[0].toUpperCase()
+                                              + ticketDetails[index].username.substring(1), style: TextStyle(
                                               fontSize: 17.5),):Text('Un named'),
-                                          subtitle: Text("Status : "+ticketDetails[index].tickets!.status.toString().toLowerCase()),
+                                          subtitle: Text("Status : "+ticketDetails[index].status.toString().toLowerCase()),
                                           trailing: IconButton(
                                             onPressed: () {
                                               passDataToView(index);
@@ -719,146 +746,6 @@ class _TicketsState extends State<Tickets> {
           ),
         ),
     );
-  }
-}
-
-class GetTicket {
-  String ticketsId='';
-  String projectCode = '';
-  String username='';
-  String email='';
-  String phonenumber='';
-  String domainName='';
-  String description='';
-  String design='';
-  String development='';
-  String seo='';
-  String server='';
-  String status='';
-  String screenshots='';
-  String notification='';
-  String cusCreatedOn='';
-  String cusModifiedOn='';
-  String admUpdatedOn='';
-  String admUpdatedBy='';
-  String admModifiedOn='';
-  String admModifiedBy='';
-  String tmStartUpdatedOn='';
-  String tmStartUpdatedBy='';
-  String tmStartModifiedOn='';
-  String tmStartModifiedBy='';
-  String tmProcessUpdatedOn='';
-  String tmProcessUpdatedBy='';
-  String tmProcessModifiedOn='';
-  String tmProcessModifiedBy='';
-  String tmCompleteUpdatedOn='';
-  String tmCompleteUpdatedBy='';
-  String tmCompleteModifiedOn='';
-  String tmCompleteModifiedBy='';
-
-  GetTicket(
-      {required this.ticketsId,
-        required this.username,
-        required this.email,
-        required this.design,
-        required this.development,
-        required this.server,
-        required this.seo,
-        required this.phonenumber,
-        required this.projectCode,
-        required this.domainName,
-        required this.description,
-        required this.status,
-        required this.screenshots,
-        required this.notification,
-        required this.cusCreatedOn,
-        required this.cusModifiedOn,
-        required this.admUpdatedOn,
-        required this.admUpdatedBy,
-        required this.admModifiedOn,
-        required this.admModifiedBy,
-        required this.tmStartUpdatedOn,
-        required this.tmStartUpdatedBy,
-        required this.tmStartModifiedOn,
-        required this.tmStartModifiedBy,
-        required this.tmProcessUpdatedOn,
-        required this.tmProcessUpdatedBy,
-        required this.tmProcessModifiedOn,
-        required this.tmProcessModifiedBy,
-        required this.tmCompleteUpdatedOn,
-        required this.tmCompleteUpdatedBy,
-        required this.tmCompleteModifiedOn,
-        required this.tmCompleteModifiedBy});
-
-  GetTicket.fromJson(Map<String, dynamic> json) {
-    ticketsId = json['ticketsId'].toString();
-    username = json['Username'].toString();
-    email = json['Email'];
-    projectCode = json['Projectcode'].toString();
-    phonenumber = json['Phonenumber'];
-    domainName = json['DomainName'];
-    description = json['Description'];
-    design = json['Design'];
-    development = json['Development'];
-    seo = json['Seo'];
-    server = json['Server'];
-    status = json['Status'].toLowerCase();
-    screenshots = json['Screenshots'];
-    notification = json['Notification'];
-    cusCreatedOn = json['Cus_CreatedOn'];
-    cusModifiedOn = json['Cus_ModifiedOn'];
-    admUpdatedOn = json['Adm_UpdatedOn'];
-    admUpdatedBy = json['Adm_UpdatedBy'];
-    admModifiedOn = json['Adm_ModifiedOn'];
-    admModifiedBy = json['Adm_ModifiedBy'].toString();
-    tmStartUpdatedOn = json['Tm_Start_UpdatedOn'];
-    tmStartUpdatedBy = json['Tm_Start_UpdatedBy'];
-    tmStartModifiedOn = json['Tm_Start_ModifiedOn'];
-    tmStartModifiedBy = json['Tm_Start_ModifiedBy'];
-    tmProcessUpdatedOn = json['Tm_Process_UpdatedOn'];
-    tmProcessUpdatedBy = json['Tm_Process_UpdatedBy'];
-    tmProcessModifiedOn = json['Tm_Process_ModifiedOn'];
-    tmProcessModifiedBy = json['Tm_Process_ModifiedBy'];
-    tmCompleteUpdatedOn = json['Tm_Complete_UpdatedOn'];
-    tmCompleteUpdatedBy = json['Tm_Complete_UpdatedBy'];
-    tmCompleteModifiedOn = json['Tm_Complete_ModifiedOn'];
-    tmCompleteModifiedBy = json['Tm_Complete_ModifiedBy'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['ticketsId'] = this.ticketsId.toString();
-    data['Username'] = this.username;
-    data['Email'] = this.email;
-    data['Phonenumber'] = this.phonenumber;
-    data['DomainName'] = this.domainName;
-    data['Description'] = this.description;
-    data['Design'] = this.design;
-    data['Development'] = this.development;
-    data['Seo'] = this.seo;
-    data['Server'] = this.server;
-    data['Status'] = this.status;
-    data['Screenshots'] = this.screenshots;
-    data['Notification'] = this.notification;
-    data['Cus_CreatedOn'] = this.cusCreatedOn;
-    data['Cus_ModifiedOn'] = this.cusModifiedOn;
-    data['Adm_UpdatedOn'] = this.admUpdatedOn;
-    data['Adm_UpdatedBy'] = this.admUpdatedBy;
-    data['Adm_ModifiedOn'] = this.admModifiedOn;
-    data['Adm_ModifiedBy'] = this.admModifiedBy;
-    data['Tm_Start_UpdatedOn'] = this.tmStartUpdatedOn;
-    data['Tm_Start_UpdatedBy'] = this.tmStartUpdatedBy;
-    data['Tm_Start_ModifiedOn'] = this.tmStartModifiedOn;
-    data['Tm_Start_ModifiedBy'] = this.tmStartModifiedBy;
-    data['Tm_Process_UpdatedOn'] = this.tmProcessUpdatedOn;
-    data['Tm_Process_UpdatedBy'] = this.tmProcessUpdatedBy;
-    data['Tm_Process_ModifiedOn'] = this.tmProcessModifiedOn;
-    data['Tm_Process_ModifiedBy'] = this.tmProcessModifiedBy;
-    data['Tm_Complete_UpdatedOn'] = this.tmCompleteUpdatedOn;
-    data['Tm_Complete_UpdatedBy'] = this.tmCompleteUpdatedBy;
-    data['Tm_Complete_ModifiedOn'] = this.tmCompleteModifiedOn;
-    data['Tm_Complete_ModifiedBy'] = this.tmCompleteModifiedBy;
-    return data;
   }
 }
 

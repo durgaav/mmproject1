@@ -1,9 +1,12 @@
 // @dart=2.9
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:mmcustomerservice/screens/data.dart';
 import 'package:mmcustomerservice/screens/homepage.dart';
 import 'package:mmcustomerservice/screens/login.dart';
-import 'package:mmcustomerservice/test_screen.dart';
+
+
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -14,13 +17,16 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Customer Service',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    return ChangeNotifierProvider<Data>(
+      create: (context) => Data(),
+      child: MaterialApp(
+        title: 'Customer Service',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        debugShowCheckedModeBanner: false,
+        home: MyHomePage(),
       ),
-      debugShowCheckedModeBanner: false,
-      home: MyHomePage(),
     );
   }
 }
@@ -51,6 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       body: loginStatus=="true"?HomePage():LoginPage(),
       // body:Test()
+      // body:ScreOne()
     );
   }
 }
