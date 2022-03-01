@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:intl/intl.dart';
-import 'package:mmcustomerservice/screens/data.dart';
+import 'package:open_file/open_file.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -10,9 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as Path;
 import 'package:http_parser/http_parser.dart';
 import 'dart:io';
-import 'package:provider/provider.dart';
 import 'package:flutter/cupertino.dart';
-
 import 'mainmenus.dart';
 
 class HomePage extends StatefulWidget {
@@ -33,10 +31,6 @@ class _HomePageState extends State<HomePage> {
   bool users = false;
   bool team = false;
   String currentUser = '';
-  String extention = "*";
-  File _image = new File("");
-  File _datas = new File("");
-  String imgPath = "";
   String proCode = '';
   bool notiIconVisi = false;
   DateFormat formatter = DateFormat('dd-MM-yyyy hh:mm:ss a');
@@ -56,12 +50,18 @@ class _HomePageState extends State<HomePage> {
   PlatformFile? file;
 
   //file upload
-  List<File> _images = <File>[];
-  List <File> _dataList = <File>[];
+  String extention = "*";
+  // File _image = new File("");
+//  File _datas = new File("");
+  String imgPath = "";
+  // List<File> _images = <File>[];
+  //List <File> _dataList = [];
+  List<File> files =[];
   bool imageremove = true;
   bool fileremove = true;
   bool filevisible = false;
   bool imgvisible = false;
+
   //
 
 //endregion
@@ -84,15 +84,15 @@ class _HomePageState extends State<HomePage> {
           }else{
             opacity = 1.0;
           }
-        //tap again - false
+          //tap again - false
           admin = true;
           notiIconVisi=true;
         });
         Navigator.pop(context);
       }
       else {
-      //tap again - visible
-      Navigator.pop(context);
+        //tap again - visible
+        Navigator.pop(context);
         onNetworkChecking();
       }
     }
@@ -221,223 +221,176 @@ class _HomePageState extends State<HomePage> {
       return false;
     }
   }
-  Future<void> popup(BuildContext context) async {
-    return showDialog(
-        context: context,
-        builder: (context) {
-          return Container(
-              width: double.infinity,
-              child: AlertDialog(
-                  scrollable: true,
-                  content: Column(
-                      children: <Widget>[
-                        Container(
-                          child: Text("select file type",style: TextStyle(fontSize: 22),),
-                        ),
-                        Container(
-                          margin: EdgeInsets.only(right: 10, left: 10),
-                          width: double.infinity,
-                          alignment: Alignment.center,
-                          child: DropdownButtonFormField(
-                            value: dropdownValue,
-                            items: datas
-                                .map((String value) {
-                              return DropdownMenuItem(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                dropdownValue = newValue!;
-                                file = null;
-                              });
-                            },
-                            hint: Text("SELECT"),
-                          ),
-                        ),
-                        ElevatedButton(
-                          onPressed: () async {
-                            print("image path"+imgPath);
-                            print("Entering to file picker........");
-                            FilePickerResult? result = await FilePicker.platform.pickFiles(
-                                type: FileType.custom,allowMultiple:true,allowedExtensions: ['jpeg','zip','docx','pdf','svg','jpg','png','doc']
-                            );
-                            PlatformFile file = result.files.first;
-                            if(result!=""){
-                              setState(() {
-                                imgPath = file.path.toString();
-                              });
-                              _image = new File(imgPath);
-                              _datas = new File(imgPath);
-                              extention = file.extension;
-                              print("this is image : "+_image.absolute.path.toString());
-                              print("this is image : "+_datas.absolute.path.toString());
 
-                            }
 
-                          },
-                          child: Text('Pick file'),
-                        ),
-                      ]
-                  )
-              )
-          );});}
+  // void selectfile(BuildContext context) {
+  //   //Navigator.of(context);
+  //   showModalBottomSheet(
+  //       context: context,
+  //       builder: (context) {
+  //         return Container(
+  //           height: 150,
+  //           color: Colors.white,
+  //           child: Column(
+  //             mainAxisAlignment: MainAxisAlignment.spaceAround,
+  //             children: [
+  //               Container(
+  //                 child: Text('Select file type',
+  //                   style: TextStyle(
+  //                       fontSize: 18, fontWeight: FontWeight.bold),),
+  //               ),
+  //               Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceAround,
+  //                 children: [
+  //                   GestureDetector(
+  //                       onTap: () {
+  //                         setState(() {
+  //                           dropdownValue = 'pdf';
+  //                           picker();
+  //                           print(dropdownValue);
+  //                         });
+  //                       },
+  //                       child: Column(
+  //                         children: [
+  //                           Container(
+  //                             width: 50,
+  //                             height: 50,
+  //                             child: Image(
+  //                               image: AssetImage(
+  //                                   'assets/images/pdficon.png'),),
+  //                           ),
+  //                           Container(
+  //                             padding: EdgeInsets.only(top: 5),
+  //                             child: Text('PDF',
+  //                               style: TextStyle(fontWeight: FontWeight.bold),),
+  //                           )
+  //                         ],
+  //                       )
+  //                   ),
+  //                   GestureDetector(
+  //                       onTap: () {
+  //                         setState(() {
+  //                           dropdownValue = 'images';
+  //                           picker();
+  //                           print(dropdownValue);
+  //
+  //                         });
+  //                       },
+  //                       child: Column(
+  //                         children: [
+  //                           Container(
+  //                             width: 50,
+  //                             height: 50,
+  //                             child: Image(
+  //                               image: AssetImage('assets/images/image.jpeg'),),
+  //                           ),
+  //                           Container(
+  //                             padding: EdgeInsets.only(top: 5),
+  //                             child: Text('Images',
+  //                               style: TextStyle(fontWeight: FontWeight.bold),),
+  //                           )
+  //                         ],
+  //                       )
+  //                   ),
+  //                   GestureDetector(
+  //                       onTap: () {
+  //                         dropdownValue = 'doc';
+  //                         picker();
+  //                         print(dropdownValue);
+  //                       },
+  //                       child: Column(
+  //                         children: [
+  //                           Container(
+  //                             width: 50,
+  //                             height: 50,
+  //                             child: Image(
+  //                               image: AssetImage('assets/images/doc.jpeg'),),
+  //                           ),
+  //                           Container(
+  //                             padding: EdgeInsets.only(top: 5),
+  //                             child: Text('Documnet',
+  //                               style: TextStyle(fontWeight: FontWeight.bold),),
+  //                           )
+  //                         ],
+  //                       )
+  //                   ),
+  //                   GestureDetector(
+  //                       onTap: () {
+  //                         dropdownValue = 'zip';
+  //                         picker();
+  //                         print(dropdownValue);
+  //                       },
+  //                       child: Column(
+  //                         children: [
+  //                           Container(
+  //                             width: 50,
+  //                             height: 50,
+  //                             child: Image(
+  //                               image: AssetImage('assets/images/zip.jpeg'),),
+  //                           ),
+  //                           Container(
+  //                             padding: EdgeInsets.only(top: 5),
+  //                             child: Text('Zip',
+  //                               style: TextStyle(fontWeight: FontWeight.bold),),
+  //                           )
+  //                         ],
+  //                       )
+  //                   ),
+  //
+  //                 ],
+  //               )
+  //
+  //             ],
+  //           ),
+  //         );
+  //       });
+  // }
+  //
+  void picker() async{
+    print("image path"+imgPath);
+    print("Entering to file picker........");
+    FilePickerResult? result = await FilePicker.platform.pickFiles(allowMultiple: true,);
+    PlatformFile file = result.files.first;
 
-  void selectfile(BuildContext context) {
-    //Navigator.of(context);
-    showModalBottomSheet(
-        context: context,
-        builder: (context) {
-          return Container(
-            height: 150,
-            color: Colors.white,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Container(
-                  child: Text('Select file type',
-                    style: TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            dropdownValue = 'pdf';
-                            picker();
-                            print(dropdownValue);
-                          });
-                        },
-                        child: Column(
-                          children: [
-                            Container(
-                              width: 50,
-                              height: 50,
-                              child: Image(
-                                image: AssetImage(
-                                    'assets/images/pdficon.png'),),
-                            ),
-                            Container(
-                              padding: EdgeInsets.only(top: 5),
-                              child: Text('PDF',
-                                style: TextStyle(fontWeight: FontWeight.bold),),
-                            )
-                          ],
-                        )
-                    ),
-                    GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            dropdownValue = 'images';
-                            picker();
-                            print(dropdownValue);
+    if(result!=""){
+      imgPath = file.path.toString();
+      // _datas = File(imgPath);
+      // _dataList.add(File(imgPath));
+      files = result!.paths.map((path) => File(path!)).toList();
+      print(files);
+      extention = file.extension;
+      // print (_dataList.toString());
 
-                          });
-                        },
-                        child: Column(
-                          children: [
-                            Container(
-                              width: 50,
-                              height: 50,
-                              child: Image(
-                                image: AssetImage('assets/images/image.png'),),
-                            ),
-                            Container(
-                              padding: EdgeInsets.only(top: 5),
-                              child: Text('Images',
-                                style: TextStyle(fontWeight: FontWeight.bold),),
-                            )
-                          ],
-                        )
-                    ),
-                    GestureDetector(
-                        onTap: () {
-                          dropdownValue = 'doc';
-                          picker();
-                          print(dropdownValue);
-                        },
-                        child: Column(
-                          children: [
-                            Container(
-                              width: 50,
-                              height: 50,
-                              child: Image(
-                                image: AssetImage('assets/images/doc.png'),),
-                            ),
-                            Container(
-                              padding: EdgeInsets.only(top: 5),
-                              child: Text('Documnet',
-                                style: TextStyle(fontWeight: FontWeight.bold),),
-                            )
-                          ],
-                        )
-                    ),
-                    GestureDetector(
-                        onTap: () {
-                          dropdownValue = 'zip';
-                          picker();
-                          print(dropdownValue);
-                        },
-                        child: Column(
-                          children: [
-                            Container(
-                              width: 50,
-                              height: 50,
-                              child: Image(
-                                image: AssetImage('assets/images/zip.png'),),
-                            ),
-                            Container(
-                              padding: EdgeInsets.only(top: 5),
-                              child: Text('Zip',
-                                style: TextStyle(fontWeight: FontWeight.bold),),
-                            )
-                          ],
-                        )
-                    ),
+    }
+  }
 
-                  ],
-                )
-
-              ],
+  OpenFiles(List<PlatformFile> files){
+    ListView.builder(
+        itemCount: files.length,
+        itemBuilder: (BuildContext context , index){
+          return ListTile(
+            leading: Icon(Icons.image,color: Colors.green,size: 40,),
+            title: Text(files[index].path.split('/').last,style: TextStyle(fontSize: 14),),
+            trailing: IconButton(
+              onPressed: (){
+                print('hi');
+                setState(() {
+                  files.removeAt(index);
+                  // if (_images.length == -1) {
+                  //   imageremove = false;
+                });
+              },
+              icon: Icon(Icons.close,color: Colors.red,size: 30,),
             ),
           );
         });
   }
 
-  void picker() async{
-    print("image path"+imgPath);
-    print("Entering to file picker........");
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,allowMultiple:true,allowedExtensions: ['jpeg','zip','docx','pdf','svg','jpg','png','doc']
-    );
-    PlatformFile file = result.files.first;
-    if(result!=""){
-      setState(() {
-        imgPath = file.path.toString();
-        if(dropdownValue == "images"){
-          print("img...");
-          _image = File(imgPath);
-          _images.add(_image);
-        }else if(dropdownValue =="pdf" ||dropdownValue =="zip"||dropdownValue =="doc"||dropdownValue =="docx") {
-          print("filessss");
-          _datas = File(imgPath);
-          _dataList.add(_datas);
-        }
-        extention = file.extension;
-      });
-      print("this is images: "+_images.toString());
-      print("this is Files : "+_datas.absolute.path.toString());
-
-    }
-  }
 
   Future AddNewTicket(String Username, String Email, String Phonenumber,
       String DomainName, String Description, BuildContext context) async {
     print("Exten........." + Username);
-    showAlert(context);
+    //showAlert(context);
     final request = http.MultipartRequest(
         'POST', Uri.parse('https://mindmadetech.in/api/tickets/new')
     );
@@ -445,7 +398,7 @@ class _HomePageState extends State<HomePage> {
     request.headers['Content-Type'] = 'multipart/form-data';
     request.fields.addAll
       ({
-      'UserName': Username,
+      'Username': Username,
       'Email': Email,
       'Phonenumber': Phonenumber,
       'DomainName': DomainName,
@@ -454,89 +407,43 @@ class _HomePageState extends State<HomePage> {
       'Cus_CreatedOn':formatter.format(DateTime.now()),
     });
 
-    if(dropdownValue == "images") {
+    if(files!=null) {
       int i=0;
-      for(i = 0; i < _images.length; i++) {
+      for(i = 0; i < files.length; i++) {
         int rowcount = i;
-        File singleImage = _images[rowcount];
+        File singleImage = files[rowcount];
         print(singleImage);
         print("Imagessssss");
-        request.files.add(
-            await http.MultipartFile.fromPath(
-                'file', singleImage.path, filename: Path.basename(singleImage.path),
-                contentType: MediaType.parse("image/$extention")
-            ));
+        if(files.contains('.jpg')||files.contains('.png')||files.contains('svg')||files.contains('jpeg')){
+          request.files.add(
+              await http.MultipartFile.fromPath(
+                  'files', singleImage.path, filename: Path.basename(singleImage.path),
+                  contentType: MediaType.parse("image/$extention")
+              ));
+        }else if(files.contains('.docx')){
+          request.files.add(
+              await http.MultipartFile.fromPath(
+                  'files', singleImage.path, filename: Path.basename(singleImage.path),
+                  contentType: MediaType.parse(
+                      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                  )
+              ));
+        }else if(files.contains('.zip')){
+          request.files.add(
+              await http.MultipartFile.fromPath(
+                  'files', singleImage.path, filename: Path.basename(singleImage.path),
+                  contentType: MediaType.parse("application/$extention")
+              ));
+        }
       }
+    }else if(files==null){
+      print('no selected images');
     }
-    else if(dropdownValue == "docx"){
-      int i=0;
-      for(i = 0; i < _dataList.length; i++) {
-        int rowcount = i;
-        File singleImage = _dataList[rowcount];
-        print(singleImage);
-        print("docxxx");
-        request.files.add(
-            await http.MultipartFile.fromPath(
-                'file', singleImage.path, filename: Path.basename(singleImage.path),
-                contentType: MediaType.parse(
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                )
-            )
-        );
-      }
-    }
-    else if(dropdownValue == "doc"){
-      int i=0;
-      for(i = 0; i < _dataList.length; i++) {
-        int rowcount = i;
-        File singleImage = _dataList[rowcount];
-        print(singleImage);
-        print("doccc");
-        request.files.add(
-            await http.MultipartFile.fromPath(
-                'file', singleImage.path, filename: Path.basename(singleImage.path),
-                contentType: MediaType.parse("application/$extention")
-            )
-        );
-      }
-    }
-    else if(dropdownValue == "pdf"){
-      int i=0;
-      for(i = 0; i < _dataList.length; i++) {
-        int rowcount = i;
-        File singleImage = _dataList[rowcount];
-        print(singleImage);
-        print("pdfff");
-        request.files.add(
-            await http.MultipartFile.fromPath(
-                'file', singleImage.path, filename: Path.basename(singleImage.path),
-                contentType: MediaType.parse("application/$extention")
-            )
-        );
-      }
-    }
-    else if(dropdownValue == "zip"){
-      int i=0;
-      for(i = 0; i < _dataList.length; i++) {
-        int rowcount = i;
-        File singleImage = _dataList[rowcount];
-        print(singleImage);
-        print("zip...");
-        request.files.add(
-            await http.MultipartFile.fromPath(
-                'file', singleImage.path, filename: Path.basename(singleImage.path),
-                contentType: MediaType.parse("application/x-zip-compressed")
-            )
-        );
-      }
-      print("zip....");
-    }
-
     http.StreamedResponse response = await request.send();
     print(response.statusCode);
     if (response.statusCode == 200) {
       String res = await response.stream.bytesToString();
-      Navigator.pop(context);
+      // Navigator.pop(context);
       Fluttertoast.showToast(
           msg: 'Ticket added successfully!',
           toastLength: Toast.LENGTH_LONG,
@@ -547,9 +454,9 @@ class _HomePageState extends State<HomePage> {
           fontSize: 15.0
       );
       print("Image Uploaded");
-      return response;
+      return res;
     } else {
-      Navigator.pop(context);
+      // Navigator.pop(context);
       Fluttertoast.showToast(
           msg: 'Failed to add Ticket',
           toastLength: Toast.LENGTH_LONG,
@@ -566,10 +473,142 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  // Future AddNewTicket(String Username, String Email, String Phonenumber,
+  //     String DomainName, String Description, BuildContext context) async {
+  //   print("Exten........." + Username);
+  //   showAlert(context);
+  //   final request = http.MultipartRequest(
+  //       'POST', Uri.parse('https://mindmadetech.in/api/tickets/new')
+  //   );
+  //
+  //   request.headers['Content-Type'] = 'multipart/form-data';
+  //   request.fields.addAll
+  //     ({
+  //     'Username': Username,
+  //     'Email': Email,
+  //     'Phonenumber': Phonenumber,
+  //     'DomainName': DomainName,
+  //     'Projectcode':'$proCode',
+  //     'Description': Description,
+  //     'Cus_CreatedOn':formatter.format(DateTime.now()),
+  //   });
+  //
+  //   // if(dropdownValue == "images") {
+  //   //   int i=0;
+  //   //   for(i = 0; i < _images.length; i++) {
+  //   //     int rowcount = i;
+  //   //     File singleImage = _images[rowcount];
+  //   //     print(singleImage);
+  //   //     print("Imagessssss");
+  //   //     request.files.add(
+  //   //         await http.MultipartFile.fromPath(
+  //   //             'files', singleImage.path, filename: Path.basename(singleImage.path),
+  //   //             contentType: MediaType.parse("image/$extention")
+  //   //         ));
+  //   //   }
+  //   // }
+  //   // else if(dropdownValue == "docx"){
+  //   //   int i=0;
+  //   //   for(i = 0; i < _dataList.length; i++) {
+  //   //     int rowcount = i;
+  //   //     File singleImage = _dataList[rowcount];
+  //   //     print(singleImage);
+  //   //     print("docxxx");
+  //   //     request.files.add(
+  //   //         await http.MultipartFile.fromPath(
+  //   //             'files', singleImage.path, filename: Path.basename(singleImage.path),
+  //   //             contentType: MediaType.parse(
+  //   //                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+  //   //             )
+  //   //         )
+  //   //     );
+  //   //   }
+  //   // }
+  //   // else if(dropdownValue == "doc"){
+  //   //   int i=0;
+  //   //   for(i = 0; i < _dataList.length; i++) {
+  //   //     int rowcount = i;
+  //   //     File singleImage = _dataList[rowcount];
+  //   //     print(singleImage);
+  //   //     print("doccc");
+  //   //     request.files.add(
+  //   //         await http.MultipartFile.fromPath(
+  //   //             'files', singleImage.path, filename: Path.basename(singleImage.path),
+  //   //             contentType: MediaType.parse("application/$extention")
+  //   //         )
+  //   //     );
+  //   //   }
+  //   // }
+  //   // else if(dropdownValue == "pdf"){
+  //   //   int i=0;
+  //   //   for(i = 0; i < _dataList.length; i++) {
+  //   //     int rowcount = i;
+  //   //     File singleImage = _dataList[rowcount];
+  //   //     print(singleImage);
+  //   //     print("pdfff");
+  //   //     request.files.add(
+  //   //         await http.MultipartFile.fromPath(
+  //   //             'files', singleImage.path, filename: Path.basename(singleImage.path),
+  //   //             contentType: MediaType.parse("application/$extention")
+  //   //         )
+  //   //     );
+  //   //   }
+  //   // }
+  //   // else if(dropdownValue == "zip"){
+  //   //   int i=0;
+  //   //   for(i = 0; i < _dataList.length; i++) {
+  //   //     int rowcount = i;
+  //   //     File singleImage = _dataList[rowcount];
+  //   //     print(singleImage);
+  //   //     print("zip...");
+  //   //     request.files.add(
+  //   //         await http.MultipartFile.fromPath(
+  //   //             'files', singleImage.path, filename: Path.basename(singleImage.path),
+  //   //             contentType: MediaType.parse("application/x-zip-compressed")
+  //   //         )
+  //   //     );
+  //   //   }
+  //   //   print("zip....");
+  //   // }
+  //
+  //   http.StreamedResponse response = await request.send();
+  //   print(response.statusCode);
+  //   if (response.statusCode == 200) {
+  //     String res = await response.stream.bytesToString();
+  //     Navigator.pop(context);
+  //     Fluttertoast.showToast(
+  //         msg: 'Ticket added successfully!',
+  //         toastLength: Toast.LENGTH_LONG,
+  //         gravity: ToastGravity.BOTTOM,
+  //         timeInSecForIosWeb: 1,
+  //         backgroundColor: Colors.green,
+  //         textColor: Colors.white,
+  //         fontSize: 15.0
+  //     );
+  //     print("Image Uploaded");
+  //     return response;
+  //   } else {
+  //     Navigator.pop(context);
+  //     Fluttertoast.showToast(
+  //         msg: 'Failed to add Ticket',
+  //         toastLength: Toast.LENGTH_LONG,
+  //         gravity: ToastGravity.BOTTOM,
+  //         timeInSecForIosWeb: 1,
+  //         backgroundColor: Colors.red,
+  //         textColor: Colors.white,
+  //         fontSize: 15.0
+  //     );
+  //     print("Upload Failed");
+  //   }
+  //   response.stream.transform(utf8.decoder).listen((value) {
+  //     print(value);
+  //   });
+  // }
+
   //endregion
 
   void showfiles(){
-    if(_images != null || _dataList !=null){
+    if(files != null){
       imgvisible = true;
       filevisible = true;
     }
@@ -588,25 +627,6 @@ class _HomePageState extends State<HomePage> {
   }
   @override
   Widget build(BuildContext context) {
-    // context.watch<Data>().getcounter();
-    print(context.watch<Data>().getcounter());
-    print(notifyUnSeenCount);
-    if(notifyUnSeenCount > 0){
-      setState(() {
-        opacity = 1.0;
-        notifyUnSeenCount = notifyUnSeenCount;
-      });
-    }else if(context.watch<Data>().getcounter() > 0){
-      setState(() {
-        notifyUnSeenCount = context.watch<Data>().getcounter();
-      });
-    }else if(context.watch<Data>().getcounter() == 0 && notifyUnSeenCount > 0){
-      setState(() {
-        opacity = 0.0;
-        // notifyUnSeenCount = notifyUnSeenCount;
-      });
-    }
-
     TextEditingController userController = TextEditingController(text: "$currentUser");
     return Scaffold(
         drawer:MainMenus(usertype: usertype, currentUser: currentUser),
@@ -630,35 +650,35 @@ class _HomePageState extends State<HomePage> {
                     children:<Widget> [
                       IconButton(
                         padding: EdgeInsets.only(right: 20),
-                        icon: const Icon(Icons.notifications,size: 30,),
+                        icon: const Icon(Icons.add_alert,size: 30,),
                         onPressed: (){
                           Navigator.push(context,
                             MaterialPageRoute(builder: (context)=>NotifScreen()),);
                         },
                       ),
-                     Positioned(
-                          top: 4,
-                          right: 10,
-                          child: Opacity(
-                            opacity:opacity,
-                            child: GestureDetector(
-                              onTap: (){
-                                Navigator.push(context,
-                                  MaterialPageRoute(builder: (context)=>NotifScreen()),);
-                              },
-                              child: CircleAvatar(
-                                backgroundColor: Colors.red,
-                                radius: 10,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(bottom: 2),
-                                  child:
-                                  Text(notifyUnSeenCount.toString()
-                                    ,style: TextStyle(color:Colors.white,fontSize: 10,fontWeight: FontWeight.bold),),
-                                ),
+                      Positioned(
+                        top: 4,
+                        right: 10,
+                        child: Opacity(
+                          opacity:opacity,
+                          child: GestureDetector(
+                            onTap: (){
+                              Navigator.push(context,
+                                MaterialPageRoute(builder: (context)=>NotifScreen()),);
+                            },
+                            child: CircleAvatar(
+                              backgroundColor: Colors.red,
+                              radius: 10,
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 2),
+                                child: Text("$notifyUnSeenCount",style: TextStyle(color:Colors.white,fontSize: 10,fontWeight: FontWeight.bold),),
                               ),
                             ),
                           ),
                         ),
+                      ),
+
+
                     ],
                   ),
                 ),
@@ -690,21 +710,21 @@ class _HomePageState extends State<HomePage> {
                           ),
                           TextFormField(
                             decoration: const InputDecoration(
-                              hintText: 'Enter a Username',
+                              hintText: 'Enter a Emailid',
                               labelText: 'Email',
                             ),
                             controller: emailController,
                           ),
                           TextFormField(
                             decoration: const InputDecoration(
-                              hintText: 'Enter a Username',
+                              hintText: 'Enter a Number',
                               labelText: 'Phone Number',
                             ),
                             controller: phnoController,
                           ),
                           TextFormField(
                             decoration: const InputDecoration(
-                              hintText: 'Enter a Username',
+                              hintText: 'Enter a Domain Name',
                               labelText: 'Domain Name',
                             ),
                             controller: domainController,
@@ -722,10 +742,10 @@ class _HomePageState extends State<HomePage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               ElevatedButton(onPressed: () async {
-                                // popup(context);
-                                selectfile(context);
-                                showfiles();
-
+                                setState(() {
+                                  showfiles();
+                                });
+                                picker();
                               },
                                 style: ElevatedButton.styleFrom(
                                   shape: StadiumBorder(),
@@ -769,25 +789,139 @@ class _HomePageState extends State<HomePage> {
                           Container(
                             height: 250,
                             child: ListView.builder(
-                                itemCount: _images.length,
+                                itemCount: files.length,
                                 itemBuilder: (BuildContext context , index){
-                                    return ListTile(
-                                      leading: Icon(Icons.image,color: Colors.green,size: 40,),
-                                      title: Text(_images[index].path.split('/').last,style: TextStyle(fontSize: 14),),
-                                      trailing: IconButton(
-                                        onPressed: (){
-                                          print('hi');
-                                          setState(() {
-                                            _images.removeAt(index);
-                                            // if (_images.length == -1) {
-                                            //   imageremove = false;
-                                          });
-                                        },
-                                        icon: Icon(Icons.close,color: Colors.red,size: 30,),
-                                      ),
-                                    );
+                                  return ListTile(
+                                    leading: Icon(Icons.image,color: Colors.green,size: 40,),
+                                    title: Text(files[index].path.split('/').last,style: TextStyle(fontSize: 14),),
+                                    trailing: IconButton(
+                                      onPressed: (){
+                                        print('hi');
+                                        setState(() {
+                                          files.removeAt(index);
+                                          if (files.length == -1) {
+                                            imageremove = false;
+                                          }
+                                        });
+                                      },
+                                      icon: Icon(Icons.close,color: Colors.red,size: 30,),
+                                    ),
+                                  );
                                 }),
                           ),
+                          // Visibility(
+                          //     visible: imgvisible,
+                          //     child: Column(
+                          //       children: [
+                          //         Container(
+                          //           child:Text("Images",style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
+                          //         ),
+                          //         Container(
+                          //           height:200,
+                          //           width:double.infinity,
+                          //           child:GridView.builder(
+                          //               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          //                 crossAxisCount: 3,
+                          //                 mainAxisSpacing: 10,),
+                          //               itemCount: _images.length,
+                          //               padding: EdgeInsets.all(8.0),
+                          //               itemBuilder: (BuildContext context, int index) {
+                          //                 return Container(
+                          //                     margin: EdgeInsets.only(right: 10),
+                          //                     width: 72,
+                          //                     child:Stack(
+                          //                       children: [
+                          //                         Container(
+                          //                             width: 320,
+                          //                             child: GestureDetector(
+                          //                                 child: Image.file(_images[index], fit: BoxFit.cover))
+                          //                         ),
+                          //                         Positioned(
+                          //                           right: 0.1,
+                          //                           child: InkWell(
+                          //                             child: Icon(
+                          //                               Icons.remove_circle,
+                          //                               size: 20,
+                          //                               color: Colors.red,
+                          //                             ),
+                          //                             onTap: () {
+                          //                               _images.removeAt(index);
+                          //                               setState(() {
+                          //                                 if (_images.length == -1) {
+                          //                                   imageremove = false;
+                          //                                 }});
+                          //                             },),
+                          //                         )
+                          //                       ],
+                          //                     )
+                          //                 );}
+                          //           ),
+                          //         )
+                          //       ],
+                          //     )
+                          // ),
+                          // Visibility(
+                          //     visible: filevisible,
+                          //     child:Column(
+                          //       children: [
+                          //         Container(
+                          //           padding: EdgeInsets.only(top:5),
+                          //           child:Text("Other files",style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
+                          //         ),
+                          //         Container(
+                          //           height:200,
+                          //           width:double.infinity,
+                          //           child:ListView.builder(
+                          //               scrollDirection: Axis.horizontal,
+                          //               itemCount: _dataList.length,
+                          //               padding: EdgeInsets.all(8.0),
+                          //               itemBuilder: (BuildContext context,
+                          //                   int index) {
+                          //                 return Container(
+                          //                     margin: EdgeInsets.only(right: 10),
+                          //                     width: 72,
+                          //                     child: Stack(
+                          //                         children: <Widget>[
+                          //                           Container(
+                          //                               height: 70,
+                          //                               color: Colors.white,
+                          //                               child:
+                          //                               (_dataList.contains('pdf'))?
+                          //                               //Text("pdffff",style: TextStyle(color: Colors.red),):
+                          //                               Image(image: AssetImage('assets/images/pdficon.png'),) :
+                          //                               (_dataList.contains('zip'))?
+                          //                               Image(image: AssetImage('assets/images/zip.jpeg')) :
+                          //                               (_dataList.contains('doc'))?
+                          //                               Image(image: AssetImage('assets/images/doc.jpeg')):
+                          //                               (_dataList.contains('docx'))?
+                          //                               Image(image: AssetImage('assets/images/doc.jpeg')):Container()
+                          //                           ),
+                          //                           Positioned(
+                          //                             right: 0.1,
+                          //                             child: InkWell(
+                          //                               child: Icon(
+                          //                                 Icons.remove_circle,
+                          //                                 size: 20,
+                          //                                 color: Colors.red,
+                          //                               ),
+                          //                               onTap: () {
+                          //                                 _dataList.removeAt(index);
+                          //                                 setState(() {
+                          //                                   if (_dataList.length == -1) {
+                          //                                     fileremove = false;
+                          //                                   }
+                          //                                 });
+                          //                               },
+                          //                             ),
+                          //                           )
+                          //                         ]
+                          //                     )
+                          //                 );}
+                          //           ),
+                          //         )
+                          //       ],
+                          //     )
+                          // )
                         ],
                       ),
                     )
@@ -985,3 +1119,4 @@ class _HomePageState extends State<HomePage> {
         ));
   }
 }
+

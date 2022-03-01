@@ -4,6 +4,7 @@ import 'dart:convert';
   import 'package:flutter/material.dart';
   import 'package:form_field_validator/form_field_validator.dart';
   import 'package:http/http.dart' as http;
+import 'package:mmcustomerservice/screens/admin/register.dart';
   import 'package:mmcustomerservice/screens/homepage.dart';
   import 'package:fluttertoast/fluttertoast.dart';
   import 'package:shared_preferences/shared_preferences.dart';
@@ -213,7 +214,7 @@ import 'dart:convert';
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Container(
-                    margin: EdgeInsets.only(top: 100),
+                    margin: EdgeInsets.only(top: 75),
                     padding: EdgeInsets.only(top: 60),
                     child: Image(
                       image: AssetImage('assets/images/loginimg.png'),
@@ -275,7 +276,7 @@ import 'dart:convert';
                       Container(
                           width: 304,
                           height: 50,
-                          margin: EdgeInsets.only(top: 30, bottom: 20),
+                          margin: EdgeInsets.only(top: 30, bottom: 10),
                           child: ElevatedButton(
                             onPressed: () {
                               final FormState? form = _formKey.currentState;
@@ -293,6 +294,11 @@ import 'dart:convert';
                               onPrimary: Colors.white,
                             ),
                           )),
+                      TextButton(child: Text('Register',style: TextStyle(color: Colors.red,fontSize: 16,decoration: TextDecoration.underline),),
+                        onPressed: (){
+                          Navigator.push(context,
+                            MaterialPageRoute(builder: (context)=>Register()),);
+                        },),
                     ],
                   ),
                 ))
