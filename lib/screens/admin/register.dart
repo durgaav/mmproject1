@@ -5,6 +5,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:mime/mime.dart';
 import 'package:path/path.dart' as Path;
 import 'package:http_parser/http_parser.dart';
 
@@ -26,20 +27,49 @@ class _RegisterState extends State<Register> {
   TextEditingController domainController = TextEditingController();
   TextEditingController dsController = TextEditingController();
 
-  File _Profileimg = new File("");
-  String extention = "*";
+  List<File> files =[];
+  List extensions =[];
   String imgPath = "";
   DateFormat formatter = DateFormat('dd-MM-yyyy hh:mm a');
   bool _obscured = true;
+  bool imageremove = true;
+  bool fileremove = true;
+  bool filevisible = false;
+  bool imgvisible = false;
+
+  OpenFiles(List<PlatformFile> files){
+    ListView.builder(
+        itemCount: files.length,
+        itemBuilder: (BuildContext context , index){
+          return ListTile(
+            leading: Icon(Icons.image,color: Colors.green,size: 40,),
+            title: Text(files[index].path.split('/').last,style: TextStyle(fontSize: 14),),
+            trailing: IconButton(
+              onPressed: (){
+                print('hi');
+                setState(() {
+                  files.removeAt(index);
+                });
+              },
+              icon: Icon(Icons.close,color: Colors.red,size: 30,),
+            ),
+          );
+        });
+  }
 
 
-  Future AddTickets(String cmp,String clname,String user,String passwrd,String email,
-      String phno,String doname,String description) async{
-    try {
-      final request = http.MultipartRequest(
-          'POST', Uri.parse('https://mindmadetech.in/api/unregisteredcustomer/new'));
+  Future AddTicket(String cmp,String clname,String user,String passwrd,String email,
+      String phno,String doname,String description) async {
+
+    final request = http.MultipartRequest(
+        'POST', Uri.parse('https://mindmadetech.in/api/unregisteredcustomer/new')
+    );
+   // showAlert(context);
+
+    if(files.isEmpty){
       request.headers['Content-Type'] = 'multipart/form-data';
-      request.fields.addAll({
+      request.fields.addAll
+        ({
         'Companyname': cmp,
         'Clientname': clname,
         'Username': user,
@@ -50,31 +80,23 @@ class _RegisterState extends State<Register> {
         'Description':description,
         'CreatedOn': formatter.format(DateTime.now()),
       });
-      request.files.add(await http.MultipartFile.fromPath('file', _Profileimg.path, filename: Path.basename(_Profileimg.path),
-          contentType: MediaType.parse("image/$extention")
-        )
-          );
-
+      // request.files.add(await http.MultipartFile.fromPath('files', '/path/to/file'));
       http.StreamedResponse response = await request.send();
+      String res = await response.stream.bytesToString();
       if (response.statusCode == 200) {
-        String res = await response.stream.bytesToString();
-        if (res.contains("Username already Exists!")) {
-          Navigator.of(context, rootNavigator: true).pop();
-          Navigator.of(context, rootNavigator: true).pop();
+        Navigator.pop(context);
+        if(res.contains('Ticket added successfully')){
+          setState(() {
+            Cmpname = TextEditingController();
+            Clientname = TextEditingController();
+            pass = TextEditingController();
+            mailController = TextEditingController();
+            phnoController = TextEditingController();
+            domainController = TextEditingController();
+            dsController = TextEditingController();
+          });
           Fluttertoast.showToast(
-              msg: 'Username already Exists!',
-              toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.red,
-              textColor: Colors.white,
-              fontSize: 15.0);
-          return response;
-        } else {
-          // Navigator.of(context, rootNavigator: true).pop();
-          // Navigator.of(context, rootNavigator: true).pop();
-          Fluttertoast.showToast(
-              msg: 'Customer added successfully!',
+              msg:res.replaceAll("{", "").replaceAll("}", ""),
               toastLength: Toast.LENGTH_LONG,
               gravity: ToastGravity.BOTTOM,
               timeInSecForIosWeb: 1,
@@ -83,31 +105,102 @@ class _RegisterState extends State<Register> {
               fontSize: 15.0
           );
         }
-      } else {
-        print(await response.stream.bytesToString());
-        print(response.statusCode);
-        print(response.reasonPhrase);
+      }
+      else {
+        Navigator.pop(context);
         Fluttertoast.showToast(
-            msg: response.reasonPhrase.toString(),
+            msg:await response.reasonPhrase.toString(),
             toastLength: Toast.LENGTH_LONG,
             gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 1,
             backgroundColor: Colors.red,
             textColor: Colors.white,
-            fontSize: 15.0);
+            fontSize: 15.0
+        );
+        print(response.reasonPhrase);
       }
-    }catch(ex){
-      Fluttertoast.showToast(
-          msg: 'Something went wrong',
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 15.0);
+    }else{
+      request.headers['Content-Type'] = 'multipart/form-data';
+      request.fields.addAll
+        ({
+        'Companyname': cmp,
+        'Clientname': clname,
+        'Username': user,
+        'Password': passwrd,
+        'Email': email,
+        'Phonenumber': phno,
+        'DomainName':doname,
+        'Description':description,
+        'CreatedOn': formatter.format(DateTime.now()),
+      });
+      for(int i =0 ; i<files.length ;i++){
+        request.files.add(await http.MultipartFile.fromPath('files', files[i].path,
+            filename: Path.basename(files[i].path),
+            contentType: MediaType.parse(extensions[i].toString())
+        ));
+      }
+      // request.files.add(await http.MultipartFile.fromPath('files', '/path/to/file'));
+      http.StreamedResponse response = await request.send();
+      String res = await response.stream.bytesToString();
+      if (response.statusCode == 200) {
+        Navigator.pop(context);
+        if(res.contains('Ticket added successfully')){
+          setState(() {
+            Cmpname = TextEditingController();
+            Clientname = TextEditingController();
+            pass = TextEditingController();
+            mailController = TextEditingController();
+            phnoController = TextEditingController();
+            domainController = TextEditingController();
+            dsController = TextEditingController();
+            extensions = [];
+            files = [];
+          });
+
+          Fluttertoast.showToast(
+              msg:res.replaceAll("{", "").replaceAll("}", ""),
+              toastLength: Toast.LENGTH_LONG,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.green,
+              textColor: Colors.white,
+              fontSize: 15.0
+          );
+        }
+      }
+      else {
+        Navigator.pop(context);
+        Fluttertoast.showToast(
+            msg:await response.reasonPhrase.toString(),
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 15.0
+        );
+        print(response.reasonPhrase);
+      }
     }
   }
 
+
+  void showfiles(){
+    if(files != null){
+      imgvisible = true;
+      filevisible = true;
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    Future.delayed(
+        Duration.zero, () async {
+      showfiles();
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,73 +211,9 @@ class _RegisterState extends State<Register> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-
-                  Stack(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.only(left: 25,top: 10,bottom: 20),
-                        width: double.infinity,
-                        alignment: Alignment.centerLeft,
-                        child: CircleAvatar(
-                          backgroundColor: Colors.deepPurpleAccent,
-                          radius: 50,
-                          backgroundImage: FileImage(File('$imgPath')),
-                        ),
-                      ),
-                      Positioned(
-                        left: 85,
-                          top: 75,
-                          child: Container(
-                            height: 35,
-                            width: 35,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(50),
-                             // color: Colors.black54,
-                            ),
-                            child: IconButton(
-                              icon: Icon(Icons.camera_alt_rounded),
-                              onPressed: () async{
-
-                                  print("image path" + imgPath);
-                                  print("Entering to file picker........");
-                                  FilePickerResult? result =
-                                  await FilePicker.platform.pickFiles(
-                                    type: FileType.image,
-                                  );
-                                  PlatformFile file = result.files.first;
-                                  if (result != "") {
-                                    setState(() {
-                                      imgPath = file.path.toString();
-                                    });
-                                    _Profileimg = new File(imgPath);
-                                    extention = file.extension;
-                                    print("this is image : " +
-                                        _Profileimg.absolute.path.toString());
-                                  }
-                                // child: imgPath == ""
-                                // ? CircleAvatar(
-                                // radius: 50,
-                                // backgroundColor: Colors.white,
-                                // backgroundImage:
-                                // AssetImage('assets/images/user.png'),
-                                // )
-                                //     : CircleAvatar(
-                                // radius: 50,
-                                // backgroundColor: Colors.white,
-                                // backgroundImage: FileImage(File('$imgPath')),
-                                // )
-
-
-                              },
-                              color: Colors.black,
-                              alignment: Alignment.center,
-                            ),
-                          ))
-                    ],
-                  ),
-
         Form(
         child:Container(
+          padding: EdgeInsets.only(top:20),
         margin: EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -316,22 +345,93 @@ class _RegisterState extends State<Register> {
               controller: dsController,
             ),
             SizedBox(height:10,),
-
-
-                Container(
-                  height: 60,
-                  alignment: Alignment.centerRight,
-                  child: ElevatedButton(onPressed: () {
-                    AddTickets(Cmpname.text.toString(), Clientname.text.toString(), userController.text.toString(),
-                        pass.text.toString(), mailController.text.toString(), phnoController.text.toString(),
-                        domainController.text.toString(), dsController.text.toString());
-                  },
-                    style: ElevatedButton.styleFrom(
-                      shape: StadiumBorder(),
-                      onPrimary: Colors.white,
-                    ),child: Text("send",style: TextStyle(fontSize: 17),),),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                          child: ElevatedButton(
+                            onPressed: () async{
+                              print("image path"+imgPath);
+                              print("Entering to file picker........");
+                              FilePickerResult? result = await FilePicker.platform.pickFiles(allowMultiple: true,
+                                type: FileType.custom,
+                                allowedExtensions: ['jpg','jpeg','png','zip','doc','docx','rar'],
+                              );
+                              PlatformFile file = result.files.first;
+                              if (result!=null){
+                                setState(() {
+                                  files = result.paths.map((path) => File(path)).toList();
+                                });
+                                for(int i = 0;i<files.length ; i++){
+                                  extensions.add(lookupMimeType(files[i].path));
+                                }
+                                print(extensions);
+                              }
+                              // print("image path" + imgPath);
+                              // print("Entering to file picker........");
+                              // FilePickerResult? result =
+                              // await FilePicker.platform.pickFiles(
+                              //   type: FileType.image,
+                              // );
+                              // PlatformFile file = result.files.first;
+                              // if (result != "") {
+                              //   setState(() {
+                              //     imgPath = file.path.toString();
+                              //   });
+                              //   _Profileimg = new File(imgPath);
+                              //   extention = file.extension;
+                              //   print("this is image : " +
+                              //       _Profileimg.absolute.path.toString());
+                              // }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              shape: StadiumBorder(),
+                              onPrimary: Colors.white,
+                            ),child: Text('Choose File'),
+                          ),
+                    ),
+                    Container(
+                      height: 60,
+                      alignment: Alignment.centerRight,
+                      child: ElevatedButton(onPressed: () {
+                        setState(() {
+                          showfiles();
+                        });
+                        AddTicket(Cmpname.text.toString(), Clientname.text.toString(), userController.text.toString(),
+                            pass.text.toString(), mailController.text.toString(), phnoController.text.toString(),
+                            domainController.text.toString(), dsController.text.toString());
+                      },
+                        style: ElevatedButton.styleFrom(
+                          shape: StadiumBorder(),
+                          onPrimary: Colors.white,
+                        ),child: Text("send",style: TextStyle(fontSize: 17),),),
+                    ),
+                  ],
                 ),
-
+            Container(
+              child: ListView.builder(
+                  physics: NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: files.length,
+                  itemBuilder: (BuildContext context , index){
+                    return ListTile(
+                      leading: Icon(Icons.image,color: Colors.green,size: 40,),
+                      title: Text(files[index].path.split('/').last,style: TextStyle(fontSize: 14),),
+                      trailing: IconButton(
+                        onPressed: (){
+                          print('hi');
+                          setState(() {
+                            files.removeAt(index);
+                            if (files.length == -1) {
+                              imageremove = false;
+                            }
+                          });
+                        },
+                        icon: Icon(Icons.close,color: Colors.red,size: 30,),
+                      ),
+                    );
+                  }),
+            ),
           ],
         ),
       )

@@ -158,11 +158,10 @@ class _CustomerState extends State<Customer> {
                                       passWd.text.isEmpty ||
                                       mailId.text.isEmpty ||
                                       phnNum.text.length < 10 ||
-                                      _image.path == ''||
-                                      clientNm.text.isEmpty||projectCode.text.length<5&&projectCode.text.isEmpty) {
+                                      clientNm.text.isEmpty||_image.path.isEmpty) {
                                     print("value not entered......");
                                     Fluttertoast.showToast(
-                                        msg: 'Please check your values! or Profile Image',
+                                        msg: 'Please Fill the all Detials',
                                         toastLength: Toast.LENGTH_LONG,
                                         gravity: ToastGravity.BOTTOM,
                                         timeInSecForIosWeb: 1,
@@ -231,72 +230,82 @@ class _CustomerState extends State<Customer> {
 
   //Add new customer logic
   Future AddNewUser(String comp, String user, String pass, String mail, String phn, String client,String proCode,BuildContext context) async {
-    showAlert(context);
+   // showAlert(context);
     print("procode...."+proCode);
+    print(_image);
     try {
       final request = http.MultipartRequest(
           'POST', Uri.parse('https://mindmadetech.in/api/customer/new'));
-      request.headers['Content-Type'] = 'multipart/form-data';
-      request.fields.addAll({
-        'Companyname': comp,
-        'Clientname': client,
-        'Username': user,
-        'Password': pass,
-        'Email': mail,
-        'Phonenumber': phn,
-        'Createdon': formatter.format(DateTime.now()),
-        'Createdby': '$createdBy'
-      });
-      request.files.add(await http.MultipartFile.fromPath('file', _image.path,
-          filename: Path.basename(_image.path),
-          contentType: MediaType.parse("image/$extention")));
-      http.StreamedResponse response = await request.send();
-      if (response.statusCode == 200) {
-        String res = await response.stream.bytesToString();
-        if (res.contains("Username already Exists!")||res.contains("Projectcode already Exists!")) {
-          Navigator.of(context, rootNavigator: true).pop();
-          Navigator.of(context, rootNavigator: true).pop();
+        request.headers['Content-Type'] = 'multipart/form-data';
+        request.fields.addAll({
+          'Companyname': comp,
+          'Clientname': client,
+          'Username': user,
+          'Password': pass,
+          'Email': mail,
+          'Phonenumber': phn,
+          'Createdon': formatter.format(DateTime.now()),
+          'Createdby': '$createdBy'
+        });
+        request.files.add(await http.MultipartFile.fromPath('file', _image.path,
+            filename: Path.basename(_image.path),
+            contentType: MediaType.parse("image/$extention")));
+        http.StreamedResponse response = await request.send();
+        if (response.statusCode == 200) {
+          String res = await response.stream.bytesToString();
+          if (res.contains("Username already Exists!")||res.contains("Projectcode already Exists!")) {
+            Navigator.of(context, rootNavigator: true).pop();
+            Navigator.of(context, rootNavigator: true).pop();
+            Fluttertoast.showToast(
+                msg: "Username/ProjectCode already Exists!",
+                toastLength: Toast.LENGTH_LONG,
+                gravity: ToastGravity.BOTTOM,
+                timeInSecForIosWeb: 1,
+                backgroundColor: Colors.red,
+                textColor: Colors.white,
+                fontSize: 15.0
+            );
+            return response;
+          } else {
+            Navigator.pop(context);
+            setState(() {
+              searchController = new TextEditingController(text: "");
+              compName = new TextEditingController(text: "");
+              usrNm = new TextEditingController(text: "");
+              passWd = new TextEditingController(text: "");
+              mailId = new TextEditingController(text: "");
+              phnNum = new TextEditingController(text: "");
+              clientNm = new TextEditingController(text: "");
+              projectCode = new TextEditingController(text: "");
+              _image=File('');
+              fetchCustomer();
+            });
+            Fluttertoast.showToast(
+                msg: 'Customer added successfully!',
+                toastLength: Toast.LENGTH_LONG,
+                gravity: ToastGravity.BOTTOM,
+                timeInSecForIosWeb: 1,
+                backgroundColor: Colors.green,
+                textColor: Colors.white,
+                fontSize: 15.0
+            );
+          }
+        } else {
+          onNetworkChecking();
+          print(await response.stream.bytesToString());
+          print(response.statusCode);
+          print(response.reasonPhrase);
           Fluttertoast.showToast(
-              msg: "Username/ProjectCode already Exists!",
+              msg: response.reasonPhrase.toString(),
               toastLength: Toast.LENGTH_LONG,
               gravity: ToastGravity.BOTTOM,
               timeInSecForIosWeb: 1,
               backgroundColor: Colors.red,
               textColor: Colors.white,
-              fontSize: 15.0
-          );
-          return response;
-        } else {
-          Navigator.of(context, rootNavigator: true).pop();
-          Navigator.of(context, rootNavigator: true).pop();
-          setState(() {
-            fetchCustomer();
-          });
-          Fluttertoast.showToast(
-              msg: 'Customer added successfully!',
-              toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.green,
-              textColor: Colors.white,
-              fontSize: 15.0
-          );
+              fontSize: 15.0);
         }
-      } else {
-        onNetworkChecking();
-        print(await response.stream.bytesToString());
-        print(response.statusCode);
-        print(response.reasonPhrase);
-        Fluttertoast.showToast(
-            msg: response.reasonPhrase.toString(),
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 15.0);
-      }
-    }catch(ex){
+
+      } catch(ex){
       onNetworkChecking();
       Fluttertoast.showToast(
           msg: 'Something went wrong',
@@ -482,7 +491,7 @@ class _CustomerState extends State<Customer> {
           //showAlert(context);
         },
         child: Icon(
-          Icons.add,
+          Icons.person_add_alt_outlined ,
           size: 28,
         ),
         backgroundColor: Colors.blue,
@@ -603,6 +612,7 @@ class _CustomerState extends State<Customer> {
                                     ),
                                   ),
                                   Divider(
+                                    height: 0,
                                     color: Colors.black12,
                                   ),
                                 ])

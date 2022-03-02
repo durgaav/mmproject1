@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:mmcustomerservice/screens/data.dart';
-import 'package:open_file/open_file.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +15,6 @@ import 'package:flutter/services.dart';
 import 'mainmenus.dart';
 import 'package:provider/provider.dart';
 import 'package:http_parser/http_parser.dart';
-import 'package:path/path.dart' as Path;
 
 class HomePage extends StatefulWidget {
   @override
@@ -407,454 +405,381 @@ class _HomePageState extends State<HomePage> {
         showfiles();
     });
   }
-
   @override
   Widget build(BuildContext context) {
     counts = context.watch<Data>().getcounter();
     TextEditingController userController = TextEditingController(text: "$currentUser");
-    return WillPopScope(
-      onWillPop:() async{
-        print('back pressed');
-        showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) {
-              return Container(
-                  child: AlertDialog(
-                    title: Row(
-                      children: <Widget>[
-                        Icon(
-                          Icons.exit_to_app,
-                          color: Colors.red,
-                          size: 30,
+    return Scaffold(
+        drawer:MainMenus(usertype: usertype, currentUser: currentUser),
+        appBar: AppBar(
+            backgroundColor: Color(0Xff146bf7),
+            title: Text('Dashboard'),
+            actions: <Widget>[
+              usertype!="client"
+                  ?IconButton(
+                padding: EdgeInsets.only(right: 20),
+                icon: const Icon(Icons.refresh,size: 27,),
+                onPressed: (){
+                  setState(() {
+                    screenVisibility();
+                  });
+                },
+              )
+                  :IconButton(
+                padding: EdgeInsets.only(right: 20),
+                icon: const Icon(Icons.exit_to_app,size: 27,),
+                onPressed: (){
+                  SystemChannels.platform.invokeMethod<void>('SystemNavigator.pop');
+                },
+              ),
+                   Visibility(
+                visible: notiIconVisi,
+                child: Container(
+                  child: Stack(
+                    children:<Widget> [
+                      IconButton(
+                        padding: EdgeInsets.only(right: 20),
+                        icon: const Icon(Icons.notifications,size: 30,),
+                        onPressed: (){
+                          Navigator.push(context,
+                            MaterialPageRoute(builder: (context)=>NotifScreen()),);
+                        },
+                      ),
+                      Positioned(
+                        top: 4,
+                        right: 10,
+                        child: Opacity(
+                          opacity:counts!=0?1.0:0.0,
+                          child: GestureDetector(
+                            onTap: (){
+                              Navigator.push(context,
+                                MaterialPageRoute(builder: (context)=>NotifScreen()),);
+                            },
+                            child: CircleAvatar(
+                              backgroundColor: Colors.red,
+                              radius: 10,
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 2),
+                                child:Text("$counts",style: TextStyle(color:Colors.white,fontSize: 10,fontWeight: FontWeight.bold),),
+                              ),
+                            ),
+                          ),
                         ),
-                        Text('  Exit Alert!',
-                            style:
-                            TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                      ],
-                    ),
-                    content: Text(
-                      'Are you sure exit now?',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                    actions: [
-                      FlatButton(
-                          onPressed: () {
-                            Navigator.of(context, rootNavigator: true).pop();
-                          },
-                          child: Text('Cancel',
-                              style: TextStyle(fontSize: 16, color: Colors.blue))),
-                      FlatButton(
-                          onPressed: () {
-                            SystemChannels.platform.invokeMethod<void>('SystemNavigator.pop');
-                          },
-                          child: Text('Exit',
-                              style: TextStyle(fontSize: 16, color: Colors.red)))
+                      ),
                     ],
-                  ));
-            }
-        );
-        return false;
-      },
-      child: Scaffold(
-          drawer:MainMenus(usertype: usertype, currentUser: currentUser),
-          appBar: AppBar(
-              centerTitle: true,
-              backgroundColor: Color(0Xff146bf7),
-              title: Text('Dashboard'),
-              actions: <Widget>[
-                usertype!="client"
-                    ?IconButton(
-                  padding: EdgeInsets.only(right: 20),
-                  icon: const Icon(Icons.refresh,size: 27,),
-                  onPressed: (){
-                    setState(() {
-                      screenVisibility();
-                    });
-                  },
-                )
-                    :IconButton(
-                  padding: EdgeInsets.only(right: 20),
-                  icon: const Icon(Icons.exit_to_app,size: 27,),
-                  onPressed: (){
-                    SystemChannels.platform.invokeMethod<void>('SystemNavigator.pop');
-                  },
+                  ),
                 ),
-                     Visibility(
-                  visible: notiIconVisi,
-                  child: Container(
-                    child: Stack(
-                      children:<Widget> [
-                        IconButton(
-                          padding: EdgeInsets.only(right: 20),
-                          icon: const Icon(Icons.notifications,size: 30,),
-                          onPressed: (){
-                            Navigator.push(context,
-                              MaterialPageRoute(builder: (context)=>NotifScreen()),);
-                          },
-                        ),
-                        Positioned(
-                          top: 4,
-                          right: 10,
-                          child: Opacity(
-                            opacity:counts!=0?1.0:0.0,
-                            child: GestureDetector(
-                              onTap: (){
-                                Navigator.push(context,
-                                  MaterialPageRoute(builder: (context)=>NotifScreen()),);
-                              },
-                              child: CircleAvatar(
-                                backgroundColor: Colors.red,
-                                radius: 10,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(bottom: 2),
-                                  child:Text("$counts",style: TextStyle(color:Colors.white,fontSize: 10,fontWeight: FontWeight.bold),),
+              ),
+            ]
+        ),
+        body: Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              color: Color(0XFFebf2fa),
+              child:Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  (users == true)?
+                  SingleChildScrollView(
+                      child: Form(
+                          child:Container(
+                            margin: EdgeInsets.symmetric(horizontal: 20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                TextFormField(
+                                  enabled: false,
+                                  decoration: const InputDecoration(
+                                    hintText: 'Enter a Username',
+                                    labelText: 'UserName',
+                                  ),
+                                  controller:userController ,
+                                ),
+                                TextFormField(
+                                  decoration: const InputDecoration(
+                                    hintText: 'Enter a Emailid',
+                                    labelText: 'Email',
+                                  ),
+                                  controller: emailController,
+                                ),
+                                TextFormField(
+                                  decoration: const InputDecoration(
+                                    hintText: 'Enter a Number',
+                                    labelText: 'Phone Number',
+                                  ),
+                                  controller: phnoController,
+                                ),
+                                TextFormField(
+                                  decoration: const InputDecoration(
+                                    hintText: 'Enter a Domain Name',
+                                    labelText: 'Domain Name',
+                                  ),
+                                  controller: domainController,
+                                ),
+                                TextFormField(
+                                  decoration: InputDecoration(
+                                      hintText: 'Enter your Issue',
+                                      labelText: 'Description'
+                                  ),
+                                  maxLines: 100,
+                                  minLines: 3,
+                                  controller: dsController,
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    ElevatedButton(onPressed: () async {
+                                      setState(() {
+                                        showfiles();
+                                      });
+                                      picker();
+                                    },
+                                      style: ElevatedButton.styleFrom(
+                                        shape: StadiumBorder(),
+                                        onPrimary: Colors.white,
+                                      ),
+                                      child: Text('Choose file',style: TextStyle(fontSize: 17),),
+                                    ),
+
+                                    ElevatedButton(onPressed: () {
+                                      AddNewTicket(
+                                          userController.text.toString(),
+                                          emailController.text.toString(),
+                                          phnoController.text.toString(),
+                                          domainController.text.toString(),
+                                          dsController.text.toString(), context );
+                                      // filevisible =  false;
+                                      // imgvisible = false;
+                                    },
+                                      style: ElevatedButton.styleFrom(
+                                        shape: StadiumBorder(),
+                                        onPrimary: Colors.white,
+                                      ),child: Text("submit",style: TextStyle(fontSize: 17),),),
+                                  ],
+                                ),
+
+                                Container(
+                                  child: ListView.builder(
+                                      physics: NeverScrollableScrollPhysics(),
+                                      shrinkWrap: true,
+                                      itemCount: files.length,
+                                      itemBuilder: (BuildContext context , index){
+                                        return ListTile(
+                                          leading: Icon(Icons.image,color: Colors.green,size: 40,),
+                                          title: Text(files[index].path.split('/').last,style: TextStyle(fontSize: 14),),
+                                          trailing: IconButton(
+                                            onPressed: (){
+                                              print('hi');
+                                              setState(() {
+                                                files.removeAt(index);
+                                                if (files.length == -1) {
+                                                  imageremove = false;
+                                                }
+                                              });
+                                            },
+                                            icon: Icon(Icons.close,color: Colors.red,size: 30,),
+                                          ),
+                                        );
+                                      }),
+                                ),
+                              ],
+                            ),
+                          )
+                      )
+                  ):
+
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    child: Column(
+                      children: <Widget>[
+                        Container(
+                          padding: EdgeInsets.only(left: 20, right: 20),
+                          width: 300,
+                          height: 150,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  blurRadius: 5.0,
+                                ),
+                              ]
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Container(
+                                  child: (team == true) ? Text("Tickets Assigned",
+                                    style: TextStyle(fontSize: 21,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.blue),) :
+                                  Text("No of Tickets",
+                                    style: TextStyle(fontSize: 21,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.blue),)
+                              ),
+                              Container(
+                                padding: EdgeInsets.only(right: 20),
+
+                                child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      Container(
+                                        child: (team == true) ? Text("10",
+                                          style: TextStyle(
+                                              fontSize: 32, fontWeight: FontWeight.bold,
+                                              color: Color(0XFF0949b0)),) :
+                                        Text("$ticketCount",
+                                          style: TextStyle(
+                                              fontSize: 32, fontWeight: FontWeight.bold,
+                                              color: Color(0XFF0949b0)),),
+                                      ),
+                                      Container(
+                                          child: Icon(Icons.confirmation_number_sharp,
+                                            color: Colors.blue, size: 48,)
+                                      ),
+                                    ]
                                 ),
                               ),
-                            ),
+                              Container(
+                                child: Text("Last Ticket No",
+                                  style: TextStyle(color: Colors.black54),),
+                              ),
+                            ],
                           ),
+                        ),
+
+                        SizedBox(height: 30,),
+
+                        Container(
+                          padding: EdgeInsets.only(left: 20, right: 20),
+                          width: 300,
+                          height: 150,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  blurRadius: 5.0,),
+                              ]
+                          ),
+                          child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Container(
+                                  child: (team == true) ? Text("Tickets In progress",
+                                    style: TextStyle(fontSize: 21,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.blue),) :
+                                  Text("No of Users",
+                                    style: TextStyle(fontSize: 21,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.blue),),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.only(right: 20),
+                                  child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: <Widget>[
+
+                                        Container(
+                                          child: (team == true) ? Text("5",
+                                            style: TextStyle(fontSize: 32,
+                                                fontWeight: FontWeight.bold,
+                                                color: Color(0XFF0949b0)),) :
+                                          Text("$clientCount",
+                                            style: TextStyle(fontSize: 32,
+                                                fontWeight: FontWeight.bold,
+                                                color: Color(0XFF0949b0)),),
+                                        ),
+                                        Container(
+                                            child: Icon(Icons.groups_sharp,
+                                              color: Colors.blue, size: 48,)
+                                        ),
+                                      ]
+                                  ),
+                                ),
+
+                                Container(
+                                  child: Text("Last Ticket No",
+                                    style: TextStyle(color: Colors.black54),),
+                                ),
+
+                              ]
+                          ),
+                        ),
+
+                        SizedBox(height: 30,),
+                        Container(
+                          padding: EdgeInsets.only(left: 20, right: 20),
+                          width: 300,
+                          height: 150,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  blurRadius: 5.0,
+                                ), //BoxShadow
+                              ]
+                          ),
+                          child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Container(
+                                  child: (team == true) ? Text("Tickets Completed",
+                                    style: TextStyle(fontSize: 21,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.blue),) :
+                                  Text("Team members ",
+                                    style: TextStyle(fontSize: 21,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.blue),),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.only(right: 20),
+                                  child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: <Widget>[
+                                        Container(
+                                          child: (team == true) ? Text("7",
+                                            style: TextStyle(fontSize: 32,
+                                                fontWeight: FontWeight.bold,
+                                                color: Color(0XFF0949b0)),) :
+                                          Text("$teamCount",
+                                            style: TextStyle(fontSize: 32,
+                                                fontWeight: FontWeight.bold,
+                                                color: Color(0XFF0949b0)),),
+                                        ),
+                                        Container(
+                                            child: Icon(Icons
+                                                .confirmation_number_outlined,
+                                              color: Colors.blue, size: 48,)
+                                        ),
+                                      ]
+                                  ),
+                                ),
+                                Container(
+                                  child: Text("Last Ticket No",
+                                    style: TextStyle(color: Colors.black54),),
+                                ),
+                              ]
+                          ),
+
                         ),
                       ],
                     ),
                   ),
-                ),
-              ]
-          ),
-          body: Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-                color: Color(0XFFebf2fa),
-                child:SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: 15,
-                      ),
-                      (users == true)?
-                      Column(
-                        children: [
-                          Text("Create New Ticket",
-                          style: TextStyle(fontSize: 18,color: Colors.black,fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                          SingleChildScrollView(
-                              child: Form(
-                                  child:Container(
-                                    margin: EdgeInsets.symmetric(horizontal: 20),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        TextFormField(
-                                          enabled: false,
-                                          decoration: const InputDecoration(
-                                            hintText: 'Enter Username',
-                                            labelText: 'UserName',
-                                          ),
-                                          controller:userController ,
-                                        ),
-                                        TextFormField(
-                                          decoration: const InputDecoration(
-                                            hintText: 'Enter Email ID',
-                                            labelText: 'Email',
-                                          ),
-                                          controller: emailController,
-                                        ),
-                                        TextFormField(
-                                          decoration: const InputDecoration(
-                                            hintText: 'Enter phone',
-                                            labelText: 'Phone Number',
-                                          ),
-                                          controller: phnoController,
-                                        ),
-                                        TextFormField(
-                                          decoration: const InputDecoration(
-                                            hintText: 'Enter Domain',
-                                            labelText: 'Domain Name',
-                                          ),
-                                          controller: domainController,
-                                        ),
-                                        TextFormField(
-                                          decoration: InputDecoration(
-                                              hintText: 'Enter your Issues',
-                                              labelText: 'Description'
-                                          ),
-                                          maxLines: 100,
-                                          minLines: 3,
-                                          controller: dsController,
-                                        ),
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            ElevatedButton(onPressed: () async {
-                                              setState(() {
-                                                showfiles();
-                                              });
-                                              picker();
-                                            },
-                                              style: ElevatedButton.styleFrom(
-                                                shape: StadiumBorder(),
-                                                onPrimary: Colors.white,
-                                              ),
-                                              child: Text('Choose file',style: TextStyle(fontSize: 17),),
-                                            ),
+                ],
+              )
 
-                                            ElevatedButton(onPressed: () {
-                                              if(emailController.text.toString().isEmpty||
-                                                  phnoController.text.toString().isEmpty||
-                                                  domainController.text.toString().isEmpty||
-                                                  dsController.text.toString().isEmpty
-                                              ){
-                                               ScaffoldMessenger.of(context).showSnackBar(
-                                                 SnackBar(
-                                                     content: Text('Please check your entered values!'),
-                                                     backgroundColor: Colors.red[300],
-                                                     duration: Duration(seconds:5),
-                                                 )
-                                               );
-                                              }else{
-                                                AddNewTicket(
-                                                    userController.text.toString(),
-                                                    emailController.text.toString(),
-                                                    phnoController.text.toString(),
-                                                    domainController.text.toString(),
-                                                    dsController.text.toString(), context );
-                                              }
-
-                                            },
-                                              style: ElevatedButton.styleFrom(
-                                                shape: StadiumBorder(),
-                                                onPrimary: Colors.white,
-                                              ),child: Text("submit",style: TextStyle(fontSize: 17),),),
-                                          ],
-                                        ),
-
-                                        Container(
-                                          child: ListView.builder(
-                                              physics: NeverScrollableScrollPhysics(),
-                                              shrinkWrap: true,
-                                              itemCount: files.length,
-                                              itemBuilder: (BuildContext context , index){
-                                                return ListTile(
-                                                  leading: Icon(Icons.image,color: Colors.green,size: 40,),
-                                                  title: Text(files[index].path.split('/').last,style: TextStyle(fontSize: 14),),
-                                                  trailing: IconButton(
-                                                    onPressed: (){
-                                                      print('hi');
-                                                      setState(() {
-                                                        files.removeAt(index);
-                                                        if (files.length == -1) {
-                                                          imageremove = false;
-                                                        }
-                                                      });
-                                                    },
-                                                    icon: Icon(Icons.close,color: Colors.red,size: 30,),
-                                                  ),
-                                                );
-                                              }),
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                              )
-                          ),
-                        ],
-                      ):
-                      Container(
-                        width: MediaQuery.of(context).size.width,
-                        child: Column(
-                          children: <Widget>[
-                            Container(
-                              padding: EdgeInsets.only(left: 20, right: 20),
-                              width: 300,
-                              height: 150,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: Colors.white,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black26,
-                                      blurRadius: 5.0,
-                                    ),
-                                  ]
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Container(
-                                      child: (team == true) ? Text("Tickets Assigned",
-                                        style: TextStyle(fontSize: 21,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.blue),) :
-                                      Text("No of Tickets",
-                                        style: TextStyle(fontSize: 21,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.blue),)
-                                  ),
-                                  Container(
-                                    padding: EdgeInsets.only(right: 20),
-
-                                    child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          Container(
-                                            child: (team == true) ? Text("10",
-                                              style: TextStyle(
-                                                  fontSize: 32, fontWeight: FontWeight.bold,
-                                                  color: Color(0XFF0949b0)),) :
-                                            Text("$ticketCount",
-                                              style: TextStyle(
-                                                  fontSize: 32, fontWeight: FontWeight.bold,
-                                                  color: Color(0XFF0949b0)),),
-                                          ),
-                                          Container(
-                                              child: Icon(Icons.confirmation_number_sharp,
-                                                color: Colors.blue, size: 48,)
-                                          ),
-                                        ]
-                                    ),
-                                  ),
-                                  Container(
-                                    child: Text("Last Ticket No",
-                                      style: TextStyle(color: Colors.black54),),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            SizedBox(height: 30,),
-
-                            Container(
-                              padding: EdgeInsets.only(left: 20, right: 20),
-                              width: 300,
-                              height: 150,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: Colors.white,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black26,
-                                      blurRadius: 5.0,),
-                                  ]
-                              ),
-                              child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Container(
-                                      child: (team == true) ? Text("Tickets In progress",
-                                        style: TextStyle(fontSize: 21,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.blue),) :
-                                      Text("No of Users",
-                                        style: TextStyle(fontSize: 21,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.blue),),
-                                    ),
-                                    Container(
-                                      padding: EdgeInsets.only(right: 20),
-                                      child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: <Widget>[
-
-                                            Container(
-                                              child: (team == true) ? Text("5",
-                                                style: TextStyle(fontSize: 32,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Color(0XFF0949b0)),) :
-                                              Text("$clientCount",
-                                                style: TextStyle(fontSize: 32,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Color(0XFF0949b0)),),
-                                            ),
-                                            Container(
-                                                child: Icon(Icons.groups_sharp,
-                                                  color: Colors.blue, size: 48,)
-                                            ),
-                                          ]
-                                      ),
-                                    ),
-
-                                    Container(
-                                      child: Text("Last Ticket No",
-                                        style: TextStyle(color: Colors.black54),),
-                                    ),
-
-                                  ]
-                              ),
-                            ),
-
-                            SizedBox(height: 30,),
-                            Container(
-                              padding: EdgeInsets.only(left: 20, right: 20),
-                              width: 300,
-                              height: 150,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: Colors.white,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black26,
-                                      blurRadius: 5.0,
-                                    ), //BoxShadow
-                                  ]
-                              ),
-                              child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Container(
-                                      child: (team == true) ? Text("Tickets Completed",
-                                        style: TextStyle(fontSize: 21,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.blue),) :
-                                      Text("Team members ",
-                                        style: TextStyle(fontSize: 21,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.blue),),
-                                    ),
-                                    Container(
-                                      padding: EdgeInsets.only(right: 20),
-                                      child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: <Widget>[
-                                            Container(
-                                              child: (team == true) ? Text("7",
-                                                style: TextStyle(fontSize: 32,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Color(0XFF0949b0)),) :
-                                              Text("$teamCount",
-                                                style: TextStyle(fontSize: 32,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Color(0XFF0949b0)),),
-                                            ),
-                                            Container(
-                                                child: Icon(Icons
-                                                    .confirmation_number_outlined,
-                                                  color: Colors.blue, size: 48,)
-                                            ),
-                                          ]
-                                      ),
-                                    ),
-                                    Container(
-                                      child: Text("Last Ticket No",
-                                        style: TextStyle(color: Colors.black54),),
-                                    ),
-                                  ]
-                              ),
-
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-
-          )),
-    );
+        ));
   }
 }
 
