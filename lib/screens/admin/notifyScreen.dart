@@ -72,6 +72,7 @@ class _NotifScreenState extends State<NotifScreen> {
         ticketDetails = body.map((e) => TicketModel.fromJson(e)).toList();
         setState(() {
           count = body.length;
+          context.read<Data>().setCount(count);
           if (body.length == 0) {
             setState(() {
               tileVisible = false;
@@ -280,37 +281,47 @@ class _NotifScreenState extends State<NotifScreen> {
 
   @override
   Widget build(BuildContext context) {
-
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
+    var counts = context.watch<Data>().getcounter();
+    return Scaffold(
+          backgroundColor: Colors.white,
           appBar: AppBar(
-            backgroundColor: Colors.blue,
-            title: Text('$count New notifications'),
-            leading: IconButton(
-              onPressed: () {
-                Navigator.of(context, rootNavigator: true).pop();
-              },
-              icon: Icon(Icons.close),
-              color: Colors.white,
-            ),
+            backgroundColor: Color(0Xff146bf7),
+            title: counts==0?
+            Text('Notifications'):
+            Text('$count New notifications'),
           ),
           body: SingleChildScrollView(
             child: Column(
               children: <Widget>[
                 Visibility(
-                    visible: allCleared,
-                    child:Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children:<Widget> [
-                        Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text('No Notifications',style: TextStyle(fontSize: 22,color: Colors.pinkAccent),),
-                          ),
-                        )
-                      ],
-                    )),
+                  visible: allCleared,
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height * 0.9,
+                    child: Center(
+                      child:Container(
+                            child: Column(
+                              children: [
+                                Container(
+                                  height: 100,
+                                  width: 150,
+                                  child: Image(
+                                    image:AssetImage(
+                                      "assets/images/done.gif"
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text('All Read!'
+                                   ,style: TextStyle(fontSize: 20,color: Colors.blueAccent,fontWeight: FontWeight.bold),),
+                               ),
+                              ],
+                            ),
+                          )
+                    ),
+                  ),
+                ),
                 Visibility(
                     visible:tileVisible ,
                     child:Container(
@@ -330,9 +341,9 @@ class _NotifScreenState extends State<NotifScreen> {
                                         clearNotify(ticketDetails[index].ticketsId.toString());
                                         color.removeAt(index);
                                         color.insert(index, true);
-                                        count = count-1;
-                                        context.read<Data>().setCount(count);
-                                        if(count==0){
+                                        counts = counts-1;
+                                        context.read<Data>().setCount(counts);
+                                        if(counts==0){
                                           setState(() {
                                             tileVisible=false;
                                             allCleared=true;
@@ -367,7 +378,7 @@ class _NotifScreenState extends State<NotifScreen> {
                 ]
             )
           )
-      ),
-    );
+      );
+
   }
 }

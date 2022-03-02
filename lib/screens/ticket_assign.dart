@@ -222,9 +222,7 @@ class _TicketAssignState extends State<TicketAssign> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
+    return Scaffold(
         floatingActionButton: FloatingActionButton.extended(
           onPressed: (){
             print(teamId);
@@ -468,7 +466,6 @@ class _TicketAssignState extends State<TicketAssign> {
             ),
           ),
         ),
-      ),
     );
   }
 }

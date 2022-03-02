@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:mmcustomerservice/screens/admin/Customer.dart';
+import 'package:mmcustomerservice/screens/admin/notifyScreen.dart';
 import 'package:mmcustomerservice/screens/admin/register.dart';
 import 'package:mmcustomerservice/screens/admin/unregister_tickets.dart';
+import 'package:mmcustomerservice/screens/data.dart';
 import 'package:mmcustomerservice/screens/login.dart';
 import 'package:mmcustomerservice/screens/admin/team.dart';
 import 'package:mmcustomerservice/screens/ticketpage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 
 class MainMenus extends StatefulWidget {
   String usertype;
@@ -35,6 +38,7 @@ class _MainMenusState extends State<MainMenus> {
   bool ticketMenu = false;
   int timeNow = DateTime.now().hour;
   String greetings = '';
+  String greetsUsr='';
   bool nonRegister = false;
 
   String greetingMessage() {
@@ -79,9 +83,21 @@ class _MainMenusState extends State<MainMenus> {
 
   @override
   Widget build(BuildContext context) {
+    greetsUsr = currentUser.split(" ").first;
+    var counts = context.watch<Data>().getcounter();
+    String count = '';
+    if(counts == 0){
+      setState(() {
+        count="No New Notifications";
+      });
+    }else{
+      setState(() {
+        count = 'Notifications (${(counts)})';
+      });
+    }
+
     return Drawer(
-        child: SafeArea(
-      child: Column(
+        child:Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Container(
@@ -91,12 +107,20 @@ class _MainMenusState extends State<MainMenus> {
               children: <Widget>[
                 Container(
                   padding: EdgeInsets.only(top: 15),
-                  alignment: Alignment.centerLeft,
-                  color: Colors.blue,
+                  alignment: Alignment.bottomLeft,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/images/drawerpic.jpg'),
+                      fit: BoxFit.fill
+                    )
+                  ),
                   width: double.infinity,
-                  height: 145,
+                  height: 185,
                   child: Column(
                     children: <Widget>[
+                      SizedBox(
+                        height: 20,
+                      ),
                       Container(
                         padding: EdgeInsets.only(left: 15),
                         width: double.infinity,
@@ -118,7 +142,7 @@ class _MainMenusState extends State<MainMenus> {
                         alignment: Alignment.centerLeft,
                         padding: EdgeInsets.only(top: 15, left: 15),
                         child: Text(
-                          '$greetings ,' +' ${currentUser[0].toUpperCase() + currentUser.substring(1).toLowerCase()}!',
+                          '$greetings ,' +'\n${greetsUsr[0].toUpperCase() + greetsUsr.substring(1).toLowerCase()}...!',
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 16.5,
@@ -126,339 +150,144 @@ class _MainMenusState extends State<MainMenus> {
                           ),
                         ),
                       ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                    ],
+                  ),
+                ),
+
+                Visibility(
+                  visible: usertype=='admin'?true:false,
+                  child: Column(
+                    children: [
+                      ListTile(
+                        hoverColor: Colors.blueAccent,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Customer()),
+                          );
+                        },
+                          leading: Icon(Icons.groups_sharp,size: 27,),
+                          title: Text('Clients',style: TextStyle(
+                            color: Colors.black,fontWeight: FontWeight.bold,fontSize: 15
+                          ),),
+                        ),
+                      ListTile(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => TeamList()),
+                          );
+                        },
+                        leading: Icon(Icons.face_retouching_natural,size: 27,),
+                        title: Text('Team',style: TextStyle(
+                            color: Colors.black,fontWeight: FontWeight.bold,fontSize: 15
+                        ),),
+                      ),
+                      ListTile(
+                        hoverColor: Colors.blueAccent,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => NotifScreen()),
+                          );
+                        },
+                        leading: Icon(Icons.notifications,size: 27,),
+                        title: Text('$count',style: TextStyle(
+                            color: Colors.black,fontWeight: FontWeight.bold,fontSize: 15
+                        ),),
+                      ),
+                    ],
+                  ),
+                ),
+
+
+                Visibility(
+                  visible: ticketMenu,
+                  child: ListTile(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => Tickets(
+                                usertype: usertype,
+                                currentUser: currentUser)),
+                      );
+                    },
+                    leading: Icon(Icons.connect_without_contact_rounded ,size: 27,),
+                    title: Text('Tickets',style: TextStyle(
+                        color: Colors.black,fontWeight: FontWeight.bold,fontSize: 15
+                    ),),
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.only(left: 10 , right: 10),
+                  height: 0.8,
+                  color: Colors.black12,
+                ),
+
+                Visibility(
+                  visible: usertype=='admin'?true:false,
+                  child: Column(
+                    children: [
+                      ListTile(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => UnRegister_Tickets(
+                                      usertype: usertype,
+                                      currentUser: currentUser)),
+                            );
+                          },
+                          leading: Icon(Icons.hail_outlined,size: 27,),
+                          title: Text('Un Register Tickets',style: TextStyle(
+                              color: Colors.black,fontWeight: FontWeight.bold,fontSize: 15
+                          ),),
+                        ),
+                      ListTile(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Register()),
+                          );
+                        },
+                        leading: Icon(Icons.add,size: 27,),
+                        title: Text('Add New Ticket',style: TextStyle(
+                            color: Colors.black,fontWeight: FontWeight.bold,fontSize: 15
+                        ),),
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(left: 10 , right: 10),
+                        height: 0.8,
+                        color: Colors.black12,
+                      ),
                     ],
                   ),
                 ),
 
                 ListTile(
-                  leading: Icon(Icons.groups_sharp),
-                  title: Text('Clients'),
+                  onTap: (){
+                    logout(context);
+                  },
+                  leading: Icon(Icons.exit_to_app,size: 27,),
+                  title: Text('Logout',style: TextStyle(
+                      color: Colors.redAccent,fontWeight: FontWeight.bold,fontSize: 15
+                  ),),
                 ),
 
-
-                Visibility(
-                  visible: usersMenu,
-                  child: Container(
-                    width: 200,
-                    margin: EdgeInsets.only(left: 30),
-                    child: MouseRegion(
-                      onHover: (h) {
-                        setState(() {
-                          isHover = true;
-                        });
-                      },
-                      onExit: (h) {
-                        setState(() {
-                          isHover = false;
-                        });
-                      },
-                      child: AnimatedContainer(
-                        duration: Duration(milliseconds: 200),
-                        child: AnimatedDefaultTextStyle(
-                          style: TextStyle(
-                            color: isHover ? Colors.blue : Colors.black,
-                            fontSize: 20,
-                          ),
-                          duration: Duration(milliseconds: 150),
-                          child: InkWell(
-                            highlightColor: Colors.black12,
-                            borderRadius: BorderRadius.circular(60.0),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => Customer()),
-                              );
-                            },
-                            child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: <Widget>[
-                                  Container(
-                                    padding: EdgeInsets.only(
-                                        left: 20, bottom: 20, top: 15),
-                                    child: Icon(
-                                      Icons.groups_sharp,
-                                      color:
-                                          isHover ? Colors.blue : Colors.black,
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: EdgeInsets.only(
-                                        left: 25, bottom: 20, top: 15),
-                                    child: Text(
-                                      'Clients',
-                                    ),
-                                  ),
-                                ]),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Visibility(
-                  visible: teamMenu,
-                  child: Container(
-                    width: 200,
-                    margin: EdgeInsets.only(left: 30, top: 15),
-                    child: MouseRegion(
-                      onHover: (o) {
-                        setState(() {
-                          isHover1 = true;
-                        });
-                      },
-                      onExit: (o) {
-                        setState(() {
-                          isHover1 = false;
-                        });
-                      },
-                      child: AnimatedContainer(
-                        duration: Duration(milliseconds: 200),
-                        child: AnimatedDefaultTextStyle(
-                          style: TextStyle(
-                            color: isHover1 ? Colors.blue : Colors.black,
-                            fontSize: 20,
-                          ),
-                          duration: Duration(milliseconds: 150),
-                          child: InkWell(
-                            highlightColor: Colors.black12,
-                            borderRadius: BorderRadius.circular(60.0),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => TeamList()),
-                              );
-                            },
-                            child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: <Widget>[
-                                  Container(
-                                    padding: EdgeInsets.only(
-                                        left: 20, bottom: 20, top: 15),
-                                    child: Icon(
-                                      Icons.people,
-                                      color:
-                                          isHover1 ? Colors.blue : Colors.black,
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: EdgeInsets.only(
-                                        left: 25, bottom: 20, top: 15),
-                                    child: Text(
-                                      'Team',
-                                    ),
-                                  ),
-                                ]),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Visibility(
-                  visible: ticketMenu,
-                  child: Container(
-                    width: 200,
-                    margin: EdgeInsets.only(left: 30, top: 15),
-                    child: MouseRegion(
-                      onHover: (v) {
-                        setState(() {
-                          isHover2 = true;
-                        });
-                      },
-                      onExit: (v) {
-                        setState(() {
-                          isHover2 = false;
-                        });
-                      },
-                      child: AnimatedContainer(
-                        duration: Duration(milliseconds: 200),
-                        child: AnimatedDefaultTextStyle(
-                          style: TextStyle(
-                            color: isHover2 ? Colors.blue : Colors.black,
-                            fontSize: 20,
-                          ),
-                          duration: Duration(milliseconds: 150),
-                          child: InkWell(
-                            highlightColor: Colors.black12,
-                            borderRadius: BorderRadius.circular(60.0),
-                            onTap: () {
-                              print("Current user........"+currentUser);
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => Tickets(
-                                        usertype: usertype,
-                                        currentUser: currentUser)),
-                              );
-                            },
-                            child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: <Widget>[
-                                  Container(
-                                    padding: EdgeInsets.only(
-                                        left: 20, bottom: 20, top: 15),
-                                    child: Icon(
-                                      Icons.confirmation_number_sharp,
-                                      color:
-                                          isHover2 ? Colors.blue : Colors.black,
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: EdgeInsets.only(
-                                        left: 25, bottom: 20, top: 15),
-                                    child: Text(
-                                      'Tickets',
-                                    ),
-                                  ),
-                                ]),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Visibility(
-                  visible: nonRegister,
-                  child: Container(
-                    width: 200,
-                    margin: EdgeInsets.only(left: 30, top: 15),
-                    child: MouseRegion(
-                      onHover: (v) {
-                        setState(() {
-                          isHover3 = true;
-                        });
-                      },
-                      onExit: (v) {
-                        setState(() {
-                          isHover3 = false;
-                        });
-                      },
-                      child: AnimatedContainer(
-                        duration: Duration(milliseconds: 200),
-                        child: AnimatedDefaultTextStyle(
-                          style: TextStyle(
-                            color: isHover3 ? Colors.blue : Colors.black,
-                            fontSize: 20,
-                          ),
-                          duration: Duration(milliseconds: 150),
-                          child: InkWell(
-                            highlightColor: Colors.black12,
-                            borderRadius: BorderRadius.circular(60.0),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => UnRegister_Tickets(
-                                        usertype: usertype,
-                                        currentUser: currentUser)),
-                              );
-                            },
-                            child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: <Widget>[
-                                  Container(
-                                    padding: EdgeInsets.only(
-                                        left: 20, bottom: 20, top: 15),
-                                    child: Icon(
-                                      Icons.dns_sharp,
-                                      color:
-                                      isHover3 ? Colors.blue : Colors.black,
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: EdgeInsets.only(
-                                        left: 25, bottom: 20, top: 15),
-                                    child: Text(
-                                      'Other Tickets',
-                                    ),
-                                  ),
-                                ]),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Visibility(
-                  visible: nonRegister,
-                  child: Container(
-                    width: 200,
-                    margin: EdgeInsets.only(left: 30, top: 15),
-                    child: MouseRegion(
-                      onHover: (v) {
-                        setState(() {
-                          isHover3 = true;
-                        });
-                      },
-                      onExit: (v) {
-                        setState(() {
-                          isHover3 = false;
-                        });
-                      },
-                      child: AnimatedContainer(
-                        duration: Duration(milliseconds: 200),
-                        child: AnimatedDefaultTextStyle(
-                          style: TextStyle(
-                            color: isHover3 ? Colors.blue : Colors.black,
-                            fontSize: 20,
-                          ),
-                          duration: Duration(milliseconds: 150),
-                          child: InkWell(
-                            highlightColor: Colors.black12,
-                            borderRadius: BorderRadius.circular(60.0),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => Register()),
-                              );
-                            },
-                            child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: <Widget>[
-                                  Container(
-                                    padding: EdgeInsets.only(
-                                        left: 20, bottom: 20, top: 15),
-                                    child: Icon(
-                                      Icons.person_add_alt,
-                                      color:
-                                      isHover3 ? Colors.blue : Colors.black,
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: EdgeInsets.only(
-                                        left: 25, bottom: 20, top: 15),
-                                    child: Text(
-                                      'Add Client',
-                                    ),
-                                  ),
-                                ]),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
               ],
-            ),
-          ),
-          Container(
-            width: double.infinity,
-            alignment: Alignment.centerLeft,
-            padding: EdgeInsets.only(left: 10,bottom: 20),
-            child: FloatingActionButton.extended(
-              onPressed: () {
-                logout(context);
-              },
-              label: Text("Logout"),
-              icon: Icon(Icons.logout),
             ),
           ),
         ],
       ),
-    ));
+    );
   }
 
   Future<void> logout(BuildContext context) async {

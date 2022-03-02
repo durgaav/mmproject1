@@ -214,7 +214,7 @@ import 'package:mmcustomerservice/screens/admin/register.dart';
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Container(
-                    margin: EdgeInsets.only(top: 75),
+                    margin: EdgeInsets.only(top: 45),
                     padding: EdgeInsets.only(top: 60),
                     child: Image(
                       image: AssetImage('assets/images/loginimg.png'),
@@ -294,11 +294,22 @@ import 'package:mmcustomerservice/screens/admin/register.dart';
                               onPrimary: Colors.white,
                             ),
                           )),
-                      TextButton(child: Text('Register',style: TextStyle(color: Colors.red,fontSize: 16,decoration: TextDecoration.underline),),
-                        onPressed: (){
-                          Navigator.push(context,
-                            MaterialPageRoute(builder: (context)=>Register()),);
-                        },),
+                      Container(
+                        width:double.infinity,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('Un register user?'
+                              ,style: TextStyle(color: Colors.black,fontSize: 16),),
+                            TextButton(child: Text('Register'
+                              ,style: TextStyle(color: Colors.red,fontSize: 16,decoration: TextDecoration.underline),),
+                              onPressed: (){
+                                Navigator.push(context,
+                                  MaterialPageRoute(builder: (context)=>Register()),);
+                              },),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ))
