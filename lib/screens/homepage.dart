@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'package:mmcustomerservice/screens/data.dart';
 import 'package:open_file/open_file.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:file_picker/file_picker.dart';
@@ -8,10 +9,14 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mmcustomerservice/screens/admin/notifyScreen.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as Path;
-import 'package:http_parser/http_parser.dart';
 import 'dart:io';
+import 'package:mime/mime.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'mainmenus.dart';
+import 'package:provider/provider.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:path/path.dart' as Path;
 
 class HomePage extends StatefulWidget {
   @override
@@ -33,6 +38,7 @@ class _HomePageState extends State<HomePage> {
   String currentUser = '';
   String proCode = '';
   bool notiIconVisi = false;
+  var counts = 0;
   DateFormat formatter = DateFormat('dd-MM-yyyy hh:mm:ss a');
 
   TextEditingController emailController = TextEditingController();
@@ -57,6 +63,7 @@ class _HomePageState extends State<HomePage> {
   // List<File> _images = <File>[];
   //List <File> _dataList = [];
   List<File> files =[];
+  List extensions =[];
   bool imageremove = true;
   bool fileremove = true;
   bool filevisible = false;
@@ -77,11 +84,12 @@ class _HomePageState extends State<HomePage> {
         teamCount = map['team'];
         ticketCount = map['tickets'];
         //notifyUnSeenCount
-        notifyUnSeenCount = map['notifyunseen'];
+        counts = map['notifyunseen'];
         setState(() {
-          if(notifyUnSeenCount==0){
+          if(counts==0){
             opacity = 0.0;
           }else{
+            context.read<Data>().setCount(counts);
             opacity = 1.0;
           }
           //tap again - false
@@ -116,9 +124,9 @@ class _HomePageState extends State<HomePage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children:<Widget> [
                       CircularProgressIndicator(
-                        color: Colors.deepPurpleAccent,
+                        color: Colors.blue,
                       ),
-                      Text(' please wait...',style: TextStyle(fontSize: 18),),
+                      Text(' Please wait...',style: TextStyle(fontSize: 18),),
                     ],
                   )
               )
@@ -222,145 +230,22 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-
-  // void selectfile(BuildContext context) {
-  //   //Navigator.of(context);
-  //   showModalBottomSheet(
-  //       context: context,
-  //       builder: (context) {
-  //         return Container(
-  //           height: 150,
-  //           color: Colors.white,
-  //           child: Column(
-  //             mainAxisAlignment: MainAxisAlignment.spaceAround,
-  //             children: [
-  //               Container(
-  //                 child: Text('Select file type',
-  //                   style: TextStyle(
-  //                       fontSize: 18, fontWeight: FontWeight.bold),),
-  //               ),
-  //               Row(
-  //                 mainAxisAlignment: MainAxisAlignment.spaceAround,
-  //                 children: [
-  //                   GestureDetector(
-  //                       onTap: () {
-  //                         setState(() {
-  //                           dropdownValue = 'pdf';
-  //                           picker();
-  //                           print(dropdownValue);
-  //                         });
-  //                       },
-  //                       child: Column(
-  //                         children: [
-  //                           Container(
-  //                             width: 50,
-  //                             height: 50,
-  //                             child: Image(
-  //                               image: AssetImage(
-  //                                   'assets/images/pdficon.png'),),
-  //                           ),
-  //                           Container(
-  //                             padding: EdgeInsets.only(top: 5),
-  //                             child: Text('PDF',
-  //                               style: TextStyle(fontWeight: FontWeight.bold),),
-  //                           )
-  //                         ],
-  //                       )
-  //                   ),
-  //                   GestureDetector(
-  //                       onTap: () {
-  //                         setState(() {
-  //                           dropdownValue = 'images';
-  //                           picker();
-  //                           print(dropdownValue);
-  //
-  //                         });
-  //                       },
-  //                       child: Column(
-  //                         children: [
-  //                           Container(
-  //                             width: 50,
-  //                             height: 50,
-  //                             child: Image(
-  //                               image: AssetImage('assets/images/image.jpeg'),),
-  //                           ),
-  //                           Container(
-  //                             padding: EdgeInsets.only(top: 5),
-  //                             child: Text('Images',
-  //                               style: TextStyle(fontWeight: FontWeight.bold),),
-  //                           )
-  //                         ],
-  //                       )
-  //                   ),
-  //                   GestureDetector(
-  //                       onTap: () {
-  //                         dropdownValue = 'doc';
-  //                         picker();
-  //                         print(dropdownValue);
-  //                       },
-  //                       child: Column(
-  //                         children: [
-  //                           Container(
-  //                             width: 50,
-  //                             height: 50,
-  //                             child: Image(
-  //                               image: AssetImage('assets/images/doc.jpeg'),),
-  //                           ),
-  //                           Container(
-  //                             padding: EdgeInsets.only(top: 5),
-  //                             child: Text('Documnet',
-  //                               style: TextStyle(fontWeight: FontWeight.bold),),
-  //                           )
-  //                         ],
-  //                       )
-  //                   ),
-  //                   GestureDetector(
-  //                       onTap: () {
-  //                         dropdownValue = 'zip';
-  //                         picker();
-  //                         print(dropdownValue);
-  //                       },
-  //                       child: Column(
-  //                         children: [
-  //                           Container(
-  //                             width: 50,
-  //                             height: 50,
-  //                             child: Image(
-  //                               image: AssetImage('assets/images/zip.jpeg'),),
-  //                           ),
-  //                           Container(
-  //                             padding: EdgeInsets.only(top: 5),
-  //                             child: Text('Zip',
-  //                               style: TextStyle(fontWeight: FontWeight.bold),),
-  //                           )
-  //                         ],
-  //                       )
-  //                   ),
-  //
-  //                 ],
-  //               )
-  //
-  //             ],
-  //           ),
-  //         );
-  //       });
-  // }
-  //
   void picker() async{
     print("image path"+imgPath);
     print("Entering to file picker........");
-    FilePickerResult? result = await FilePicker.platform.pickFiles(allowMultiple: true,);
+    FilePickerResult? result = await FilePicker.platform.pickFiles(allowMultiple: true,
+    type: FileType.custom,
+    allowedExtensions: ['jpg','jpeg','png','zip','doc','docx','rar'],
+    );
     PlatformFile file = result.files.first;
-
-    if(result!=""){
-      imgPath = file.path.toString();
-      // _datas = File(imgPath);
-      // _dataList.add(File(imgPath));
-      files = result!.paths.map((path) => File(path!)).toList();
-      print(files);
-      extention = file.extension;
-      // print (_dataList.toString());
-
+    if (result!=null){
+      setState(() {
+        files = result.paths.map((path) => File(path)).toList();
+      });
+      for(int i = 0;i<files.length ; i++){
+        extensions.add(lookupMimeType(files[i].path));
+      }
+      print(extensions);
     }
   }
 
@@ -376,8 +261,6 @@ class _HomePageState extends State<HomePage> {
                 print('hi');
                 setState(() {
                   files.removeAt(index);
-                  // if (_images.length == -1) {
-                  //   imageremove = false;
                 });
               },
               icon: Icon(Icons.close,color: Colors.red,size: 30,),
@@ -389,221 +272,120 @@ class _HomePageState extends State<HomePage> {
 
   Future AddNewTicket(String Username, String Email, String Phonenumber,
       String DomainName, String Description, BuildContext context) async {
-    print("Exten........." + Username);
-    //showAlert(context);
+
     final request = http.MultipartRequest(
         'POST', Uri.parse('https://mindmadetech.in/api/tickets/new')
     );
+    showAlert(context);
 
-    request.headers['Content-Type'] = 'multipart/form-data';
-    request.fields.addAll
-      ({
-      'Username': Username,
-      'Email': Email,
-      'Phonenumber': Phonenumber,
-      'DomainName': DomainName,
-      'Projectcode':'$proCode',
-      'Description': Description,
-      'Cus_CreatedOn':formatter.format(DateTime.now()),
-    });
-
-    if(files!=null) {
-      int i=0;
-      for(i = 0; i < files.length; i++) {
-        int rowcount = i;
-        File singleImage = files[rowcount];
-        print(singleImage);
-        print("Imagessssss");
-        if(files.contains('.jpg')||files.contains('.png')||files.contains('svg')||files.contains('jpeg')){
-          request.files.add(
-              await http.MultipartFile.fromPath(
-                  'files', singleImage.path, filename: Path.basename(singleImage.path),
-                  contentType: MediaType.parse("image/$extention")
-              ));
-        }else if(files.contains('.docx')){
-          request.files.add(
-              await http.MultipartFile.fromPath(
-                  'files', singleImage.path, filename: Path.basename(singleImage.path),
-                  contentType: MediaType.parse(
-                      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                  )
-              ));
-        }else if(files.contains('.zip')){
-          request.files.add(
-              await http.MultipartFile.fromPath(
-                  'files', singleImage.path, filename: Path.basename(singleImage.path),
-                  contentType: MediaType.parse("application/$extention")
-              ));
+    if(files.isEmpty){
+      request.headers['Content-Type'] = 'multipart/form-data';
+      request.fields.addAll
+        ({
+        'Username': Username,
+        'Email': Email,
+        'Phonenumber': Phonenumber,
+        'DomainName': DomainName,
+        'Projectcode':'$proCode',
+        'Description': Description,
+        'Cus_CreatedOn':formatter.format(DateTime.now()),
+      });
+      // request.files.add(await http.MultipartFile.fromPath('files', '/path/to/file'));
+      http.StreamedResponse response = await request.send();
+      String res = await response.stream.bytesToString();
+      if (response.statusCode == 200) {
+        Navigator.pop(context);
+        if(res.contains('Ticket added successfully')){
+          setState(() {
+            emailController = new TextEditingController(text: "");
+            phnoController = new TextEditingController(text: "");
+            domainController = new TextEditingController(text: "");
+            dsController = new TextEditingController(text: "");
+          });
+          Fluttertoast.showToast(
+              msg:res.replaceAll("{", "").replaceAll("}", ""),
+              toastLength: Toast.LENGTH_LONG,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.green,
+              textColor: Colors.white,
+              fontSize: 15.0
+          );
         }
       }
-    }else if(files==null){
-      print('no selected images');
-    }
-    http.StreamedResponse response = await request.send();
-    print(response.statusCode);
-    if (response.statusCode == 200) {
+      else {
+        Navigator.pop(context);
+        Fluttertoast.showToast(
+            msg:await response.reasonPhrase.toString(),
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 15.0
+        );
+        print(response.reasonPhrase);
+      }
+    }else{
+      request.headers['Content-Type'] = 'multipart/form-data';
+      request.fields.addAll
+        ({
+        'Username': Username,
+        'Email': Email,
+        'Phonenumber': Phonenumber,
+        'DomainName': DomainName,
+        'Projectcode':'$proCode',
+        'Description': Description,
+        'Cus_CreatedOn':formatter.format(DateTime.now()),
+      });
+      for(int i =0 ; i<files.length ;i++){
+        request.files.add(await http.MultipartFile.fromPath('files', files[i].path,
+            filename: Path.basename(files[i].path),
+            contentType: MediaType.parse(extensions[i].toString())
+        ));
+      }
+      // request.files.add(await http.MultipartFile.fromPath('files', '/path/to/file'));
+      http.StreamedResponse response = await request.send();
       String res = await response.stream.bytesToString();
-      // Navigator.pop(context);
-      Fluttertoast.showToast(
-          msg: 'Ticket added successfully!',
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-          fontSize: 15.0
-      );
-      print("Image Uploaded");
-      return res;
-    } else {
-      // Navigator.pop(context);
-      Fluttertoast.showToast(
-          msg: 'Failed to add Ticket',
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 15.0
-      );
-      print("Upload Failed");
-    }
-    response.stream.transform(utf8.decoder).listen((value) {
-      print(value);
-    });
-  }
+      if (response.statusCode == 200) {
+        Navigator.pop(context);
+        if(res.contains('Ticket added successfully')){
+          setState(() {
+            emailController = new TextEditingController(text: "");
+            phnoController = new TextEditingController(text: "");
+            domainController = new TextEditingController(text: "");
+            dsController = new TextEditingController(text: "");
+            extensions = [];
+            files = [];
+          });
 
-  // Future AddNewTicket(String Username, String Email, String Phonenumber,
-  //     String DomainName, String Description, BuildContext context) async {
-  //   print("Exten........." + Username);
-  //   showAlert(context);
-  //   final request = http.MultipartRequest(
-  //       'POST', Uri.parse('https://mindmadetech.in/api/tickets/new')
-  //   );
-  //
-  //   request.headers['Content-Type'] = 'multipart/form-data';
-  //   request.fields.addAll
-  //     ({
-  //     'Username': Username,
-  //     'Email': Email,
-  //     'Phonenumber': Phonenumber,
-  //     'DomainName': DomainName,
-  //     'Projectcode':'$proCode',
-  //     'Description': Description,
-  //     'Cus_CreatedOn':formatter.format(DateTime.now()),
-  //   });
-  //
-  //   // if(dropdownValue == "images") {
-  //   //   int i=0;
-  //   //   for(i = 0; i < _images.length; i++) {
-  //   //     int rowcount = i;
-  //   //     File singleImage = _images[rowcount];
-  //   //     print(singleImage);
-  //   //     print("Imagessssss");
-  //   //     request.files.add(
-  //   //         await http.MultipartFile.fromPath(
-  //   //             'files', singleImage.path, filename: Path.basename(singleImage.path),
-  //   //             contentType: MediaType.parse("image/$extention")
-  //   //         ));
-  //   //   }
-  //   // }
-  //   // else if(dropdownValue == "docx"){
-  //   //   int i=0;
-  //   //   for(i = 0; i < _dataList.length; i++) {
-  //   //     int rowcount = i;
-  //   //     File singleImage = _dataList[rowcount];
-  //   //     print(singleImage);
-  //   //     print("docxxx");
-  //   //     request.files.add(
-  //   //         await http.MultipartFile.fromPath(
-  //   //             'files', singleImage.path, filename: Path.basename(singleImage.path),
-  //   //             contentType: MediaType.parse(
-  //   //                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-  //   //             )
-  //   //         )
-  //   //     );
-  //   //   }
-  //   // }
-  //   // else if(dropdownValue == "doc"){
-  //   //   int i=0;
-  //   //   for(i = 0; i < _dataList.length; i++) {
-  //   //     int rowcount = i;
-  //   //     File singleImage = _dataList[rowcount];
-  //   //     print(singleImage);
-  //   //     print("doccc");
-  //   //     request.files.add(
-  //   //         await http.MultipartFile.fromPath(
-  //   //             'files', singleImage.path, filename: Path.basename(singleImage.path),
-  //   //             contentType: MediaType.parse("application/$extention")
-  //   //         )
-  //   //     );
-  //   //   }
-  //   // }
-  //   // else if(dropdownValue == "pdf"){
-  //   //   int i=0;
-  //   //   for(i = 0; i < _dataList.length; i++) {
-  //   //     int rowcount = i;
-  //   //     File singleImage = _dataList[rowcount];
-  //   //     print(singleImage);
-  //   //     print("pdfff");
-  //   //     request.files.add(
-  //   //         await http.MultipartFile.fromPath(
-  //   //             'files', singleImage.path, filename: Path.basename(singleImage.path),
-  //   //             contentType: MediaType.parse("application/$extention")
-  //   //         )
-  //   //     );
-  //   //   }
-  //   // }
-  //   // else if(dropdownValue == "zip"){
-  //   //   int i=0;
-  //   //   for(i = 0; i < _dataList.length; i++) {
-  //   //     int rowcount = i;
-  //   //     File singleImage = _dataList[rowcount];
-  //   //     print(singleImage);
-  //   //     print("zip...");
-  //   //     request.files.add(
-  //   //         await http.MultipartFile.fromPath(
-  //   //             'files', singleImage.path, filename: Path.basename(singleImage.path),
-  //   //             contentType: MediaType.parse("application/x-zip-compressed")
-  //   //         )
-  //   //     );
-  //   //   }
-  //   //   print("zip....");
-  //   // }
-  //
-  //   http.StreamedResponse response = await request.send();
-  //   print(response.statusCode);
-  //   if (response.statusCode == 200) {
-  //     String res = await response.stream.bytesToString();
-  //     Navigator.pop(context);
-  //     Fluttertoast.showToast(
-  //         msg: 'Ticket added successfully!',
-  //         toastLength: Toast.LENGTH_LONG,
-  //         gravity: ToastGravity.BOTTOM,
-  //         timeInSecForIosWeb: 1,
-  //         backgroundColor: Colors.green,
-  //         textColor: Colors.white,
-  //         fontSize: 15.0
-  //     );
-  //     print("Image Uploaded");
-  //     return response;
-  //   } else {
-  //     Navigator.pop(context);
-  //     Fluttertoast.showToast(
-  //         msg: 'Failed to add Ticket',
-  //         toastLength: Toast.LENGTH_LONG,
-  //         gravity: ToastGravity.BOTTOM,
-  //         timeInSecForIosWeb: 1,
-  //         backgroundColor: Colors.red,
-  //         textColor: Colors.white,
-  //         fontSize: 15.0
-  //     );
-  //     print("Upload Failed");
-  //   }
-  //   response.stream.transform(utf8.decoder).listen((value) {
-  //     print(value);
-  //   });
-  // }
+          Fluttertoast.showToast(
+              msg:res.replaceAll("{", "").replaceAll("}", ""),
+              toastLength: Toast.LENGTH_LONG,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.green,
+              textColor: Colors.white,
+              fontSize: 15.0
+          );
+        }
+      }
+      else {
+        Navigator.pop(context);
+        Fluttertoast.showToast(
+            msg:await response.reasonPhrase.toString(),
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 15.0
+        );
+        print(response.reasonPhrase);
+      }
+    }
+
+  }
 
   //endregion
 
@@ -619,14 +401,15 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    Future.delayed(Duration
-        .zero, () async {
-      screenVisibility();
-      showfiles();
+    Future.delayed(
+        Duration.zero, () async {
+        screenVisibility();
+        showfiles();
     });
   }
   @override
   Widget build(BuildContext context) {
+    counts = context.watch<Data>().getcounter();
     TextEditingController userController = TextEditingController(text: "$currentUser");
     return Scaffold(
         drawer:MainMenus(usertype: usertype, currentUser: currentUser),
@@ -634,7 +417,8 @@ class _HomePageState extends State<HomePage> {
             backgroundColor: Color(0Xff146bf7),
             title: Text('Dashboard'),
             actions: <Widget>[
-              IconButton(
+              usertype!="client"
+                  ?IconButton(
                 padding: EdgeInsets.only(right: 20),
                 icon: const Icon(Icons.refresh,size: 27,),
                 onPressed: (){
@@ -642,15 +426,22 @@ class _HomePageState extends State<HomePage> {
                     screenVisibility();
                   });
                 },
+              )
+                  :IconButton(
+                padding: EdgeInsets.only(right: 20),
+                icon: const Icon(Icons.exit_to_app,size: 27,),
+                onPressed: (){
+                  SystemChannels.platform.invokeMethod<void>('SystemNavigator.pop');
+                },
               ),
-              Visibility(
+                   Visibility(
                 visible: notiIconVisi,
                 child: Container(
                   child: Stack(
                     children:<Widget> [
                       IconButton(
                         padding: EdgeInsets.only(right: 20),
-                        icon: const Icon(Icons.add_alert,size: 30,),
+                        icon: const Icon(Icons.notifications,size: 30,),
                         onPressed: (){
                           Navigator.push(context,
                             MaterialPageRoute(builder: (context)=>NotifScreen()),);
@@ -660,7 +451,7 @@ class _HomePageState extends State<HomePage> {
                         top: 4,
                         right: 10,
                         child: Opacity(
-                          opacity:opacity,
+                          opacity:counts!=0?1.0:0.0,
                           child: GestureDetector(
                             onTap: (){
                               Navigator.push(context,
@@ -671,451 +462,326 @@ class _HomePageState extends State<HomePage> {
                               radius: 10,
                               child: Padding(
                                 padding: const EdgeInsets.only(bottom: 2),
-                                child: Text("$notifyUnSeenCount",style: TextStyle(color:Colors.white,fontSize: 10,fontWeight: FontWeight.bold),),
+                                child:Text("$counts",style: TextStyle(color:Colors.white,fontSize: 10,fontWeight: FontWeight.bold),),
                               ),
                             ),
                           ),
                         ),
                       ),
-
-
                     ],
                   ),
                 ),
               ),
-
             ]
         ),
-
         body: Container(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height * 1.0,
-            padding: EdgeInsets.symmetric(vertical: 40),
-            color: Color(0XFFebf2fa),
-            child:
-            (users == true) ?SingleChildScrollView(
-                child: Form(
-                    child:Container(
-                      margin: EdgeInsets.symmetric(horizontal: 20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          TextFormField(
-                            enabled: false,
-                            decoration: const InputDecoration(
-                              hintText: 'Enter a Username',
-                              labelText: 'UserName',
-                            ),
-                            controller:userController ,
-                          ),
-                          TextFormField(
-                            decoration: const InputDecoration(
-                              hintText: 'Enter a Emailid',
-                              labelText: 'Email',
-                            ),
-                            controller: emailController,
-                          ),
-                          TextFormField(
-                            decoration: const InputDecoration(
-                              hintText: 'Enter a Number',
-                              labelText: 'Phone Number',
-                            ),
-                            controller: phnoController,
-                          ),
-                          TextFormField(
-                            decoration: const InputDecoration(
-                              hintText: 'Enter a Domain Name',
-                              labelText: 'Domain Name',
-                            ),
-                            controller: domainController,
-                          ),
-                          TextFormField(
-                            decoration: InputDecoration(
-                                hintText: 'Enter your Issue',
-                                labelText: 'Description'
-                            ),
-                            maxLines: 100,
-                            minLines: 3,
-                            controller: dsController,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              ElevatedButton(onPressed: () async {
-                                setState(() {
-                                  showfiles();
-                                });
-                                picker();
-                              },
-                                style: ElevatedButton.styleFrom(
-                                  shape: StadiumBorder(),
-                                  onPrimary: Colors.white,
-                                ),
-                                child: Text('Choose file',style: TextStyle(fontSize: 17),),
-                              ),
-
-                              ElevatedButton(onPressed: () {
-                                if(currentUser.isEmpty||emailController.text.isEmpty||dsController.text.isEmpty||
-                                    domainController.text.isEmpty||phnoController.text.length<10
-                                ){
-                                  print("value not entered......");
-                                  Fluttertoast.showToast(
-                                      msg: 'Please enter all detailes!',
-                                      toastLength: Toast.LENGTH_LONG,
-                                      gravity: ToastGravity.BOTTOM,
-                                      timeInSecForIosWeb: 1,
-                                      backgroundColor: Colors.red,
-                                      textColor: Colors.white,
-                                      fontSize: 15.0
-                                  );
-                                }else {
-                                  AddNewTicket(
-                                      userController.text.toString(),
-                                      emailController.text.toString(),
-                                      phnoController.text.toString(),
-                                      domainController.text.toString(),
-                                      dsController.text.toString(), context);
-                                }
-                                filevisible =  false;
-                                imgvisible = false;
-                              },
-                                style: ElevatedButton.styleFrom(
-                                  shape: StadiumBorder(),
-                                  onPrimary: Colors.white,
-                                ),child: Text("submit",style: TextStyle(fontSize: 17),),),
-                            ],
-                          ),
-
-                          Container(
-                            height: 250,
-                            child: ListView.builder(
-                                itemCount: files.length,
-                                itemBuilder: (BuildContext context , index){
-                                  return ListTile(
-                                    leading: Icon(Icons.image,color: Colors.green,size: 40,),
-                                    title: Text(files[index].path.split('/').last,style: TextStyle(fontSize: 14),),
-                                    trailing: IconButton(
-                                      onPressed: (){
-                                        print('hi');
-                                        setState(() {
-                                          files.removeAt(index);
-                                          if (files.length == -1) {
-                                            imageremove = false;
-                                          }
-                                        });
-                                      },
-                                      icon: Icon(Icons.close,color: Colors.red,size: 30,),
-                                    ),
-                                  );
-                                }),
-                          ),
-                          // Visibility(
-                          //     visible: imgvisible,
-                          //     child: Column(
-                          //       children: [
-                          //         Container(
-                          //           child:Text("Images",style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
-                          //         ),
-                          //         Container(
-                          //           height:200,
-                          //           width:double.infinity,
-                          //           child:GridView.builder(
-                          //               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          //                 crossAxisCount: 3,
-                          //                 mainAxisSpacing: 10,),
-                          //               itemCount: _images.length,
-                          //               padding: EdgeInsets.all(8.0),
-                          //               itemBuilder: (BuildContext context, int index) {
-                          //                 return Container(
-                          //                     margin: EdgeInsets.only(right: 10),
-                          //                     width: 72,
-                          //                     child:Stack(
-                          //                       children: [
-                          //                         Container(
-                          //                             width: 320,
-                          //                             child: GestureDetector(
-                          //                                 child: Image.file(_images[index], fit: BoxFit.cover))
-                          //                         ),
-                          //                         Positioned(
-                          //                           right: 0.1,
-                          //                           child: InkWell(
-                          //                             child: Icon(
-                          //                               Icons.remove_circle,
-                          //                               size: 20,
-                          //                               color: Colors.red,
-                          //                             ),
-                          //                             onTap: () {
-                          //                               _images.removeAt(index);
-                          //                               setState(() {
-                          //                                 if (_images.length == -1) {
-                          //                                   imageremove = false;
-                          //                                 }});
-                          //                             },),
-                          //                         )
-                          //                       ],
-                          //                     )
-                          //                 );}
-                          //           ),
-                          //         )
-                          //       ],
-                          //     )
-                          // ),
-                          // Visibility(
-                          //     visible: filevisible,
-                          //     child:Column(
-                          //       children: [
-                          //         Container(
-                          //           padding: EdgeInsets.only(top:5),
-                          //           child:Text("Other files",style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
-                          //         ),
-                          //         Container(
-                          //           height:200,
-                          //           width:double.infinity,
-                          //           child:ListView.builder(
-                          //               scrollDirection: Axis.horizontal,
-                          //               itemCount: _dataList.length,
-                          //               padding: EdgeInsets.all(8.0),
-                          //               itemBuilder: (BuildContext context,
-                          //                   int index) {
-                          //                 return Container(
-                          //                     margin: EdgeInsets.only(right: 10),
-                          //                     width: 72,
-                          //                     child: Stack(
-                          //                         children: <Widget>[
-                          //                           Container(
-                          //                               height: 70,
-                          //                               color: Colors.white,
-                          //                               child:
-                          //                               (_dataList.contains('pdf'))?
-                          //                               //Text("pdffff",style: TextStyle(color: Colors.red),):
-                          //                               Image(image: AssetImage('assets/images/pdficon.png'),) :
-                          //                               (_dataList.contains('zip'))?
-                          //                               Image(image: AssetImage('assets/images/zip.jpeg')) :
-                          //                               (_dataList.contains('doc'))?
-                          //                               Image(image: AssetImage('assets/images/doc.jpeg')):
-                          //                               (_dataList.contains('docx'))?
-                          //                               Image(image: AssetImage('assets/images/doc.jpeg')):Container()
-                          //                           ),
-                          //                           Positioned(
-                          //                             right: 0.1,
-                          //                             child: InkWell(
-                          //                               child: Icon(
-                          //                                 Icons.remove_circle,
-                          //                                 size: 20,
-                          //                                 color: Colors.red,
-                          //                               ),
-                          //                               onTap: () {
-                          //                                 _dataList.removeAt(index);
-                          //                                 setState(() {
-                          //                                   if (_dataList.length == -1) {
-                          //                                     fileremove = false;
-                          //                                   }
-                          //                                 });
-                          //                               },
-                          //                             ),
-                          //                           )
-                          //                         ]
-                          //                     )
-                          //                 );}
-                          //           ),
-                          //         )
-                          //       ],
-                          //     )
-                          // )
-                        ],
-                      ),
-                    )
-                )
-            ):
-            Container(
               width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height * 0.9,
-              child: Column(
-                children: <Widget>[
+              height: MediaQuery.of(context).size.height,
+              color: Color(0XFFebf2fa),
+              child:Column(
+                children: [
+                  SizedBox(
+                    height: 15,
+                  ),
+                  (users == true)?
+                  SingleChildScrollView(
+                      child: Form(
+                          child:Container(
+                            margin: EdgeInsets.symmetric(horizontal: 20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                TextFormField(
+                                  enabled: false,
+                                  decoration: const InputDecoration(
+                                    hintText: 'Enter a Username',
+                                    labelText: 'UserName',
+                                  ),
+                                  controller:userController ,
+                                ),
+                                TextFormField(
+                                  decoration: const InputDecoration(
+                                    hintText: 'Enter a Emailid',
+                                    labelText: 'Email',
+                                  ),
+                                  controller: emailController,
+                                ),
+                                TextFormField(
+                                  decoration: const InputDecoration(
+                                    hintText: 'Enter a Number',
+                                    labelText: 'Phone Number',
+                                  ),
+                                  controller: phnoController,
+                                ),
+                                TextFormField(
+                                  decoration: const InputDecoration(
+                                    hintText: 'Enter a Domain Name',
+                                    labelText: 'Domain Name',
+                                  ),
+                                  controller: domainController,
+                                ),
+                                TextFormField(
+                                  decoration: InputDecoration(
+                                      hintText: 'Enter your Issue',
+                                      labelText: 'Description'
+                                  ),
+                                  maxLines: 100,
+                                  minLines: 3,
+                                  controller: dsController,
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    ElevatedButton(onPressed: () async {
+                                      setState(() {
+                                        showfiles();
+                                      });
+                                      picker();
+                                    },
+                                      style: ElevatedButton.styleFrom(
+                                        shape: StadiumBorder(),
+                                        onPrimary: Colors.white,
+                                      ),
+                                      child: Text('Choose file',style: TextStyle(fontSize: 17),),
+                                    ),
+
+                                    ElevatedButton(onPressed: () {
+                                      AddNewTicket(
+                                          userController.text.toString(),
+                                          emailController.text.toString(),
+                                          phnoController.text.toString(),
+                                          domainController.text.toString(),
+                                          dsController.text.toString(), context );
+                                      // filevisible =  false;
+                                      // imgvisible = false;
+                                    },
+                                      style: ElevatedButton.styleFrom(
+                                        shape: StadiumBorder(),
+                                        onPrimary: Colors.white,
+                                      ),child: Text("submit",style: TextStyle(fontSize: 17),),),
+                                  ],
+                                ),
+
+                                Container(
+                                  child: ListView.builder(
+                                      physics: NeverScrollableScrollPhysics(),
+                                      shrinkWrap: true,
+                                      itemCount: files.length,
+                                      itemBuilder: (BuildContext context , index){
+                                        return ListTile(
+                                          leading: Icon(Icons.image,color: Colors.green,size: 40,),
+                                          title: Text(files[index].path.split('/').last,style: TextStyle(fontSize: 14),),
+                                          trailing: IconButton(
+                                            onPressed: (){
+                                              print('hi');
+                                              setState(() {
+                                                files.removeAt(index);
+                                                if (files.length == -1) {
+                                                  imageremove = false;
+                                                }
+                                              });
+                                            },
+                                            icon: Icon(Icons.close,color: Colors.red,size: 30,),
+                                          ),
+                                        );
+                                      }),
+                                ),
+                              ],
+                            ),
+                          )
+                      )
+                  ):
                   Container(
-                    padding: EdgeInsets.only(left: 20, right: 20),
-                    width: 300,
-                    height: 150,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 5.0,
-                          ),
-                        ]
-                    ),
+                    width: MediaQuery.of(context).size.width,
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Container(
-                            child: (team == true) ? Text("Tickets Assigned",
-                              style: TextStyle(fontSize: 21,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue),) :
-                            Text("No of Tickets",
-                              style: TextStyle(fontSize: 21,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue),)
-                        ),
-                        Container(
-                          padding: EdgeInsets.only(right: 20),
-
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                Container(
-                                  child: (team == true) ? Text("10",
-                                    style: TextStyle(
-                                        fontSize: 32, fontWeight: FontWeight.bold,
-                                        color: Color(0XFF0949b0)),) :
-                                  Text("$ticketCount",
-                                    style: TextStyle(
-                                        fontSize: 32, fontWeight: FontWeight.bold,
-                                        color: Color(0XFF0949b0)),),
-                                ),
-                                Container(
-                                    child: Icon(Icons.confirmation_number_sharp,
-                                      color: Colors.blue, size: 48,)
+                          padding: EdgeInsets.only(left: 20, right: 20),
+                          width: 300,
+                          height: 150,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  blurRadius: 5.0,
                                 ),
                               ]
                           ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Container(
+                                  child: (team == true) ? Text("Tickets Assigned",
+                                    style: TextStyle(fontSize: 21,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.blue),) :
+                                  Text("No of Tickets",
+                                    style: TextStyle(fontSize: 21,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.blue),)
+                              ),
+                              Container(
+                                padding: EdgeInsets.only(right: 20),
+
+                                child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      Container(
+                                        child: (team == true) ? Text("10",
+                                          style: TextStyle(
+                                              fontSize: 32, fontWeight: FontWeight.bold,
+                                              color: Color(0XFF0949b0)),) :
+                                        Text("$ticketCount",
+                                          style: TextStyle(
+                                              fontSize: 32, fontWeight: FontWeight.bold,
+                                              color: Color(0XFF0949b0)),),
+                                      ),
+                                      Container(
+                                          child: Icon(Icons.confirmation_number_sharp,
+                                            color: Colors.blue, size: 48,)
+                                      ),
+                                    ]
+                                ),
+                              ),
+                              Container(
+                                child: Text("Last Ticket No",
+                                  style: TextStyle(color: Colors.black54),),
+                              ),
+                            ],
+                          ),
                         ),
+
+                        SizedBox(height: 30,),
+
                         Container(
-                          child: Text("Last Ticket No",
-                            style: TextStyle(color: Colors.black54),),
+                          padding: EdgeInsets.only(left: 20, right: 20),
+                          width: 300,
+                          height: 150,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  blurRadius: 5.0,),
+                              ]
+                          ),
+                          child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Container(
+                                  child: (team == true) ? Text("Tickets In progress",
+                                    style: TextStyle(fontSize: 21,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.blue),) :
+                                  Text("No of Users",
+                                    style: TextStyle(fontSize: 21,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.blue),),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.only(right: 20),
+                                  child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: <Widget>[
+
+                                        Container(
+                                          child: (team == true) ? Text("5",
+                                            style: TextStyle(fontSize: 32,
+                                                fontWeight: FontWeight.bold,
+                                                color: Color(0XFF0949b0)),) :
+                                          Text("$clientCount",
+                                            style: TextStyle(fontSize: 32,
+                                                fontWeight: FontWeight.bold,
+                                                color: Color(0XFF0949b0)),),
+                                        ),
+                                        Container(
+                                            child: Icon(Icons.groups_sharp,
+                                              color: Colors.blue, size: 48,)
+                                        ),
+                                      ]
+                                  ),
+                                ),
+
+                                Container(
+                                  child: Text("Last Ticket No",
+                                    style: TextStyle(color: Colors.black54),),
+                                ),
+
+                              ]
+                          ),
+                        ),
+
+                        SizedBox(height: 30,),
+                        Container(
+                          padding: EdgeInsets.only(left: 20, right: 20),
+                          width: 300,
+                          height: 150,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  blurRadius: 5.0,
+                                ), //BoxShadow
+                              ]
+                          ),
+                          child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Container(
+                                  child: (team == true) ? Text("Tickets Completed",
+                                    style: TextStyle(fontSize: 21,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.blue),) :
+                                  Text("Team members ",
+                                    style: TextStyle(fontSize: 21,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.blue),),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.only(right: 20),
+                                  child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: <Widget>[
+                                        Container(
+                                          child: (team == true) ? Text("7",
+                                            style: TextStyle(fontSize: 32,
+                                                fontWeight: FontWeight.bold,
+                                                color: Color(0XFF0949b0)),) :
+                                          Text("$teamCount",
+                                            style: TextStyle(fontSize: 32,
+                                                fontWeight: FontWeight.bold,
+                                                color: Color(0XFF0949b0)),),
+                                        ),
+                                        Container(
+                                            child: Icon(Icons
+                                                .confirmation_number_outlined,
+                                              color: Colors.blue, size: 48,)
+                                        ),
+                                      ]
+                                  ),
+                                ),
+                                Container(
+                                  child: Text("Last Ticket No",
+                                    style: TextStyle(color: Colors.black54),),
+                                ),
+                              ]
+                          ),
+
                         ),
                       ],
                     ),
                   ),
-
-                  SizedBox(height: 30,),
-
-                  Container(
-                    padding: EdgeInsets.only(left: 20, right: 20),
-                    width: 300,
-                    height: 150,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 5.0,),
-                        ]
-                    ),
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Container(
-                            child: (team == true) ? Text("Tickets In progress",
-                              style: TextStyle(fontSize: 21,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue),) :
-                            Text("No of Users",
-                              style: TextStyle(fontSize: 21,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue),),
-                          ),
-                          Container(
-                            padding: EdgeInsets.only(right: 20),
-                            child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-
-                                  Container(
-                                    child: (team == true) ? Text("5",
-                                      style: TextStyle(fontSize: 32,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0XFF0949b0)),) :
-                                    Text("$clientCount",
-                                      style: TextStyle(fontSize: 32,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0XFF0949b0)),),
-                                  ),
-                                  Container(
-                                      child: Icon(Icons.groups_sharp,
-                                        color: Colors.blue, size: 48,)
-                                  ),
-                                ]
-                            ),
-                          ),
-
-                          Container(
-                            child: Text("Last Ticket No",
-                              style: TextStyle(color: Colors.black54),),
-                          ),
-
-                        ]
-                    ),
-                  ),
-
-                  SizedBox(height: 30,),
-                  Container(
-                    padding: EdgeInsets.only(left: 20, right: 20),
-                    width: 300,
-                    height: 150,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 5.0,
-                          ), //BoxShadow
-                        ]
-                    ),
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Container(
-                            child: (team == true) ? Text("Tickets Completed",
-                              style: TextStyle(fontSize: 21,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue),) :
-                            Text("Team members ",
-                              style: TextStyle(fontSize: 21,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue),),
-                          ),
-                          Container(
-                            padding: EdgeInsets.only(right: 20),
-                            child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Container(
-                                    child: (team == true) ? Text("7",
-                                      style: TextStyle(fontSize: 32,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0XFF0949b0)),) :
-                                    Text("$teamCount",
-                                      style: TextStyle(fontSize: 32,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0XFF0949b0)),),
-                                  ),
-                                  Container(
-                                      child: Icon(Icons
-                                          .confirmation_number_outlined,
-                                        color: Colors.blue, size: 48,)
-                                  ),
-                                ]
-                            ),
-                          ),
-                          Container(
-                            child: Text("Last Ticket No",
-                              style: TextStyle(color: Colors.black54),),
-                          ),
-                        ]
-                    ),
-
-                  ),
                 ],
-              ),
-            )
+              )
+
         ));
   }
 }

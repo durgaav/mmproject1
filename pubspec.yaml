@@ -38,8 +38,8 @@ dependencies:
   flutter_email_sender: ^5.0.2
   open_file: #open file
   url_launcher: #Uri operations
-  flutter_speed_dial: #Expandable FAB
   provider: ^5.0.0
+  mime:
 
 dev_dependencies:
   flutter_test:

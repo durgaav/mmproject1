@@ -103,9 +103,7 @@ class _NotifScreenState extends State<NotifScreen> {
           textColor: Colors.white,
           fontSize: 15.0
       );
-
         onNetworkChecking();
-
     }
   }
 
@@ -173,7 +171,6 @@ class _NotifScreenState extends State<NotifScreen> {
       print(response.reasonPhrase);
     }
   }
-
   //Passing data to screens by prefs
   Future<void> passData(int index) async{
     List<String> files = [];
@@ -283,6 +280,7 @@ class _NotifScreenState extends State<NotifScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(

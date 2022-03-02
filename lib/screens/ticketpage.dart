@@ -7,7 +7,6 @@ import 'package:http/http.dart' as http;
 import 'package:mmcustomerservice/screens/ticketview.dart';
 import 'package:mmcustomerservice/ticketsModel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 class Tickets extends StatefulWidget {
   String usertype='';
