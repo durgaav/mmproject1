@@ -258,7 +258,13 @@ class _NotifScreenState extends State<NotifScreen> {
     pref.setString("tmCompleteModifiedOn", ticketDetails[index].tmCompleteModifiedOn.toString()??'');
     pref.setString("tmCompleteModifiedBy", ticketDetails[index].tmCompleteModifiedBy.toString()??'');
 
-    Navigator.push(context,MaterialPageRoute(builder: (context)=>TicketViewPage(tmAssignList: teamTick,)));
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => TicketViewPage(
+              tmAssignList: teamTick,
+              teamslist: [],
+            )));
   }
 
   //endregion Functions

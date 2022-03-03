@@ -18,15 +18,16 @@ import 'image_screen.dart';
 class TicketViewPage extends StatefulWidget {
 
   List<TeamAssign> tmAssignList = [];
-  TicketViewPage({required this.tmAssignList});
+  List teamslist = [];
+  TicketViewPage({required this.tmAssignList , required this.teamslist});
 
   @override
-  _TicketViewPageState createState() => _TicketViewPageState(tmAssignList: tmAssignList);
+  _TicketViewPageState createState() => _TicketViewPageState(tmAssignList: tmAssignList,teamslist: teamslist);
 }
 class _TicketViewPageState extends State<TicketViewPage> {
-
   List<TeamAssign> tmAssignList = [];
-  _TicketViewPageState({required this.tmAssignList});
+  List teamslist = [];
+  _TicketViewPageState({required this.tmAssignList , required this.teamslist});
 
   //region Strings
   String ticketId = '';
@@ -63,6 +64,7 @@ class _TicketViewPageState extends State<TicketViewPage> {
 
   //region Variables
   List<TeamAssign> teams = [];
+  List getName = [];
   String dropdownValue = "Design";
   final List<String> datas = ["Seo", "Design", "Development", "Server"];
   String dropdown = "Inprogress";
@@ -88,7 +90,6 @@ class _TicketViewPageState extends State<TicketViewPage> {
   //endregion Variables
 
   //region Dialogs
-
   Future<void> updateStatusDialog(BuildContext context) async {
     return showDialog(
         context: context,
@@ -289,9 +290,8 @@ class _TicketViewPageState extends State<TicketViewPage> {
   //endregion Dialogs
 
   //region Functions
-  //tm assign
-
-
+ 
+  
   //Sending mail
   Future<void> Updateemail(String dropdown, context) async {
     if (dropdown == "Completed") {
@@ -422,12 +422,15 @@ class _TicketViewPageState extends State<TicketViewPage> {
         Navigator.pop(context);
         setState(() {
           if (val == "Started") {
+            Status = 'started';
             tm_startupdateon = formatter.format(DateTime.now());
             tm_startupdateBy = createdBy;
           } else if (val == "Inprogress") {
+            Status = 'inprogress';
             tm_procesupdOn = formatter.format(DateTime.now());
             tm_procesupdBy = createdBy;
           } else {
+            Status = 'completed';
             tm_cmpleUpdOn = formatter.format(DateTime.now());
             tm_compleupBy = createdBy;
           }
@@ -594,10 +597,21 @@ class _TicketViewPageState extends State<TicketViewPage> {
     super.initState();
     getPref();
     loadGivenData();
+    for(int i = 0;i<teams.length;i++){
+      for(int j = 0 ; j<teamslist.length;j++){
+        // print(teamslist.where((element) => element['teamId']==teams[i].teamId).toList());
+        print(teamslist[i]['Username']);
+        setState(() {
+          getName.add(teamslist.where((element) => element['teamId']==teams[i].teamId));
+        });
+      }
+    }
+    print(getName.length);
   }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
          //APP bar
         appBar: AppBar(
@@ -635,42 +649,14 @@ class _TicketViewPageState extends State<TicketViewPage> {
                       },
                     ),
                   ),
-
         body: SingleChildScrollView(
             child: Container(
           padding: EdgeInsets.all(7.0),
           child:Column(
            crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-            userType!="client"?
             Card(
-              color: Colors.blue[100],
-              elevation: 3,
-              child: Container(
-                alignment: Alignment.centerLeft,
-                width: double.infinity,
-                padding: EdgeInsets.all(7.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                  Text('Ticket $ticketId',style: TextStyle(
-                          fontSize: 20,fontWeight: FontWeight.bold,letterSpacing: 2
-                  ),),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Text('\'Hi Iam tic id - $ticketId iam raised by'
-                        ' \'${Username}\' and this is my status : $Status\'',style: TextStyle(
-                        fontSize: 14,color:Colors.black,letterSpacing: 1),textAlign: TextAlign.start,),
-                    SizedBox(
-                      height: 10,
-                    ),
-                  ],
-                ),
-              ),
-            ):Container(),
-            Card(
-                  color: Colors.pink[100],
+                  color: Colors.blue[100],
                   elevation: 3,
                   child: Container(
                     alignment: Alignment.centerLeft,
@@ -752,8 +738,12 @@ class _TicketViewPageState extends State<TicketViewPage> {
                           shrinkWrap: true,
                           itemBuilder: (context,index){
                             return ListTile(
+                              onTap: (){
+                                print('hiii');
+                                print(getName);
+                              },
                               title: Text(
-                                teams[index].teamId.toString(),
+                                getName[index]['Username'],
                                 style: TextStyle(fontSize: 16),
                               ),
                             );
@@ -783,7 +773,7 @@ class _TicketViewPageState extends State<TicketViewPage> {
                   ),
                 ),
                 subtitle: Text(
-                  'Click for more...',
+                  '$Username',
                   style: TextStyle(fontSize: 15, color: Colors.black45),
                 ),
                 children: <Widget>[
@@ -861,7 +851,7 @@ class _TicketViewPageState extends State<TicketViewPage> {
                         color: Colors.grey,
                       ),
                       title: Text(
-                        'ADMIN UPDATES',
+                        'Admin Updates',
                         style: TextStyle(
                           fontSize: 16,
                         ),

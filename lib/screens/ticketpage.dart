@@ -40,6 +40,7 @@ class _TicketsState extends State<Tickets> {
   List filtered = [];
   String choice = '';
   int teamId = 0;
+  List teamListToPass = [];
   //retry
   bool retryVisible = false;
   //endregion Variables
@@ -160,6 +161,7 @@ class _TicketsState extends State<Tickets> {
         MaterialPageRoute(
             builder: (context) => TicketViewPage(
                   tmAssignList: teamTick,
+                  teamslist: teamListToPass,
                 )));
   }
 
@@ -169,6 +171,7 @@ class _TicketsState extends State<Tickets> {
         await http.get(Uri.parse('https://mindmadetech.in/api/team/list'));
     if (res.statusCode == 200) {
       List body = json.decode(res.body);
+      teamListToPass = body.toList();
       List team = body.where((e) => e['Username'] == '${currentUser}').toList();
       print(team[0]['teamId']);
       setState(() {
@@ -289,12 +292,8 @@ class _TicketsState extends State<Tickets> {
     print(currentUser);
     super.initState();
     Future.delayed(Duration.zero, () async {
-      if (usertype == 'team') {
         fetchTickets();
         fetchTeams();
-      } else {
-        fetchTickets();
-      }
     });
   }
 
