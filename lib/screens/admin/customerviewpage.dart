@@ -42,6 +42,13 @@ class _ViewPageState extends State<ViewPage> {
   String datetmFor = DateTime.now().toString();
   DateFormat formatter = DateFormat('dd-MM-yyyy hh:mm:ss a');
   String dateTime = '';
+  int _selectedIndex = 0;
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   //endregion Var
 
   //region Functions
@@ -322,546 +329,367 @@ class _ViewPageState extends State<ViewPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    return Scaffold(
+
+      bottomSheet: BottomSheet(
+        backgroundColor: Colors.blue[300],
+        onClosing: () {  },
+        builder: (BuildContext context) {
+        return Container(
+          height: 70,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+            Column(
+                  children: [
+                    IconButton(onPressed: (){
+                      showeditDailog(context);
+                    }, icon: Icon(Icons.edit),),
+                    Text('Update'),
+                  ],
+                ),
+           Column(
+             children: [
+               IconButton(onPressed: (){
+                      deleteDialog(context);
+
+                    }, icon: Icon(Icons.delete_forever),),
+               Text('Delete'),
+
+             ],
+           ),
+
+            ],
+          ),
+        );
+        },
+      ),
+      body: Stack(
+          children: [
+            ClipPath(
+                clipper: MyClipper(),
+                child: Container(
+                  color: Colors.lightBlue,
+                ),
+            ),
+            Positioned(
+              top: 20,
+              child:IconButton(
+                onPressed: (){
+                  Navigator.pop(context);
+                }, icon: Icon(Icons.arrow_back,color: Colors.black,)),
+            ),
+            Positioned(
+              top:65,
+              left: 22,
+              child:  SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      child: Text(
+                        '${username[0].toUpperCase() + username.substring(1).toLowerCase()}',
+                        style: TextStyle(fontSize: 22, color: Colors.white),),
+                    ),
+                         Container(
+                             padding: EdgeInsets.only(top: 5),
+                             child: Text(this.email,style: TextStyle(fontSize: 16,color: Colors.white,))),
+
+                         Container(
+                           padding: EdgeInsets.only(top: 5),
+                             child: Text(this.phonenumber, style: TextStyle(fontSize: 16, color: Colors.white,),)),
+                  ],
+                ),
+              ),),
+            Positioned(
+              top:110,
+              // right: 100,
+              left: 235,
+              child: Container(
+                padding: EdgeInsets.all(3),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(100),
+                  color: Colors.white,
+                ),
+                child: Container(
+                  child: CircleAvatar(
+                                          radius: 45,
+                      backgroundImage: NetworkImage(this.Logo)
+                  ),
+                ),
+              ), ),
+            Positioned(
+              top: 200,
+              left: 10,
+              child:  SingleChildScrollView(
+                 // physics: NeverScrollableScrollPhysics(),
+                    child: Container(
+                      padding: EdgeInsets.only(bottom: 45,top:0),
+                      height: MediaQuery.of(context).size.height*0.7,
+                      width: MediaQuery.of(context).size.width,
+                      child:ListView(
+                        //shrinkWrap: true,
+                        children: [
+                            ListTile(
+                              leading: Icon(Icons.person),
+                              title:Text("Project Code",
+                                style: TextStyle(fontSize: 15, color: Colors.black45),),
+                              subtitle:proCode==''?Text(' no project code',
+                                style: TextStyle(fontSize: 18, color: Color(0XFF333333)),):
+                              Text(proCode, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),)
+                            ),
+                          ListTile(
+                            leading: Icon(Icons.description_rounded),
+                            title: Text("User ID", style: TextStyle(fontSize: 15, color: Colors.black45),),
+                            subtitle:Text(this.usersId, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
+                          ),
+                          ListTile(
+                            leading: Icon(Icons.account_balance_outlined ),
+                            title: Text("Company name", style: TextStyle(fontSize: 15, color: Colors.black45),),
+                            subtitle:Text(this.Companyname, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
+                          ),
+                          ListTile(
+                            leading: Icon(CupertinoIcons.person_circle ),
+                            title: Text("Client name", style: TextStyle(fontSize: 15, color: Colors.black45),),
+                            subtitle:Text(this.Clientname, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
+                          ),
+                          ListTile(
+                            leading: Icon(Icons.lock),
+                            title: Text("Password", style: TextStyle(fontSize: 15, color: Colors.black45),),
+                            subtitle:Text(this.password, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
+                          ),
+                          ListTile(
+                            leading: Icon(CupertinoIcons.time ),
+                            title: Text("Created on", style: TextStyle(fontSize: 15, color: Colors.black45),),
+                            subtitle:Text(this.Createdon, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
+                          ),
+                          ListTile(
+                            leading: Icon(CupertinoIcons.doc_person_fill ),
+                            title: Text("Created by", style: TextStyle(fontSize: 15, color: Colors.black45),),
+                            subtitle:Text(this.Createdby, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
+                          ),
+                          ListTile(
+                            leading: Icon(CupertinoIcons.time_solid ),
+                            title: Text("Modified on", style: TextStyle(fontSize: 15, color: Colors.black45),),
+                            subtitle:Modifiedon=='null'?Text('Not yet modified.',
+                              style: TextStyle(fontSize: 18, color: Color(0XFF333333)),):
+                            Text(Modifiedon, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),)
+                          ),
+                          ListTile(
+                              leading: Icon(CupertinoIcons.doc_person),
+                              //doc_checkmark  doc_checkmark_fill description_rounded doc_person
+                              title: Text("Modified by", style: TextStyle(fontSize: 15, color: Colors.black45),),
+                              subtitle:Modifiedby=='null'?Text('Not yet modified.',
+                                style: TextStyle(fontSize: 18, color: Color(0XFF333333)),):
+                              Text(Modifiedby, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),)
+                          ),
+
+                        ],
+                      ),
+                    ),
+                ),
+              ),
+
+      ]
+      )
+
+    );
+  }
+
+
+  void showeditDailog(context) {
     TextEditingController compName = new TextEditingController(text: "$Companyname")
     , usrNm = new TextEditingController(text: "$username") , passWd = new TextEditingController(text: "$password") ,
         mailId  = new TextEditingController(text: "$email"),
         phnNum = new TextEditingController(text: "$phonenumber"),clientNm = new TextEditingController(text: "$Clientname");
-    return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Color(0Xff146bf7),
-          title: Text('${username[0].toUpperCase() + username.substring(1).toLowerCase()}'),
-        ),
-        body: SingleChildScrollView(
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                      padding: EdgeInsets.only(left: 10, top: 20),
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+                scrollable: true,
+                content: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Center(
+                      child: GestureDetector(
+                        onTap: () async {
+                          //_FilePicker();
+                          FilePickerResult? result = await FilePicker.platform
+                              .pickFiles(
+                            type: FileType.image,
+                            //allowedExtensions: ['jpg','png','jpeg'],
+                          );
+                          PlatformFile file = result.files.first;
+                          if (result != null) {
+                            setState(() {
+                              _image = new File(file.path);
+                              imgPath = file.path.toString();
+                            });
+                            extention = file.extension;
+                            print("this is image : " +
+                                _image.absolute.path.toString());
+                          }
+                        },
+                        child: imgPath == "" ? CircleAvatar(
+                          backgroundImage: NetworkImage(Logo),
+                          radius: 45,
+                        ) : CircleAvatar(
+                          backgroundImage: FileImage(File('$imgPath')),
+                          radius: 45,
+                        ),
+                      ),
+                    ),
+
+                    TextFormField(
+                      decoration: const InputDecoration(
+                        hintText: 'Enter your Company name',
+                        labelText: 'Company name',
+                      ),
+                      controller: compName,
+                      keyboardType: TextInputType.text,
+                    ),
+                    TextFormField(
+                      decoration: const InputDecoration(
+                        hintText: 'Enter a Username',
+                        labelText: 'Username',
+                      ),
+                      controller: usrNm,
+                      keyboardType: TextInputType.text,
+                      //initialValue: '$username',
+                    ),
+                    TextFormField(
+                      decoration: const InputDecoration(
+                        hintText: 'Enter a Clientname',
+                        labelText: 'Client name',
+                      ),
+                      controller: clientNm,
+                      keyboardType: TextInputType.text,
+                      //initialValue: '$username',
+                    ),
+                    TextFormField(
+                      decoration: const InputDecoration(
+                        hintText: 'Password here',
+                        labelText: 'Password',
+                      ),
+                      controller: passWd,
+                      keyboardType: TextInputType.visiblePassword,
+                      //initialValue: '$password',
+                    ),
+                    TextFormField(
+                      decoration: const InputDecoration(
+                        hintText: 'Email here',
+                        labelText: 'Email',
+                      ),
+                      controller: mailId,
+                      keyboardType: TextInputType.emailAddress,
+                      //initialValue: '$email',
+                    ),
+                    TextFormField(
+                      decoration: const InputDecoration(
+                        hintText: 'Enter a phone number',
+                        labelText: 'Phonenumber',
+                      ),
+                      controller: phnNum,
+                      maxLength: 10,
+                      keyboardType: TextInputType.phone,
+                      //initialValue: '$phonenumber',
+                    ),
+                    Container(
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Container(
-                            child: Row(
-                              children: <Widget>[
-                                Container(
-                                  child: CircleAvatar(
-                                      radius: 40,
-                                      backgroundImage: NetworkImage(this.Logo)
-                                  ),
+                              padding: EdgeInsets.only(top: 10.0),
+                              child: new RaisedButton(
+                                child: const Text(
+                                  'Submit',
+                                  style: TextStyle(color: Colors.white),
                                 ),
-                                Container(
-                                  padding: EdgeInsets.only(left: 10),
-                                  child: Text(
-                                    '${username[0].toUpperCase() + username.substring(1).toLowerCase()}',
-                                    style: TextStyle(
-                                        fontSize: 19, color: Colors.black),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                                onPressed: () {
+                                  if (compName.text.isEmpty ||
+                                      usrNm.text.isEmpty ||
+                                      passWd.text.isEmpty ||
+                                      mailId.text.isEmpty ||
+                                      phnNum.text.length < 10 ||
+                                      clientNm.text.isEmpty
+                                  ) {
+                                    Fluttertoast.showToast(
+                                        msg: 'please check the values!',
+                                        toastLength: Toast.LENGTH_LONG,
+                                        gravity: ToastGravity.BOTTOM,
+                                        timeInSecForIosWeb: 1,
+                                        backgroundColor: Colors.red,
+                                        textColor: Colors.white,
+                                        fontSize: 15.0
+                                    );
+                                    print("value not entered......");
+                                    //Navigator.pop(context);
+                                    // ScaffoldMessenger.of(context).showSnackBar(
+                                    //   SnackBar(content: Text('please check the values!'),
+                                    //   backgroundColor: Colors.red,
+                                    //     behavior: SnackBarBehavior.floating,
+                                    //   )
+                                    // );
+                                  } else {
+                                    updateUser(
+                                        compName.text.toString()
+                                        ,
+                                        usrNm.text.toString(),
+                                        passWd.text.toString(),
+                                        mailId.text.toString(),
+                                        phnNum.text.toString(),
+                                        clientNm.text.toString(),
+                                        context
+                                    );
+                                  }
+                                },
+                                color: Colors.blue,
+                              )),
                           Container(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Container(
-                                  child: IconButton(
-                                    icon: Icon(Icons.edit),
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return StatefulBuilder(
-                                            builder: (context, setState) {
-                                              return AlertDialog(
-                                                  scrollable: true,
-                                                  content:Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: <Widget>[
-                                                      Center(
-                                                        child: GestureDetector(
-                                                          onTap: () async {
-                                                            //_FilePicker();
-                                                            FilePickerResult? result = await FilePicker.platform.pickFiles(
-                                                              type: FileType.image,
-                                                              //allowedExtensions: ['jpg','png','jpeg'],
-                                                            );
-                                                            PlatformFile file = result.files.first;
-                                                            if(result!=null){
-                                                              setState(() {
-                                                                _image = new File(file.path);
-                                                                imgPath = file.path.toString();
-                                                              });
-                                                              extention = file.extension;
-                                                              print("this is image : "+_image.absolute.path.toString());
-                                                            }
-                                                          },
-                                                          child:imgPath==""?CircleAvatar(
-                                                            backgroundImage: NetworkImage(Logo),
-                                                            radius: 45,
-                                                          ):CircleAvatar(
-                                                            backgroundImage: FileImage(File('$imgPath')),
-                                                            radius: 45,
-                                                          ),
-                                                        ),
-                                                      ),
-
-                                                      TextFormField(
-                                                        decoration: const InputDecoration(
-                                                          hintText: 'Enter your Company name',
-                                                          labelText: 'Company name',
-                                                        ),
-                                                        controller: compName,
-                                                        keyboardType: TextInputType.text,
-                                                      ),
-                                                      TextFormField(
-                                                        decoration: const InputDecoration(
-                                                          hintText: 'Enter a Username',
-                                                          labelText: 'Username',
-                                                        ),
-                                                        controller: usrNm,
-                                                        keyboardType: TextInputType.text,
-                                                        //initialValue: '$username',
-                                                      ),
-                                                      TextFormField(
-                                                        decoration: const InputDecoration(
-                                                          hintText: 'Enter a Clientname',
-                                                          labelText: 'Client name',
-                                                        ),
-                                                        controller: clientNm,
-                                                        keyboardType: TextInputType.text,
-                                                        //initialValue: '$username',
-                                                      ),
-                                                      TextFormField(
-                                                        decoration: const InputDecoration(
-                                                          hintText: 'Password here',
-                                                          labelText: 'Password',
-                                                        ),
-                                                        controller: passWd,
-                                                        keyboardType: TextInputType.visiblePassword,
-                                                        //initialValue: '$password',
-                                                      ),
-                                                      TextFormField(
-                                                        decoration: const InputDecoration(
-                                                          hintText: 'Email here',
-                                                          labelText: 'Email',
-                                                        ),
-                                                        controller: mailId,
-                                                        keyboardType: TextInputType.emailAddress,
-                                                        //initialValue: '$email',
-                                                      ),
-                                                      TextFormField(
-                                                        decoration: const InputDecoration(
-                                                          hintText: 'Enter a phone number',
-                                                          labelText: 'Phonenumber',
-                                                        ),
-                                                        controller: phnNum,
-                                                        maxLength: 10,
-                                                        keyboardType: TextInputType.phone,
-                                                        //initialValue: '$phonenumber',
-                                                      ),
-                                                      Container(
-                                                        child: Row(
-                                                          mainAxisAlignment: MainAxisAlignment.end,
-                                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                                          children: <Widget>[
-                                                            Container(
-                                                                padding: EdgeInsets.only(top: 10.0),
-                                                                child: new RaisedButton(
-                                                                  child: const Text(
-                                                                    'Submit',
-                                                                    style: TextStyle(color: Colors.white),
-                                                                  ),
-                                                                  onPressed: () {
-                                                                    if(compName.text.isEmpty||usrNm.text.isEmpty||passWd.text.isEmpty||
-                                                                        mailId.text.isEmpty||phnNum.text.length<10||clientNm.text.isEmpty
-                                                                    ){
-                                                                      Fluttertoast.showToast(
-                                                                          msg: 'please check the values!',
-                                                                          toastLength: Toast.LENGTH_LONG,
-                                                                          gravity: ToastGravity.BOTTOM,
-                                                                          timeInSecForIosWeb: 1,
-                                                                          backgroundColor: Colors.red,
-                                                                          textColor: Colors.white,
-                                                                          fontSize: 15.0
-                                                                      );
-                                                                      print("value not entered......");
-                                                                      //Navigator.pop(context);
-                                                                      // ScaffoldMessenger.of(context).showSnackBar(
-                                                                      //   SnackBar(content: Text('please check the values!'),
-                                                                      //   backgroundColor: Colors.red,
-                                                                      //     behavior: SnackBarBehavior.floating,
-                                                                      //   )
-                                                                      // );
-                                                                    }else{
-                                                                      updateUser(compName.text.toString()
-                                                                          ,usrNm.text.toString(),passWd.text.toString(),
-                                                                          mailId.text.toString(),phnNum.text.toString(),clientNm.text.toString(),context
-                                                                      );
-                                                                    }
-                                                                  },
-                                                                  color: Colors.blue,
-                                                                )),
-                                                            Container(
-                                                              padding: EdgeInsets.only(top: 10.0, left: 5),
-                                                              child: TextButton(
-                                                                onPressed: () => Navigator.pop(context, 'Cancel'),
-                                                                child: Text(
-                                                                  'Cancel',
-                                                                  style: TextStyle(fontSize: 18),
-                                                                ),
-                                                              ),
-                                                            )
-                                                          ],
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ));
-                                            },
-                                          );
-                                        },
-                                      );
-                                    },
-                                  ),
-                                ),
-                                Container(
-                                  padding: EdgeInsets.only(right: 10),
-                                  child: IconButton(
-                                    icon: Icon(Icons.delete),
-                                    onPressed: () {
-                                      deleteDialog(context);
-                                    },
-                                  ),
-                                ),
-                              ],
+                            padding: EdgeInsets.only(top: 10.0, left: 5),
+                            child: TextButton(
+                              onPressed: () => Navigator.pop(context, 'Cancel'),
+                              child: Text(
+                                'Cancel',
+                                style: TextStyle(fontSize: 18),
+                              ),
                             ),
                           )
                         ],
-                      )),
-                  Container(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Container(
-                            padding: EdgeInsets.only(top: 20, left: 20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  child: Text(
-                                    "Project Code :",
-                                    style: TextStyle(
-                                        fontSize: 15, color: Colors.black45),
-                                  ),
-                                ),
-                                Container(
-                                  padding: EdgeInsets.only(top: 5),
-                                  child: Text(
-                                    this.proCode,
-                                    style: TextStyle(
-                                        fontSize: 18, color: Color(0XFF333333)),
-                                  ),
-                                ),
-                                Divider(
-                                  color: Colors.black12,
-                                ),
-                                Container(
-                                  child: Text(
-                                    "User ID :",
-                                    style: TextStyle(
-                                        fontSize: 15, color: Colors.black45),
-                                  ),
-                                ),
-                                Container(
-                                  padding: EdgeInsets.only(top: 5),
-                                  child: Text(
-                                    this.usersId,
-                                    style: TextStyle(
-                                        fontSize: 18, color: Color(0XFF333333)),
-                                  ),
-                                )
-                              ],
-                            )),
-                        Divider(
-                          color: Colors.black12,
-                        ),
-                        Container(
-                          padding: EdgeInsets.only(left: 20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Container(
-                                child: Text(
-                                  "Company name:",
-                                  style: TextStyle(
-                                      fontSize: 15, color: Colors.black45),
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.only(top: 5),
-                                child: Text(
-                                  this.Companyname,
-                                  style: TextStyle(
-                                      fontSize: 18, color: Color(0XFF333333)),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                        Divider(
-                          color: Colors.black12,
-                        ),
-                        Container(
-                          padding: EdgeInsets.only(left: 20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Container(
-                                padding: EdgeInsets.only(left:0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Container(
-                                      child: Text(
-                                        "Client name:",
-                                        style: TextStyle(
-                                            fontSize: 15, color: Colors.black45),
-                                      ),
-                                    ),
-                                    Container(
-                                      padding: EdgeInsets.only(top: 5),
-                                      child: Text(
-                                        this.Clientname,
-                                        style: TextStyle(
-                                            fontSize: 18, color: Color(0XFF333333)),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                              Divider(
-                                color: Colors.black12,
-                              ),
-                              Container(
-                                child: Text(
-                                  "Username:",
-                                  style: TextStyle(
-                                      fontSize: 15, color: Colors.black45),
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.only(top: 5),
-                                child: Text(
-                                  '${username[0].toUpperCase() + username.substring(1).toLowerCase()}',
-                                  style: TextStyle(
-                                      fontSize: 18, color: Color(0XFF333333)),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                        Divider(
-                          color: Colors.black12,
-                        ),
-                        Container(
-                          padding: EdgeInsets.only(left: 20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Container(
-                                child: Text(
-                                  "Password:",
-                                  style: TextStyle(
-                                      fontSize: 15, color: Colors.black45),
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.only(top: 5),
-                                child: Text(
-                                  this.password,
-                                  style: TextStyle(
-                                      fontSize: 18, color: Color(0XFF333333)),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                        Divider(
-                          color: Colors.black12,
-                        ),
-                        Container(
-                          padding: EdgeInsets.only(left: 20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Container(
-                                child: Text(
-                                  "Phone number:",
-                                  style: TextStyle(
-                                      fontSize: 15, color: Colors.black45),
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.only(top: 5),
-                                child: Text(
-                                  this.phonenumber,
-                                  style: TextStyle(
-                                      fontSize: 18, color: Color(0XFF333333)),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                        Divider(
-                          color: Colors.black12,
-                        ),
-                        Container(
-                          padding: EdgeInsets.only(left: 20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                child: Text(
-                                  "Email ID:",
-                                  style: TextStyle(
-                                      fontSize: 15, color: Colors.black45),
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.only(top: 5),
-                                child: Text(
-                                  this.email,
-                                  style: TextStyle(
-                                      fontSize: 18, color: Color(0XFF333333)),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                        Divider(
-                          color: Colors.black12,
-                        ),
-                        Container(
-                          padding: EdgeInsets.only(left: 20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Container(
-                                child: Text(
-                                  "Created on:",
-                                  style: TextStyle(
-                                      fontSize: 15, color: Colors.black45),
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.only(top: 5),
-                                child: Text(
-                                  this.Createdon,
-                                  style: TextStyle(
-                                      fontSize: 18, color: Color(0XFF333333)),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                        Divider(
-                          color: Colors.black12,
-                        ),
-                        Container(
-                          padding: EdgeInsets.only(left: 20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Container(
-                                child: Text(
-                                  "Created by:",
-                                  style: TextStyle(
-                                      fontSize: 15, color: Colors.black45),
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.only(top: 5),
-                                child: Text(
-                                  this.Createdby,
-                                  style: TextStyle(
-                                      fontSize: 18, color: Color(0XFF333333)),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                        Divider(
-                          color: Colors.black12,
-                        ),
-                        Container(
-                          padding: EdgeInsets.only(left: 20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Container(
-                                child: Text(
-                                  "Modified on:",
-                                  style: TextStyle(
-                                      fontSize: 15, color: Colors.black45),
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.only(top: 5),
-                                child:Modifiedon=='null'?Text(
-                                  'Not yet modified.',
-                                  style: TextStyle(
-                                      fontSize: 18, color: Color(0XFF333333)),
-                                ):Text(
-                                  Modifiedon,
-                                  style: TextStyle(
-                                      fontSize: 18, color: Color(0XFF333333)),
-                                )
-                              )
-                            ],
-                          ),
-                        ),
-                        Divider(
-                          color: Colors.black12,
-                        ),
-                        Container(
-                          padding: EdgeInsets.only(left: 20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Container(
-                                child: Text(
-                                  "Modified by:",
-                                  style: TextStyle(
-                                      fontSize: 15, color: Colors.black45),
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.only(top: 5),
-                                child: Modifiedby=='null'?Text(
-                                  'Not yet modified.',
-                                  style: TextStyle(
-                                      fontSize: 18, color: Color(0XFF333333)),
-                                ):Text(
-                                  Modifiedby,
-                                  style: TextStyle(
-                                      fontSize: 18, color: Color(0XFF333333)),
-                                )
-                              )
-                            ],
-                          ),
-                        ),
-                        Divider(
-                          color: Colors.black12,
-                        ),
-                      ],
-                    ),
-                  ),
-                ])));
+                      ),
+                    )
+                  ],
+                ));
+          },
+        );
+      },
+    );
   }
+
+
 
 }
 
+class MyClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    var path = Path();
+    path.lineTo(0, 220);
+    path.quadraticBezierTo(
+        size.width / 4, 160 /*180*/, size.width / 2, 175);
+    path.quadraticBezierTo(
+        3 / 4 * size.width, 190, size.width, 130);
+    path.lineTo(size.width, 0);
+    path.close();
+    return path;
+  }
 
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) {
+    return false;
+  }
+}
