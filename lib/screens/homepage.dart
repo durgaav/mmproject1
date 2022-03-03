@@ -473,11 +473,11 @@ class _HomePageState extends State<HomePage> {
             ]
         ),
         body: Container(
+          padding: EdgeInsets.only(top:30),
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
               color: Color(0XFFebf2fa),
               child:Column(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   (users == true)?
                   SingleChildScrollView(

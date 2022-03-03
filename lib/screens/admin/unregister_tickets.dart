@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class UnRegister_Tickets extends StatefulWidget {
   String usertype='';
   String currentUser='';
-  UnRegister_Tickets({required this.usertype, required this.currentUser, required});
+  UnRegister_Tickets({required this.usertype, required this.currentUser});
 
 @override
   _UnRegister_TicketsState createState() => _UnRegister_TicketsState(  usertype: usertype, currentUser: currentUser,);
@@ -24,18 +24,45 @@ class _UnRegister_TicketsState extends State<UnRegister_Tickets> {
   List<GetUnreg> unRegTickets = [];
   bool retryVisible = false;
 
+
+  showAlert(BuildContext context) {
+    return showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return Container(
+              child: AlertDialog(
+                  content: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      CircularProgressIndicator(
+                        color: Colors.red,
+                      ),
+                      Text(
+                        '  Please wait...',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                    ],
+                  )));
+        });
+  }
+
   Future<void> fetchRegTickets() async {
+    showAlert(context);
     try {
       http.Response response;
       if(usertype=='admin'){
         response =
         await http.get(Uri.parse("https://mindmadetech.in/api/unregisteredcustomer/list"));
+      //  print(unRegTickets[0].UserName);
       }else{
         return null;
       }
 
       print(response.statusCode);
       if (response.statusCode == 200) {
+        Navigator.pop(context);
         List body = [];
         setState(() {
           //tap again - visible
@@ -49,6 +76,7 @@ class _UnRegister_TicketsState extends State<UnRegister_Tickets> {
       }
     }
     catch (Exception) {
+      Navigator.pop(context);
       //tap again - visible
       print(Exception);
       setState(() {
@@ -119,11 +147,13 @@ class _UnRegister_TicketsState extends State<UnRegister_Tickets> {
   }
 
   Future<void> ticketsDataToView(int index) async {
+    print('username');
+    print(unRegTickets[index].UserName);
     var pref = await SharedPreferences.getInstance();
     pref.remove('registerId');
     pref.remove('cmpname');
     pref.remove('cliname');
-    pref.remove('username');
+    pref.remove('UserName');
     pref.remove('pass');
     pref.remove('logo');
     pref.remove('email');
@@ -139,7 +169,7 @@ class _UnRegister_TicketsState extends State<UnRegister_Tickets> {
     pref.setString('registerId',unRegTickets[index].registerId??'');
     pref.setString('cmpyname',unRegTickets[index].companyname??'');
     pref.setString('cliname',unRegTickets[index].clientname??'');
-    pref.setString('username',unRegTickets[index].username??'');
+    pref.setString('UserName',unRegTickets[index].UserName??'');
     pref.setString('pass',unRegTickets[index].password??'');
     pref.setString('logo',unRegTickets[index].logo??'');
     pref.setString('email',unRegTickets[index].email??'');
@@ -203,32 +233,47 @@ class _UnRegister_TicketsState extends State<UnRegister_Tickets> {
                     padding: EdgeInsets.only(bottom: 10),
                   height: MediaQuery.of(context).size.height,
                   width: MediaQuery.of(context).size.width,
-                  child: ListView.builder(
+                  child:  unRegTickets.length>0?
+                  ListView.builder(
                     itemCount: unRegTickets.length,
                       shrinkWrap: true,
                      // physics: NeverScrollableScrollPhysics(),
                       itemBuilder: (BuildContext context,int index){
-                    return Container(
-                      child:
-                      ListTile(
-                        onTap: (){
-                          ticketsDataToView(index);
-                        },
-                        leading: CircleAvatar(backgroundImage: NetworkImage(unRegTickets[index].logo),),
-                          title: Text(unRegTickets[index].username!=null?unRegTickets[index].username[0].toUpperCase()+unRegTickets[index].username.substring(1):'unnamed', style: TextStyle(
-                              fontSize: 17.5),),
-                        subtitle: Text(unRegTickets[index].createdOn!=null?unRegTickets[index].createdOn:'not found'),
-                        trailing: IconButton(
-                          onPressed: () {
-                            ticketsDataToView(index);
-                          },
-                          icon: Icon(
-                            Icons.arrow_right, size: 35,
-                            color: Colors.blueAccent,),
+                    return Column(
+                      children: [
+                        Container(
+                          child:
+                          ListTile(
+                            onTap: (){
+                              ticketsDataToView(index);
+                            },
+                            leading: CircleAvatar(
+                              radius:30,
+                              backgroundImage: NetworkImage(unRegTickets[index].logo),
+                            ),
+                           // title:Text(unRegTickets[index].UserName),
+                               title: Text(unRegTickets[index].UserName!=null?unRegTickets[index].UserName[0].toUpperCase()+unRegTickets[index].UserName.substring(1):'unnamed', style: TextStyle(
+                                   fontSize: 17.5),),
+                            subtitle: Text(unRegTickets[index].createdOn!=null?unRegTickets[index].createdOn:'not found'),
+                            trailing: IconButton(
+                              onPressed: () {
+                                ticketsDataToView(index);
+                              },
+                              icon: Icon(
+                                Icons.arrow_right, size: 35,
+                                color: Colors.blueAccent,),
+                            ),
+                          ),
                         ),
-                      ),
+                        Divider(height: 0,),
+                      ],
                     );
-                  })
+                  }):Center(
+                    child: Container(
+                      padding: EdgeInsets.only(top: 15),
+                      child: Text('No data found!',style: TextStyle(fontSize: 25,color: Colors.deepPurple),),
+                    ),
+                  )
                 ),
               ],
             ),
@@ -245,7 +290,7 @@ class GetUnreg {
   String registerId ='' ;
   String companyname='';
   String clientname='';
-  String username='';
+  String UserName='';
   String password='';
   String logo='';
   String email='';
@@ -261,7 +306,7 @@ class GetUnreg {
       {required this.registerId,
         required this.companyname,
         required this.clientname,
-        required this.username,
+        required this.UserName,
         required this.password,
         required this.logo,
         required this.email,
@@ -277,7 +322,7 @@ class GetUnreg {
     registerId = json['registerId'].toString();
     companyname = json['Companyname'];
     clientname = json['Clientname'];
-    username = json['Username'];
+    UserName = json['Username'];
     password = json['Password'];
     logo = json['Logo'];
     email = json['Email'];
@@ -295,7 +340,7 @@ class GetUnreg {
     data['registerId'] = this.registerId;
     data['Companyname'] = this.companyname;
     data['Clientname'] = this.clientname;
-    data['Username'] = this.username;
+    data['Username'] = this.UserName;
     data['Password'] = this.password;
     data['Logo'] = this.logo;
     data['Email'] = this.email;

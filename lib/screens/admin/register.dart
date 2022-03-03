@@ -367,22 +367,6 @@ class _RegisterState extends State<Register> {
                                 }
                                 print(extensions);
                               }
-                              // print("image path" + imgPath);
-                              // print("Entering to file picker........");
-                              // FilePickerResult? result =
-                              // await FilePicker.platform.pickFiles(
-                              //   type: FileType.image,
-                              // );
-                              // PlatformFile file = result.files.first;
-                              // if (result != "") {
-                              //   setState(() {
-                              //     imgPath = file.path.toString();
-                              //   });
-                              //   _Profileimg = new File(imgPath);
-                              //   extention = file.extension;
-                              //   print("this is image : " +
-                              //       _Profileimg.absolute.path.toString());
-                              // }
                             },
                             style: ElevatedButton.styleFrom(
                               shape: StadiumBorder(),
@@ -394,12 +378,25 @@ class _RegisterState extends State<Register> {
                       height: 60,
                       alignment: Alignment.centerRight,
                       child: ElevatedButton(onPressed: () {
-                        setState(() {
-                          showfiles();
-                        });
-                        AddTicket(Cmpname.text.toString(), Clientname.text.toString(), userController.text.toString(),
-                            pass.text.toString(), mailController.text.toString(), phnoController.text.toString(),
-                            domainController.text.toString(), dsController.text.toString());
+                        if(Cmpname.text.isEmpty||Clientname.text.isEmpty||userController.text.isEmpty||
+                        pass.text.isEmpty||mailController.text.isEmpty||phnoController.text.isEmpty||domainController.text.isEmpty||dsController.text.isEmpty){
+                          Fluttertoast.showToast(
+                              msg:'Please enter all detials',
+                              toastLength: Toast.LENGTH_LONG,
+                              gravity: ToastGravity.BOTTOM,
+                              timeInSecForIosWeb: 1,
+                              backgroundColor: Colors.green,
+                              textColor: Colors.white,
+                              fontSize: 15.0
+                          );
+                        }else{
+                          setState(() {
+                            showfiles();
+                          });
+                          AddTicket(Cmpname.text.toString(), Clientname.text.toString(), userController.text.toString(),
+                              pass.text.toString(), mailController.text.toString(), phnoController.text.toString(),
+                              domainController.text.toString(), dsController.text.toString());
+                        }
                       },
                         style: ElevatedButton.styleFrom(
                           shape: StadiumBorder(),

@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:mmcustomerservice/screens/admin/customerviewpage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
@@ -20,7 +21,7 @@ class UnRegTickets_View extends StatefulWidget {
 class _UnRegTickets_ViewState extends State<UnRegTickets_View> {
   String cmpyname='';
   String cliname='';
-  String username='';
+  String UserName='';
   String pass='';
   String logo='';
   String email='';
@@ -44,7 +45,7 @@ class _UnRegTickets_ViewState extends State<UnRegTickets_View> {
       registerId= pref.getString('registerId')!;
       cmpyname= pref.getString('cmpyname')!;
       cliname= pref.getString('cliname')!;
-      username=pref.getString('username')!;
+      UserName=pref.getString('UserName')!;
       pass =pref.getString('pass')!;
       logo= pref.getString('logo')!;
       email=pref.getString('email')!;
@@ -151,7 +152,7 @@ class _UnRegTickets_ViewState extends State<UnRegTickets_View> {
       request.headers['Content-Type'] = 'multipart/form-data';
       request.fields.addAll
         ({
-        'Username': username,
+        'Username': UserName,
         'Email': email,
         'Phonenumber': phonenumber,
         'DomainName': domainname,
@@ -203,7 +204,7 @@ class _UnRegTickets_ViewState extends State<UnRegTickets_View> {
       request.fields.addAll({
         'Companyname': cmpyname,
         'Clientname': cliname,
-        'Username': username,
+        'Username': UserName,
         'Password': pass,
         'Email': email,
         'Phonenumber': phonenumber,
@@ -335,10 +336,6 @@ class _UnRegTickets_ViewState extends State<UnRegTickets_View> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Tickets View'),
-        backgroundColor: Color(0Xff146bf7),
-      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           ApproveDailog(context);
@@ -346,153 +343,133 @@ class _UnRegTickets_ViewState extends State<UnRegTickets_View> {
         icon: Icon(Icons.beenhere_outlined ),
 
       ),
-      body: SingleChildScrollView(
-        child: Container(
-          margin: EdgeInsets.only(top:20,left: 20,bottom: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    margin: EdgeInsets.only(top:5,right: 15,bottom: 17),
-                    child:CircleAvatar(
-                      radius: 40,
-                      backgroundImage: NetworkImage(logo),),
+      body: Stack(
+          children: [
+            ClipPath(
+              clipper: MyClipper(),
+              child: Container(
+                color: Colors.lightBlue,
+              ),
+            ),
+            Positioned(
+              top: 20,
+              child:IconButton(
+                  onPressed: (){
+                    Navigator.pop(context);
+                  }, icon: Icon(Icons.arrow_back,color: Colors.black,)),
+            ),
+            Positioned(
+              top:65,
+              left: 22,
+              child:  SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      child:Text(UserName[0].toUpperCase()+UserName.substring(1),style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,color: Colors.white),),
+                    ),
+                    Container(
+                        padding: EdgeInsets.only(top: 5),
+                        child: Text(email, style: TextStyle(fontSize: 17, color: Colors.white),),),
+
+                    Container(
+                        padding: EdgeInsets.only(top: 5),
+                        child: Text(phonenumber, style: TextStyle(fontSize: 16, color: Colors.white,),)),
+                  ],
+                ),
+              ),),
+            Positioned(
+              top:110,
+              left: 235,
+              child: Container(
+                padding: EdgeInsets.all(3),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(100),
+                  color: Colors.white,
+                ),
+                child: Container(
+                  child: CircleAvatar(
+                      radius: 45,
+                      backgroundImage:  NetworkImage(logo),
                   ),
-                  Container(
-                    margin: EdgeInsets.only(top:10),
-                    child: Text(username[0].toUpperCase()+username.substring(1),style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
-                  )
-                ],
-              ),
-              Container(
-                child: Text('Register Id',style: TextStyle(
-                    fontSize: 15, color: Colors.black45),
                 ),
-              ),
-              Container(
-                child: Text(registerId, style: TextStyle(fontSize: 17, color: Color(0XFF333333)),),
-              ),
-              Divider(),
-              Container(
-                child: Text('User Name',style: TextStyle(
-                    fontSize: 15, color: Colors.black45),
-                ),
-              ),
-              Container(
-                child: Text(username, style: TextStyle(fontSize: 17, color: Color(0XFF333333)),),
-              ),
-              Divider(),
-              Container(
-                child: Text('Company Name',style: TextStyle(
-                    fontSize: 15, color: Colors.black45),
-                ),
-              ),
-              Container(
-                child: Text(cmpyname, style: TextStyle(fontSize: 17, color: Color(0XFF333333)),),
-              ),
-              Divider(),
-              Container(
-                child: Text('Client Name',style: TextStyle(
-                    fontSize: 15, color: Colors.black45),
-                ),
-              ),
-              Container(
-                child: Text(cliname, style: TextStyle(fontSize: 17, color: Color(0XFF333333)),),
-              ),
-              Divider(),
-              Container(
-                child: Text('Password',style: TextStyle(
-                    fontSize: 15, color: Colors.black45),
-                ),
-              ),
-              Container(
-                child: Text(pass, style: TextStyle(fontSize: 17, color: Color(0XFF333333)),),
-              ),
-              Divider(),
-              Container(
-                child: Text('Email Id',style: TextStyle(
-                    fontSize: 15, color: Colors.black45),
-                ),
-              ),
-              Container(
-                child: Text(email, style: TextStyle(fontSize: 17, color: Color(0XFF333333)),),
-              ),
-              Divider(),
-              Container(
-                child: Text('Phone Number',style: TextStyle(
-                    fontSize: 15, color: Colors.black45),
-                ),
-              ),
-              Container(
-                child: Text(phonenumber, style: TextStyle(fontSize: 17, color: Color(0XFF333333)),),
-              ),
-              Divider(),
-              Container(
-                child: Text('Domain Name',style: TextStyle(
-                    fontSize: 15, color: Colors.black45),
-                ),
-              ),
-              Container(
-                child: Text(domainname, style: TextStyle(fontSize: 17, color: Color(0XFF333333)),),
-              ),
-              Divider(),
-              Container(
-                child: Text('Description',style: TextStyle(
-                    fontSize: 15, color: Colors.black45),
-                ),
-              ),
-              Container(
-                child: Text(description, style: TextStyle(fontSize: 17, color: Color(0XFF333333)),),
-              ),
-              Divider(),
-              Container(
-                child: Text('Status',style: TextStyle(
-                    fontSize: 15, color: Colors.black45),
-                ),
-              ),
+              ), ),
+            Positioned(
+              top: 200,
+              left: 10,
+              child:  SingleChildScrollView(
+                child: Container(
+                  padding: EdgeInsets.only(bottom: 45,top:0),
+                  height: MediaQuery.of(context).size.height*0.8,
+                  width: MediaQuery.of(context).size.width,
+                  child:ListView(
+                    children: [
+                      ListTile(
+                          leading: Icon(Icons.person),
+                          title:Text('Register Id',style: TextStyle(fontSize: 15, color: Colors.black45),),
+                          subtitle:Text(registerId, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),)
+                      ),
+                      ListTile(
+                        leading: Icon(Icons.account_balance_outlined ),
+                        title: Text('Company Name',style: TextStyle(fontSize: 15, color: Colors.black45),),
+                        subtitle:Text(cmpyname, style: TextStyle(fontSize: 17, color: Color(0XFF333333)),)
+                      ),
+                      ListTile(
+                        leading: Icon(CupertinoIcons.person_circle ),
+                        title: Text("Client name", style: TextStyle(fontSize: 15, color: Colors.black45),),
+                        subtitle:Text(cliname, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
+                      ),
+                      ListTile(
+                        leading: Icon(Icons.lock),
+                        title: Text("Password", style: TextStyle(fontSize: 15, color: Colors.black45),),
+                        subtitle:Text(pass, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
+                      ),
+                      ListTile(
+                        leading: Icon(Icons.lock),
+                        title: Text("Domain Name", style: TextStyle(fontSize: 15, color: Colors.black45),),
+                        subtitle:Text(domainname, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
+                      ),
+                      ListTile(
+                        leading: Icon(Icons.description ),
+                        title: Text("Description", style: TextStyle(fontSize: 15, color: Colors.black45),),
+                        subtitle:Text(description, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
+                      ),
+                      ListTile(
+                        leading: Icon(CupertinoIcons.doc_person_fill ),
+                        title: Text("Status", style: TextStyle(fontSize: 15, color: Colors.black45),),
+                        subtitle:Text(status, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
+                      ),
+                      ListTile(
+                        leading: Icon(CupertinoIcons.time ),
+                        title: Text("Created on", style: TextStyle(fontSize: 15, color: Colors.black45),),
+                        subtitle:Text(createdon, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
+                      ),
 
-              Container(
-                child: Text(status, style: TextStyle(fontSize: 17, color: Color(0XFF333333)),),
-              ),
-              Divider(),
-              Container(
-                child: Text('Created On',style: TextStyle(
-                    fontSize: 15, color: Colors.black45),
-                ),
-              ),
-              Container(
-                child: Text(createdon, style: TextStyle(fontSize: 17, color: Color(0XFF333333)),),
-              ),
-              Divider(),
-              Container(
-                child: Text('Admin Updated On',style: TextStyle(
-                    fontSize: 15, color: Colors.black45),
-                ),
-              ),
-              Container(
-                child: Text(adm_updatedon, style: TextStyle(fontSize: 17, color: Color(0XFF333333)),),
-              ),
-              Divider(),
-              Container(
-                child: Text('Admin Updated By',style: TextStyle(
-                    fontSize: 15, color: Colors.black45),
-                ),
-              ),
-              Container(
-                child:adm_updatedby=='null'?Text(
-                  'Not yet modified.',
-                  style: TextStyle(
-                      fontSize: 18, color: Color(0XFF333333)),
-                ):Text(adm_updatedby, style: TextStyle(fontSize: 17, color: Color(0XFF333333)),),
-              )
+                      // ListTile(
+                      //     leading: Icon(CupertinoIcons.time_solid ),
+                      //     title: Text("Admin Updated On", style: TextStyle(fontSize: 15, color: Colors.black45),),
+                      //     subtitle:adm_updatedon==''?Text('Not yet updated.',
+                      //       style: TextStyle(fontSize: 18, color: Color(0XFF333333)),):
+                      //     Text(adm_updatedon, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),)
+                      // ),
+                      // ListTile(
+                      //     leading: Icon(CupertinoIcons.doc_person),
+                      //     //doc_checkmark  doc_checkmark_fill description_rounded doc_person
+                      //     title: Text("Admin Updated By", style: TextStyle(fontSize: 15, color: Colors.black45),),
+                      //     subtitle:adm_updatedby==''?Text('Not yet modified.',
+                      //       style: TextStyle(fontSize: 18, color: Color(0XFF333333)),):
+                      //     Text(adm_updatedby, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),)
+                      // ),
 
-            ],
-          ),
-        ),
-      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+          ]
+      )
     );
   }
 }
+
