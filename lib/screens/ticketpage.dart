@@ -4,8 +4,10 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:mmcustomerservice/screens/admin/team.dart';
 import 'package:mmcustomerservice/screens/ticketview.dart';
 import 'package:mmcustomerservice/ticketsModel.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Tickets extends StatefulWidget {
@@ -28,7 +30,7 @@ class _TicketsState extends State<Tickets> {
   });
 
   //region Variables
-  String sortString = "new";
+  String sortString = "all";
   List<TicketModel> ticketDetails = [];
   TextEditingController searchController = new TextEditingController();
   String searchText = "";
@@ -52,7 +54,6 @@ class _TicketsState extends State<Tickets> {
     List<TeamAssign> teamTick = [];
 
     for (int i = 0; i < ticketDetails[index].files.length; i++) {
-      // print(ticketDetails[index].tickets!.files![i].filepath);
       files.add(ticketDetails[index].files[i].filepath);
     };
 
@@ -161,7 +162,7 @@ class _TicketsState extends State<Tickets> {
         MaterialPageRoute(
             builder: (context) => TicketViewPage(
                   tmAssignList: teamTick,
-                  teamslist: teamListToPass,
+                  teamsNamelist:teamListToPass,
                 )));
   }
 
@@ -292,8 +293,12 @@ class _TicketsState extends State<Tickets> {
     print(currentUser);
     super.initState();
     Future.delayed(Duration.zero, () async {
-        fetchTickets();
         fetchTeams();
+        fetchTickets();
+        var status = await Permission.storage.status;
+        if (!status.isGranted) {
+          await Permission.storage.request();
+        }
     });
   }
 
@@ -522,8 +527,7 @@ class _TicketsState extends State<Tickets> {
                   ticketDetails.length > 0 ?
                             Container(
                             height: MediaQuery.of(context).size.height * 0.9,
-                            child: Scrollbar(
-                              child: ListView.builder(
+                            child: ListView.builder(
                                   shrinkWrap: true,
                                   itemCount: ticketDetails.length,
                                   itemBuilder: (BuildContext context, int index) {
@@ -838,9 +842,8 @@ class _TicketsState extends State<Tickets> {
                                           ]):
                                     Container():Container():Container();
                                   }),
-                            ),
-                          ):
-                            Center(
+
+                          ): Center(
                               child: Container(
                                 padding: EdgeInsets.only(top: 15),
                                 child: Text(

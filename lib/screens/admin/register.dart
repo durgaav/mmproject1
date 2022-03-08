@@ -381,7 +381,7 @@ class _RegisterState extends State<Register> {
                         if(Cmpname.text.isEmpty||Clientname.text.isEmpty||userController.text.isEmpty||
                         pass.text.isEmpty||mailController.text.isEmpty||phnoController.text.isEmpty||domainController.text.isEmpty||dsController.text.isEmpty){
                           Fluttertoast.showToast(
-                              msg:'Please enter all detials',
+                              msg:'Please enter all details',
                               toastLength: Toast.LENGTH_LONG,
                               gravity: ToastGravity.BOTTOM,
                               timeInSecForIosWeb: 1,

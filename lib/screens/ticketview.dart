@@ -8,26 +8,28 @@ import 'package:flutter_email_sender/flutter_email_sender.dart' as mail;
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:mmcustomerservice/screens/admin/team.dart';
 import 'package:mmcustomerservice/screens/ticket_assign.dart';
 import 'package:mmcustomerservice/ticketsModel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:open_file/open_file.dart';
+import 'package:open_file/open_file.dart' as fileOpen;
 import 'package:url_launcher/url_launcher.dart';
 import 'image_screen.dart';
 
 class TicketViewPage extends StatefulWidget {
 
   List<TeamAssign> tmAssignList = [];
-  List teamslist = [];
-  TicketViewPage({required this.tmAssignList , required this.teamslist});
+  List teamsList = [];
+  List teamsNamelist = [];
+  TicketViewPage({required this.tmAssignList , required this.teamsNamelist});
 
   @override
-  _TicketViewPageState createState() => _TicketViewPageState(tmAssignList: tmAssignList,teamslist: teamslist);
+  _TicketViewPageState createState() => _TicketViewPageState(tmAssignList: tmAssignList , teamsNamelist: teamsNamelist);
 }
 class _TicketViewPageState extends State<TicketViewPage> {
   List<TeamAssign> tmAssignList = [];
-  List teamslist = [];
-  _TicketViewPageState({required this.tmAssignList , required this.teamslist});
+  List teamsNamelist = [];
+  _TicketViewPageState({required this.tmAssignList , required this.teamsNamelist});
 
   //region Strings
   String ticketId = '';
@@ -85,8 +87,10 @@ class _TicketViewPageState extends State<TicketViewPage> {
   bool checkSeo = false;
   bool _loading = false;
   double _progressValue = 0.0;
+  List filteredby = [];
   List<String> fromAPI = [];
   String teamId = "0";
+  List ids = [];
   //endregion Variables
 
   //region Dialogs
@@ -325,12 +329,10 @@ class _TicketViewPageState extends State<TicketViewPage> {
     String filePath = '';
     String myUrl = '';
     try {
-
       myUrl = url;
       print(myUrl);
       var request = await httpClient.getUrl(Uri.parse(myUrl));
       var response = await request.close();
-
       if (response.statusCode == 200) {
         var bytes = await consolidateHttpClientResponseBytes(response);
         filePath = '$dir/$fileName';
@@ -339,6 +341,8 @@ class _TicketViewPageState extends State<TicketViewPage> {
         print(filePath);
         await file.writeAsBytes(bytes);
 
+        Navigator.pop(context);
+        fileOpen.OpenFile.open(filePath);
         Fluttertoast.showToast(
             msg: 'Download successfully',
             toastLength: Toast.LENGTH_LONG,
@@ -347,8 +351,6 @@ class _TicketViewPageState extends State<TicketViewPage> {
             backgroundColor: Colors.green,
             textColor: Colors.white,
             fontSize: 15.0);
-        Navigator.pop(context);
-        OpenFile.open(filePath);
       } else {
         onNetworkChecking();
         Fluttertoast.showToast(
@@ -363,9 +365,9 @@ class _TicketViewPageState extends State<TicketViewPage> {
         filePath = 'Error code: ' + response.statusCode.toString();
       }
     } catch (ex) {
+      print(ex);
       onNetworkChecking();
       Navigator.pop(context);
-      filePath = 'Can not fetch url';
     }
     return filePath;
   }
@@ -488,15 +490,8 @@ class _TicketViewPageState extends State<TicketViewPage> {
     var pref = await SharedPreferences.getInstance();
 
     setState(() {
+
       teams = tmAssignList.toList();
-      teamId = pref.getString('teamMemId')??'';
-      print('Team id......... $teamId');
-      List<TeamAssign> list = tmAssignList.where((element) => element.teamId.toString() == teamId).toList();
-      tmAssignList = list.toList();
-      print('Filtered with ID ....' + tmAssignList.toString());
-      for(int i = 0 ; i<tmAssignList.length;i++){
-        print(tmAssignList[i].ticketsAssignId.toString() + " tmId"+tmAssignList[i].teamId.toString() );
-      }
 
      fromAPI = pref.getStringList('Files')!;
      server = pref.getString('server')??'';
@@ -597,28 +592,22 @@ class _TicketViewPageState extends State<TicketViewPage> {
     super.initState();
     getPref();
     loadGivenData();
-    for(int i = 0;i<teams.length;i++){
-      for(int j = 0 ; j<teamslist.length;j++){
-        // print(teamslist.where((element) => element['teamId']==teams[i].teamId).toList());
-        print(teamslist[i]['Username']);
-        setState(() {
-          getName.add(teamslist.where((element) => element['teamId']==teams[i].teamId));
-        });
-      }
-    }
-    print(getName.length);
   }
 
   @override
   Widget build(BuildContext context) {
-
+    for(int i=0;i<teams.length;i++){
+      ids.add(teams[i].teamId);
+    }
+    ids = ids.toSet().toList();
+    print("ids :" + ids.toString());
     return Scaffold(
          //APP bar
         appBar: AppBar(
           backgroundColor: Color(0Xff146bf7),
           title: Text('Ticket ID : $ticketId'),
         ),
-        floatingActionButton: this.Status == "completed"
+        floatingActionButton: this.Status.toLowerCase() == "completed"
             ? Visibility(
                 visible: floatBtnVisi,
                 child: FloatingActionButton(
@@ -645,7 +634,9 @@ class _TicketViewPageState extends State<TicketViewPage> {
                       child: Icon(Icons.add),
                       onPressed: () {
                         // assignDialog(context);
-                        Navigator.push(context,MaterialPageRoute(builder: (context)=>TicketAssign(ticketId:ticketId,updatedBy: adm_update_by,)));
+                        Navigator.push(context,
+                            MaterialPageRoute(builder:
+                                (context)=>TicketAssign(ticketId:ticketId,updatedBy: adm_update_by,)));
                       },
                     ),
                   ),
@@ -707,7 +698,6 @@ class _TicketViewPageState extends State<TicketViewPage> {
                             ),
                           ],
                         )
-
                       ],
                     ),
                   ),
@@ -733,20 +723,35 @@ class _TicketViewPageState extends State<TicketViewPage> {
                     children: <Widget>[
                       teams.isNotEmpty?
                       ListView.builder(
-                          itemCount: teams.length,
+                          itemCount: ids.length,
                           physics: NeverScrollableScrollPhysics(),
                           shrinkWrap: true,
                           itemBuilder: (context,index){
-                            return ListTile(
-                              onTap: (){
-                                print('hiii');
-                                print(getName);
-                              },
-                              title: Text(
-                                getName[index]['Username'],
-                                style: TextStyle(fontSize: 16),
-                              ),
+                            int i = teamsNamelist.indexWhere((element) => element['teamId'] == ids[index]);
+                            String userName = teamsNamelist[i]['Username'].toString();
+                            return Column(
+                              children: [
+                                ListTile(
+                                    leading: CircleAvatar(
+                                      child: Text(
+                                          ids[index].toString()
+                                      ),
+                                    ),
+                                    title: Text(
+                                      userName,
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                  ),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                  child: Divider(
+                                    height: 0.5,
+                                    color: Colors.blueAccent,
+                                  ),
+                                ),
+                              ],
                             );
+
                           }
                       ):
                       Container(
@@ -1039,7 +1044,7 @@ class _TicketViewPageState extends State<TicketViewPage> {
                   //   ],
                   // ):Container(),
                     ListTile(
-                    title: Text('Team started on',
+                    title: Text('Team Started On',
                         style: TextStyle(fontSize: 15, color: Colors.black45)),
                     subtitle: Text(
                       '$tm_startupdateon',
@@ -1047,14 +1052,14 @@ class _TicketViewPageState extends State<TicketViewPage> {
                     ),
                   ),
                   ListTile(
-                    title: Text('Started by',
+                    title: Text('Started By',
                         style: TextStyle(fontSize: 15, color: Colors.black45)),
                     subtitle: Text(
                       '$tm_startupdateBy',
                       style: TextStyle(fontSize: 16, color: Colors.black),
                     ),
                   ), ListTile(
-                    title: Text('Team progress started on',
+                    title: Text('Team Updates On',
                         style: TextStyle(fontSize: 15, color: Colors.black45)),
                     subtitle: Text(
                       '$tm_procesupdOn',
@@ -1062,7 +1067,7 @@ class _TicketViewPageState extends State<TicketViewPage> {
                     ),
                   ),
                   ListTile(
-                    title: Text('Updates by',
+                    title: Text('Updates By',
                         style: TextStyle(fontSize: 15, color: Colors.black45)),
                     subtitle: Text(
                       '$tm_procesupdBy',
@@ -1070,7 +1075,7 @@ class _TicketViewPageState extends State<TicketViewPage> {
                     ),
                   ),
                   ListTile(
-                    title: Text('Team completed on',
+                    title: Text('Team Completed On',
                         style: TextStyle(fontSize: 15, color: Colors.black45)),
                     subtitle: Text(
                       '$tm_cmpleUpdOn',
@@ -1078,7 +1083,7 @@ class _TicketViewPageState extends State<TicketViewPage> {
                     ),
                   ),
                   ListTile(
-                    title: Text('Completed by',
+                    title: Text('Completed By',
                         style: TextStyle(fontSize: 15, color: Colors.black45)),
                     subtitle: Text(
                       '$tm_compleupBy',

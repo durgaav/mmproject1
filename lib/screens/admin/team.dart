@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
+import 'package:flutter/cupertino.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -243,27 +245,6 @@ class _TeamListState extends State<TeamList> {
       return false;
     }
   }
-
-  /*Future<void> passdata(int index) async {
-   var pref = await SharedPreferences.getInstance();
-
-   pref.remove('teamid').toString();
-   pref.remove('tm_user').toString();
-   pref.remove('pass').toString();
-   pref.remove('tm_pass').toString();
-   pref.remove('isdeleted').toString();
-
-   pref.setString('teamid', teamList[index].teamId ?? '');
-   pref.setString('tm_user', teamList[index].Username ?? '');
-   pref.setString('tm_pass', teamList[index].Password ?? '');
-   pref.setString('team', teamList[index].Team ?? '');
-   pref.setString('isdeleted', teamList[index].Isdeleted ?? '');
-   Navigator.push(
-     context,
-     MaterialPageRoute(
-         builder: (context) => TeamViewPage()),
-   );
- }*/
 
   Future<void> AddtmPopup(BuildContext context) async {
     return showDialog(
@@ -582,7 +563,7 @@ class _TeamListState extends State<TeamList> {
           AddtmPopup(context);
         },
         child: Icon(
-          Icons.add,
+          Icons.person_add_alt_outlined ,
           size: 28,
         ),
         backgroundColor: Colors.blue,
@@ -604,11 +585,20 @@ class _TeamListState extends State<TeamList> {
             ),
           ),
 
+          Text(
+            "Team members",
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 20,
+              fontWeight: FontWeight.w500
+            ),
+          ),
+
           Visibility(
               visible: isVisible,
               child:Container(
                   width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height *0.9,
+                  height: MediaQuery.of(context).size.height *0.85,
                   child: RefreshIndicator(
                     onRefresh: refreshListener,
                     backgroundColor: Colors.blue,
@@ -625,17 +615,14 @@ class _TeamListState extends State<TeamList> {
                               children: <Widget>[
                                 Container(
                                   child: ExpansionTile(
-                                    leading:
-                                    //Icon(Icons.calendar_today, size: 35, color: Colors.green,),
-                                    Container(
-                                        child:Stack(
-                                          children: [
-                                            (teamList[index].Team == "design") ? Icon(Icons.ballot_rounded, size: 35, color: Colors.orange,) :
-                                            (teamList[index].Team == "server") ? Icon(Icons.admin_panel_settings,size: 35, color: Colors.red,):
-                                            (teamList[index].Team == "development") ? Icon(Icons.calendar_today,  size: 35, color: Colors.green,) :
-                                            (teamList[index].Team == "seo") ? Icon(Icons.search,size: 35,  color: Colors.blue,) : Container(),
-                                          ],
-                                        )
+                                    leading:CircleAvatar(
+                                      backgroundColor:
+                                      Colors.primaries[Random().nextInt(Colors.primaries.length)],
+                                       radius: 27,
+                                      child: Text(
+                                          teamList[index].Username[0].toUpperCase(),
+                                          style: TextStyle(fontSize:22,fontWeight: FontWeight.bold,color: Colors.white),
+                                      ),
                                     ),
                                     title: Text(
                                       teamList[index]
@@ -645,7 +632,7 @@ class _TeamListState extends State<TeamList> {
                                       style: TextStyle(fontSize: 17.5),
                                     ),
                                     subtitle: Text(
-                                      'Click for more...',
+                                      teamList[index].Team,
                                       style: TextStyle(
                                           fontSize: 15, color: Colors.black45),
                                     ),
@@ -669,7 +656,7 @@ class _TeamListState extends State<TeamList> {
                                           style: TextStyle(
                                               fontSize: 16, color: Colors.black),
                                         ),
-                                        trailing: Icon(Icons.people,size: 25,color: Colors.black,),
+
                                       ),
                                       ListTile(
                                         title: Text('Username',
@@ -680,7 +667,7 @@ class _TeamListState extends State<TeamList> {
                                           style: TextStyle(
                                               fontSize: 16, color: Colors.black),
                                         ),
-                                        trailing: Icon(Icons.person,size: 25,color: Colors.black,),
+
                                       ),
                                       ListTile(
                                         title: Text('Password',
@@ -691,36 +678,28 @@ class _TeamListState extends State<TeamList> {
                                           style: TextStyle(
                                               fontSize: 16, color: Colors.black),
                                         ),
-                                        trailing: Icon(Icons.lock,size:25,color: Colors.black,),
                                       ),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: <Widget>[
-                                          Container(
-                                            child: Row(
-                                              children: [
-                                                Container(
-                                                  child: IconButton(
-                                                    icon: Icon(Icons.edit),
-                                                    onPressed: () {
-                                                      edittm(context,index);
-                                                    },
-                                                  ),
-                                                ),
-                                                Container(
-                                                  padding: EdgeInsets.only(right: 10),
-                                                  child: IconButton(
-                                                    icon: Icon(Icons.delete),
-                                                    onPressed: () {
-                                                      deletetmDailog(context,index);
-                                                    },
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          )
-                                        ],
-                                      )
+                                      ListTile(
+                                        leading:Container(
+                                          width:100,
+                                          child: Row(
+                                            children: [
+                                              IconButton(
+                                                icon: Icon(Icons.edit , size: 30,color: Colors.blueAccent,),
+                                                onPressed: () {
+                                                  edittm(context,index);
+                                                },
+                                              ),
+                                              IconButton(
+                                                icon: Icon(Icons.delete, size: 30,color: Colors.red),
+                                                onPressed: () {
+                                                  deletetmDailog(context,index);
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -730,14 +709,11 @@ class _TeamListState extends State<TeamList> {
                         }),
                   ))
           ),
-
-
-
           Visibility(
               visible: isSorted,
               child:Container(
                   width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height *0.9,
+                  height: MediaQuery.of(context).size.height *0.85,
                   child: RefreshIndicator(
                     onRefresh: refreshListener,
                     backgroundColor: Colors.blue,
@@ -753,16 +729,15 @@ class _TeamListState extends State<TeamList> {
                               ? Column(
                               children: <Widget>[
                                 Container(
-                                  child:new ExpansionTile(
-                                    leading: Container(
-                                        child:Stack(
-                                          children: [
-                                            (teamList[index].Team == "design") ? Icon(Icons.ballot_rounded, size: 35, color: Colors.orange,) :
-                                            (teamList[index].Team == "server") ? Icon(Icons.admin_panel_settings,size: 35, color: Colors.red,):
-                                            (teamList[index].Team == "development") ? Icon(Icons.calendar_today,  size: 35, color: Colors.green,) :
-                                            (teamList[index].Team == "seo") ? Icon(Icons.search,size: 35,  color: Colors.blue,) : Container(),
-                                          ],
-                                        )
+                                  child:ExpansionTile(
+                                    leading:CircleAvatar(
+                                      backgroundColor:
+                                      Colors.primaries[Random().nextInt(Colors.primaries.length)],
+                                      radius: 27,
+                                      child: Text(
+                                        teamList[index].Username[0].toUpperCase(),
+                                        style: TextStyle(fontSize:22,fontWeight: FontWeight.bold,color: Colors.white),
+                                      ),
                                     ),
                                     title: Text(
                                       teamList[index]
@@ -772,7 +747,7 @@ class _TeamListState extends State<TeamList> {
                                       style: TextStyle(fontSize: 17.5),
                                     ),
                                     subtitle: Text(
-                                      'Click for more...',
+                                      teamList[index].Team,
                                       style: TextStyle(
                                           fontSize: 15, color: Colors.black45),
                                     ),
@@ -796,7 +771,7 @@ class _TeamListState extends State<TeamList> {
                                           style: TextStyle(
                                               fontSize: 16, color: Colors.black),
                                         ),
-                                        trailing: Icon(Icons.people,size: 25,color: Colors.black,),
+
                                       ),
                                       ListTile(
                                         title: Text('Username',
@@ -807,7 +782,7 @@ class _TeamListState extends State<TeamList> {
                                           style: TextStyle(
                                               fontSize: 16, color: Colors.black),
                                         ),
-                                        trailing: Icon(Icons.person,size: 25,color: Colors.black,),
+
                                       ),
                                       ListTile(
                                         title: Text('Password',
@@ -818,47 +793,35 @@ class _TeamListState extends State<TeamList> {
                                           style: TextStyle(
                                               fontSize: 16, color: Colors.black),
                                         ),
-                                        trailing: Icon(Icons.lock,size: 25,color: Colors.black,),
                                       ),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: <Widget>[
-                                          Container(
-                                            child: Row(
-                                              children: [
-                                                Container(
-                                                  child: IconButton(
-                                                    icon: Icon(Icons.edit),
-                                                    onPressed: () {
-                                                      edittm(context,index);
-                                                    },
-                                                  ),
-                                                ),
-                                                Container(
-                                                  padding: EdgeInsets.only(right: 10),
-                                                  child: IconButton(
-                                                    icon: Icon(Icons.delete),
-                                                    onPressed: () {
-                                                      deletetmDailog(context,index);
-                                                    },
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          )
-                                        ],
-                                      )
-
+                                      ListTile(
+                                        leading:Container(
+                                          width:100,
+                                          child: Row(
+                                            children: [
+                                              IconButton(
+                                                icon: Icon(Icons.edit , size: 30,color: Colors.blueAccent,),
+                                                onPressed: () {
+                                                  edittm(context,index);
+                                                },
+                                              ),
+                                              IconButton(
+                                                icon: Icon(Icons.delete, size: 30,color: Colors.red),
+                                                onPressed: () {
+                                                  deletetmDailog(context,index);
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
                                     ],
                                   ),
-
                                 )])
                               : Container():Container();
                         }),
                   ))
           ),
-
-
         ]),
       ),
     );

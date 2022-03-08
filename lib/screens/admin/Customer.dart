@@ -93,7 +93,7 @@ class _CustomerState extends State<Customer> {
                     ),
                     TextFormField(
                       decoration: const InputDecoration(
-                        hintText: 'Enter your Companyname',
+                        hintText: 'Enter your Company name',
                         labelText: 'Company name',
                       ),
                       controller: compName,
@@ -161,7 +161,7 @@ class _CustomerState extends State<Customer> {
                                       clientNm.text.isEmpty||_image.path.isEmpty) {
                                     print("value not entered......");
                                     Fluttertoast.showToast(
-                                        msg: 'Please Fill the all Detials',
+                                        msg: 'Please Fill all Inputs',
                                         toastLength: Toast.LENGTH_LONG,
                                         gravity: ToastGravity.BOTTOM,
                                         timeInSecForIosWeb: 1,
@@ -230,7 +230,7 @@ class _CustomerState extends State<Customer> {
 
   //Add new customer logic
   Future AddNewUser(String comp, String user, String pass, String mail, String phn, String client,String proCode,BuildContext context) async {
-   // showAlert(context);
+   showAlert(context);
     print("procode...."+proCode);
     print(_image);
     try {
@@ -252,12 +252,13 @@ class _CustomerState extends State<Customer> {
             contentType: MediaType.parse("image/$extention")));
         http.StreamedResponse response = await request.send();
         if (response.statusCode == 200) {
+          Navigator.pop(context);
           String res = await response.stream.bytesToString();
           if (res.contains("Username already Exists!")||res.contains("Projectcode already Exists!")) {
             Navigator.of(context, rootNavigator: true).pop();
             Navigator.of(context, rootNavigator: true).pop();
             Fluttertoast.showToast(
-                msg: "Username/ProjectCode already Exists!",
+                msg: "Username already Exists!",
                 toastLength: Toast.LENGTH_LONG,
                 gravity: ToastGravity.BOTTOM,
                 timeInSecForIosWeb: 1,
@@ -292,9 +293,6 @@ class _CustomerState extends State<Customer> {
           }
         } else {
           onNetworkChecking();
-          print(await response.stream.bytesToString());
-          print(response.statusCode);
-          print(response.reasonPhrase);
           Fluttertoast.showToast(
               msg: response.reasonPhrase.toString(),
               toastLength: Toast.LENGTH_LONG,
@@ -487,8 +485,6 @@ class _CustomerState extends State<Customer> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           dialogBuilder(context);
-          print(MediaQuery.of(context).size.width);
-          //showAlert(context);
         },
         child: Icon(
           Icons.person_add_alt_outlined ,

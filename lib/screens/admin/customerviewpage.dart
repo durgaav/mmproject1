@@ -431,7 +431,7 @@ class _ViewPageState extends State<ViewPage> {
                       child:ListView(
                         //shrinkWrap: true,
                         children: [
-                            ListTile(
+                          ListTile(
                               leading: Icon(Icons.person),
                               title:Text("Project Code",
                                 style: TextStyle(fontSize: 15, color: Colors.black45),),
@@ -484,7 +484,6 @@ class _ViewPageState extends State<ViewPage> {
                                 style: TextStyle(fontSize: 18, color: Color(0XFF333333)),):
                               Text(Modifiedby, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),)
                           ),
-
                         ],
                       ),
                     ),

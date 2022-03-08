@@ -263,7 +263,7 @@ class _NotifScreenState extends State<NotifScreen> {
         MaterialPageRoute(
             builder: (context) => TicketViewPage(
               tmAssignList: teamTick,
-              teamslist: [],
+              teamsNamelist: [],
             )));
   }
 

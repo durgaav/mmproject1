@@ -88,11 +88,11 @@ class _MainMenusState extends State<MainMenus> {
     String count = '';
     if(counts == 0){
       setState(() {
-        count="No New Notifications";
+        count="";
       });
     }else{
       setState(() {
-        count = 'Notifications (${(counts)})';
+        count = '$counts';
       });
     }
 
@@ -197,8 +197,11 @@ class _MainMenusState extends State<MainMenus> {
                                 builder: (context) => NotifScreen()),
                           );
                         },
+                        trailing: Text("$count",style: TextStyle(
+                            color: Colors.red,fontSize: 14
+                        )),
                         leading: Icon(Icons.notifications,size: 27,),
-                        title: Text('$count',style: TextStyle(
+                        title: Text('Notifications',style: TextStyle(
                             color: Colors.black,fontWeight: FontWeight.bold,fontSize: 15
                         ),),
                       ),
