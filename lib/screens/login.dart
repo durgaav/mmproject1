@@ -279,9 +279,21 @@ import 'package:mmcustomerservice/screens/admin/register.dart';
                           margin: EdgeInsets.only(top: 30, bottom: 10),
                           child: ElevatedButton(
                             onPressed: () {
-                              final FormState? form = _formKey.currentState;
-                              OnLogin(username.text.toString(),
-                                  password.text.toString());
+                              if(username.text.toString() == ''||password.text.toString()==''){
+                                Fluttertoast.showToast(
+                                    msg: 'Fields cannot be blank',
+                                    toastLength: Toast.LENGTH_LONG,
+                                    gravity: ToastGravity.BOTTOM,
+                                    timeInSecForIosWeb: 1,
+                                    backgroundColor: Colors.red,
+                                    textColor: Colors.white,
+                                    fontSize: 15.0);
+                              }else{
+                                final FormState? form = _formKey.currentState;
+                                OnLogin(username.text.toString(),
+                                    password.text.toString());
+                              }
+
                             },
                             child: Text(
                               'Login',
@@ -303,10 +315,13 @@ import 'package:mmcustomerservice/screens/admin/register.dart';
                               ,style: TextStyle(color: Colors.black,fontSize: 16),),
                             TextButton(child: Text('Register'
                               ,style: TextStyle(color: Colors.red,fontSize: 16,decoration: TextDecoration.underline),),
-                              onPressed: (){
+                              onPressed: () async{
+                               var pref = await SharedPreferences.getInstance();
+                               pref.setString('usertype', 'unreguser');
                                 Navigator.push(context,
                                   MaterialPageRoute(builder: (context)=>Register()),);
-                              },),
+                              },
+                            ),
                           ],
                         ),
                       ),

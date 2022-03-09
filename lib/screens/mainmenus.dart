@@ -194,11 +194,12 @@ class _MainMenusState extends State<MainMenus> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => NotifScreen()),
+                                builder: (context) => NotifScreen()
+                            ),
                           );
                         },
-                        trailing: Text("$count",style: TextStyle(
-                            color: Colors.red,fontSize: 14
+                        trailing: Text("${count}",style: TextStyle(
+                            color: Colors.red,fontSize: 14,fontWeight: FontWeight.bold,
                         )),
                         leading: Icon(Icons.notifications,size: 27,),
                         title: Text('Notifications',style: TextStyle(

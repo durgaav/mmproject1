@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
@@ -12,6 +11,10 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mailer/mailer.dart';
+import 'package:mailer/smtp_server.dart';
+
+
 
 class Customer extends StatefulWidget {
   @override
@@ -58,42 +61,42 @@ class _CustomerState extends State<Customer> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children:<Widget> [
-                       GestureDetector(
-                              onTap: () async {
-                                print("image path" + imgPath);
-                                print("Entering to file picker........");
-                                FilePickerResult? result =
-                                await FilePicker.platform.pickFiles(
-                                  type: FileType.image,
-                                );
-                                PlatformFile file = result.files.first;
-                                if (result != "") {
-                                  setState(() {
-                                    imgPath = file.path.toString();
-                                  });
-                                  _image = new File(imgPath);
-                                  extention = file.extension;
-                                  print("this is image : " +
-                                      _image.absolute.path.toString());
-                                }
-                              },
-                              child: imgPath == ""
-                                  ? CircleAvatar(
-                                radius: 50,
-                                backgroundColor: Colors.white,
-                                backgroundImage:
-                                AssetImage('assets/images/user.png'),
-                              ) : CircleAvatar(
-                                radius: 50,
-                                backgroundColor: Colors.white,
-                                backgroundImage: FileImage(File('$imgPath')),
-                              )),
+                        GestureDetector(
+                            onTap: () async {
+                              print("image path" + imgPath);
+                              print("Entering to file picker........");
+                              FilePickerResult? result =
+                              await FilePicker.platform.pickFiles(
+                                type: FileType.image,
+                              );
+                              PlatformFile file = result.files.first;
+                              if (result != "") {
+                                setState(() {
+                                  imgPath = file.path.toString();
+                                });
+                                _image = new File(imgPath);
+                                extention = file.extension;
+                                print("this is image : " +
+                                    _image.absolute.path.toString());
+                              }
+                            },
+                            child: imgPath == ""
+                                ? CircleAvatar(
+                              radius: 50,
+                              backgroundColor: Colors.white,
+                              backgroundImage:
+                              AssetImage('assets/images/user.png'),
+                            ) : CircleAvatar(
+                              radius: 50,
+                              backgroundColor: Colors.white,
+                              backgroundImage: FileImage(File('$imgPath')),
+                            )),
 
                       ],
                     ),
                     TextFormField(
                       decoration: const InputDecoration(
-                        hintText: 'Enter your Company name',
+                        hintText: 'Enter your Companyname',
                         labelText: 'Company name',
                       ),
                       controller: compName,
@@ -161,7 +164,7 @@ class _CustomerState extends State<Customer> {
                                       clientNm.text.isEmpty||_image.path.isEmpty) {
                                     print("value not entered......");
                                     Fluttertoast.showToast(
-                                        msg: 'Please Fill all Inputs',
+                                        msg: 'Please Fill the all Detials',
                                         toastLength: Toast.LENGTH_LONG,
                                         gravity: ToastGravity.BOTTOM,
                                         timeInSecForIosWeb: 1,
@@ -179,6 +182,7 @@ class _CustomerState extends State<Customer> {
                                         projectCode.text.toString(),
                                         context
                                     );
+                                    sendMailToClient();
                                   }
                                 },
                                 color: Colors.blue,
@@ -203,6 +207,60 @@ class _CustomerState extends State<Customer> {
       },
     );
   }
+
+
+//send mail
+  void sendMailToClient() async {
+    setState(() {
+      mailId.text.toString();
+      passWd.text.toString();
+      usrNm.text.toString();
+    });
+    print(mailId);
+    print(passWd);
+    print(usrNm);
+    String username = 'durgadevi@mindmade.in';
+    String password = 'Appu#001';
+
+    final smtpServer = gmail(username, password);
+    final equivalentMessage = Message()
+      ..from = Address(username, 'DurgaDevi')
+      ..recipients.add(Address(mailId.text.toString()))
+    // ..ccRecipients.addAll([Address('surya@mindmade.in'), 'destCc2@example.com'])
+    // ..bccRecipients.add('bccAddress@example.com')
+      ..subject = 'Your Credentials ${formatter.format(DateTime.now())}'
+      ..text = '* Username: ${usrNm.text.toString()} \n* Password:${passWd.text.toString()}';
+    // ..html = "<h1>Test</h1>\n<p>Hey! Here's some HTML content</p>";
+    try {
+      await send(equivalentMessage, smtpServer);
+      print('Message sent: ' + send.toString());
+      Fluttertoast.showToast(
+          msg: 'Customer Credentials send via mail',
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 15.0
+      );
+    } on MailerException catch (e) {
+      print('Message not sent.');
+      for (var p in e.problems) {
+        print('Problem: ${p.code}: ${p.msg}');
+        Fluttertoast.showToast(
+            msg: 'Failed to send credentials',
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 15.0
+        );
+      }
+    }
+  }
+
+//
 
   //Default loader
   showAlert(BuildContext context) {
@@ -230,80 +288,82 @@ class _CustomerState extends State<Customer> {
 
   //Add new customer logic
   Future AddNewUser(String comp, String user, String pass, String mail, String phn, String client,String proCode,BuildContext context) async {
-   showAlert(context);
+    // showAlert(context);
     print("procode...."+proCode);
     print(_image);
     try {
       final request = http.MultipartRequest(
           'POST', Uri.parse('https://mindmadetech.in/api/customer/new'));
-        request.headers['Content-Type'] = 'multipart/form-data';
-        request.fields.addAll({
-          'Companyname': comp,
-          'Clientname': client,
-          'Username': user,
-          'Password': pass,
-          'Email': mail,
-          'Phonenumber': phn,
-          'Createdon': formatter.format(DateTime.now()),
-          'Createdby': '$createdBy'
-        });
-        request.files.add(await http.MultipartFile.fromPath('file', _image.path,
-            filename: Path.basename(_image.path),
-            contentType: MediaType.parse("image/$extention")));
-        http.StreamedResponse response = await request.send();
-        if (response.statusCode == 200) {
-          Navigator.pop(context);
-          String res = await response.stream.bytesToString();
-          if (res.contains("Username already Exists!")||res.contains("Projectcode already Exists!")) {
-            Navigator.of(context, rootNavigator: true).pop();
-            Navigator.of(context, rootNavigator: true).pop();
-            Fluttertoast.showToast(
-                msg: "Username already Exists!",
-                toastLength: Toast.LENGTH_LONG,
-                gravity: ToastGravity.BOTTOM,
-                timeInSecForIosWeb: 1,
-                backgroundColor: Colors.red,
-                textColor: Colors.white,
-                fontSize: 15.0
-            );
-            return response;
-          } else {
-            Navigator.pop(context);
-            setState(() {
-              searchController = new TextEditingController(text: "");
-              compName = new TextEditingController(text: "");
-              usrNm = new TextEditingController(text: "");
-              passWd = new TextEditingController(text: "");
-              mailId = new TextEditingController(text: "");
-              phnNum = new TextEditingController(text: "");
-              clientNm = new TextEditingController(text: "");
-              projectCode = new TextEditingController(text: "");
-              _image=File('');
-              fetchCustomer();
-            });
-            Fluttertoast.showToast(
-                msg: 'Customer added successfully!',
-                toastLength: Toast.LENGTH_LONG,
-                gravity: ToastGravity.BOTTOM,
-                timeInSecForIosWeb: 1,
-                backgroundColor: Colors.green,
-                textColor: Colors.white,
-                fontSize: 15.0
-            );
-          }
-        } else {
-          onNetworkChecking();
+      request.headers['Content-Type'] = 'multipart/form-data';
+      request.fields.addAll({
+        'Companyname': comp,
+        'Clientname': client,
+        'Username': user,
+        'Password': pass,
+        'Email': mail,
+        'Phonenumber': phn,
+        'Createdon': formatter.format(DateTime.now()),
+        'Createdby': '$createdBy'
+      });
+      request.files.add(await http.MultipartFile.fromPath('file', _image.path,
+          filename: Path.basename(_image.path),
+          contentType: MediaType.parse("image/$extention")));
+      http.StreamedResponse response = await request.send();
+      if (response.statusCode == 200) {
+        String res = await response.stream.bytesToString();
+        if (res.contains("Username already Exists!")||res.contains("Projectcode already Exists!")) {
+          Navigator.of(context, rootNavigator: true).pop();
+          Navigator.of(context, rootNavigator: true).pop();
           Fluttertoast.showToast(
-              msg: response.reasonPhrase.toString(),
+              msg: "Username/ProjectCode already Exists!",
               toastLength: Toast.LENGTH_LONG,
               gravity: ToastGravity.BOTTOM,
               timeInSecForIosWeb: 1,
               backgroundColor: Colors.red,
               textColor: Colors.white,
-              fontSize: 15.0);
+              fontSize: 15.0
+          );
+          return response;
+        } else {
+          Navigator.pop(context);
+          setState(() {
+            searchController = new TextEditingController(text: "");
+            compName = new TextEditingController(text: "");
+            usrNm = new TextEditingController(text: "");
+            passWd = new TextEditingController(text: "");
+            mailId = new TextEditingController(text: "");
+            phnNum = new TextEditingController(text: "");
+            clientNm = new TextEditingController(text: "");
+            projectCode = new TextEditingController(text: "");
+            _image=File('');
+            fetchCustomer();
+          });
+          Fluttertoast.showToast(
+              msg: 'Customer added successfully!',
+              toastLength: Toast.LENGTH_LONG,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.green,
+              textColor: Colors.white,
+              fontSize: 15.0
+          );
         }
+      } else {
+        onNetworkChecking();
+        print(await response.stream.bytesToString());
+        print(response.statusCode);
+        print(response.reasonPhrase);
+        Fluttertoast.showToast(
+            msg: response.reasonPhrase.toString(),
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 15.0);
+      }
 
-      } catch(ex){
+    } catch(ex){
       onNetworkChecking();
       Fluttertoast.showToast(
           msg: 'Something went wrong',
@@ -468,7 +528,7 @@ class _CustomerState extends State<Customer> {
       fetchCustomer();
     });
     getPref();
-    () async {
+        () async {
       var _permissionStatus = await Permission.storage.status;
       if (_permissionStatus != PermissionStatus.granted) {
         PermissionStatus permissionStatus = await Permission.storage.request();
@@ -485,6 +545,8 @@ class _CustomerState extends State<Customer> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           dialogBuilder(context);
+          print(MediaQuery.of(context).size.width);
+          //showAlert(context);
         },
         child: Icon(
           Icons.person_add_alt_outlined ,
@@ -543,30 +605,30 @@ class _CustomerState extends State<Customer> {
       body: SingleChildScrollView(
         child: Container(
           child:Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  //Refrsh visible
-                  Visibility(
-                    visible: retryVisible,
-                    child : Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: InkWell(
-                          child:Text("Load Failed, Tap here to retry !",
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                //Refrsh visible
+                Visibility(
+                  visible: retryVisible,
+                  child : Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: InkWell(
+                        child:Text("Load Failed, Tap here to retry !",
 
-                            style: TextStyle(color: Colors.red, fontSize: 16),
-                          ),
-                          onTap: () => setState(()
-                          {
-                            fetchCustomer();
-                          })),
-                    ),
+                          style: TextStyle(color: Colors.red, fontSize: 16),
+                        ),
+                        onTap: () => setState(()
+                        {
+                          fetchCustomer();
+                        })),
                   ),
-                  //Designs
-                  Container(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height * 0.9,
-                      child: RefreshIndicator(
+                ),
+                //Designs
+                Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height * 0.9,
+                    child: RefreshIndicator(
                         onRefresh: refreshListener,
                         backgroundColor: Colors.blue,
                         color: Colors.white,
@@ -574,45 +636,45 @@ class _CustomerState extends State<Customer> {
                             shrinkWrap: true,
                             itemCount: data.length,
                             itemBuilder: (BuildContext context, int index) {
-                                return data[index].Username.toLowerCase().contains(searchText.toString().toLowerCase())
-                                    ? Column(children: <Widget>[
-                                  ListTile(
-                                    onTap: () {
+                              return data[index].Username.toLowerCase().contains(searchText.toString().toLowerCase())
+                                  ? Column(children: <Widget>[
+                                ListTile(
+                                  onTap: () {
+                                    passDatatoScren(index);
+                                  },
+                                  leading: Container(
+                                    child: CircleAvatar(
+                                      radius: 40,
+                                      backgroundImage:
+                                      NetworkImage(data[index].Logo),
+                                    ),
+                                  ),
+                                  title: Text(
+                                    data[index].Username[0].toUpperCase() +
+                                        data[index]
+                                            .Username
+                                            .substring(1)
+                                            .toLowerCase(),
+                                    style: TextStyle(fontSize: 17.5),
+                                  ),
+                                  subtitle: Text(data[index].Email.toString(),maxLines: 1,),
+                                  trailing: IconButton(
+                                    onPressed: () {
                                       passDatatoScren(index);
                                     },
-                                    leading: Container(
-                                      child: CircleAvatar(
-                                        radius: 40,
-                                        backgroundImage:
-                                        NetworkImage(data[index].Logo),
-                                      ),
-                                    ),
-                                    title: Text(
-                                      data[index].Username[0].toUpperCase() +
-                                          data[index]
-                                              .Username
-                                              .substring(1)
-                                              .toLowerCase(),
-                                      style: TextStyle(fontSize: 17.5),
-                                    ),
-                                    subtitle: Text(data[index].Email.toString(),maxLines: 1,),
-                                    trailing: IconButton(
-                                      onPressed: () {
-                                        passDatatoScren(index);
-                                      },
-                                      icon: Icon(
-                                        Icons.arrow_right,
-                                        size: 35,
-                                        color: Colors.blueAccent,
-                                      ),
+                                    icon: Icon(
+                                      Icons.arrow_right,
+                                      size: 35,
+                                      color: Colors.blueAccent,
                                     ),
                                   ),
-                                  Divider(
-                                    height: 0,
-                                    color: Colors.black12,
-                                  ),
-                                ])
-                                    : Container();
+                                ),
+                                Divider(
+                                  height: 0,
+                                  color: Colors.black12,
+                                ),
+                              ])
+                                  : Container();
 
                             }):Center(
                           child: Container(
@@ -620,8 +682,8 @@ class _CustomerState extends State<Customer> {
                             child: Text('No data found!',style: TextStyle(fontSize: 25,color: Colors.deepPurple),),
                           ),
                         )
-                      ))
-                ]),
+                    ))
+              ]),
 
         ),
       ),
@@ -649,20 +711,20 @@ class GetCustomer {
 
   GetCustomer(
       {required this.usersId,
-      required this.Username,
+        required this.Username,
         required this.proectCode,
-      required this.Password,
-      required this.Email,
-      required this.Phonenumber,
-      required this.Address,
-      required this.Companyname,
-      required this.Logo,
-      required this.Clientname,
-      required this.Createdby,
-      required this.Createdon,
-      required this.Modifiedby,
-      required this.Modifiedon,
-      required this.Isdeleted});
+        required this.Password,
+        required this.Email,
+        required this.Phonenumber,
+        required this.Address,
+        required this.Companyname,
+        required this.Logo,
+        required this.Clientname,
+        required this.Createdby,
+        required this.Createdon,
+        required this.Modifiedby,
+        required this.Modifiedon,
+        required this.Isdeleted});
 
   factory GetCustomer.fromJson(Map<String, dynamic> json) {
     return GetCustomer(
@@ -683,3 +745,7 @@ class GetCustomer {
         Isdeleted: json['Isdeleted'].toString());
   }
 }
+
+
+
+

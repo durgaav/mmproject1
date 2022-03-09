@@ -231,7 +231,7 @@ class _UnRegister_TicketsState extends State<UnRegister_Tickets> {
                 ),
                 Container(
                     padding: EdgeInsets.only(bottom: 10),
-                  height: MediaQuery.of(context).size.height,
+                  height: MediaQuery.of(context).size.height*0.9,
                   width: MediaQuery.of(context).size.width,
                   child:  unRegTickets.length>0?
                   ListView.builder(

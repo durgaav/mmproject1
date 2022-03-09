@@ -1,6 +1,4 @@
 //code for send
-
-
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -10,6 +8,9 @@ import 'package:mmcustomerservice/screens/admin/customerviewpage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
+import 'package:mailer/mailer.dart';
+import 'package:mailer/smtp_server.dart';
+
 
 class UnRegTickets_View extends StatefulWidget {
   const UnRegTickets_View({Key? key}) : super(key: key);
@@ -149,47 +150,47 @@ class _UnRegTickets_ViewState extends State<UnRegTickets_View> {
     final request = http.MultipartRequest(
         'POST', Uri.parse('https://mindmadetech.in/api/tickets/new')
     );
-      request.headers['Content-Type'] = 'multipart/form-data';
-      request.fields.addAll
-        ({
-        'Username': UserName,
-        'Email': email,
-        'Phonenumber': phonenumber,
-        'DomainName': domainname,
-        'Description': description,
-        'Cus_CreatedOn':'null'
-      });
-      http.StreamedResponse response = await request.send();
-      String res = await response.stream.bytesToString();
-      print(response.statusCode);
-      print('tickets...');
-      if (response.statusCode == 200) {
-        Navigator.pop(context);
-        if(res.contains('Ticket added successfully')){
-          Fluttertoast.showToast(
-              msg:'Ticket added successfully!',
-              toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.green,
-              textColor: Colors.white,
-              fontSize: 15.0
-          );
-        }
-      }
-      else {
-        Navigator.pop(context);
+    request.headers['Content-Type'] = 'multipart/form-data';
+    request.fields.addAll
+      ({
+      'Username': UserName,
+      'Email': email,
+      'Phonenumber': phonenumber,
+      'DomainName': domainname,
+      'Description': description,
+      'Cus_CreatedOn':'null'
+    });
+    http.StreamedResponse response = await request.send();
+    String res = await response.stream.bytesToString();
+    print(response.statusCode);
+    print('tickets...');
+    if (response.statusCode == 200) {
+      Navigator.pop(context);
+      if(res.contains('Ticket added successfully')){
         Fluttertoast.showToast(
-            msg:await response.reasonPhrase.toString(),
+            msg:'Ticket added successfully!',
             toastLength: Toast.LENGTH_LONG,
             gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
+            backgroundColor: Colors.green,
             textColor: Colors.white,
             fontSize: 15.0
         );
-        print(response.reasonPhrase);
       }
+    }
+    else {
+      Navigator.pop(context);
+      Fluttertoast.showToast(
+          msg:await response.reasonPhrase.toString(),
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 15.0
+      );
+      print(response.reasonPhrase);
+    }
   }
 
 
@@ -284,6 +285,9 @@ class _UnRegTickets_ViewState extends State<UnRegTickets_View> {
       if (response.statusCode == 200) {
         String s = await response.stream.bytesToString();
         if("$status"== 'Reject'){
+          setState(() {
+            rejectStatusMail();
+          });
           Fluttertoast.showToast(
               msg: 'Reject Successfully',
               toastLength: Toast.LENGTH_LONG,
@@ -297,6 +301,7 @@ class _UnRegTickets_ViewState extends State<UnRegTickets_View> {
           setState(() {
             AddUnRegUser();
             AddUnRegTicket();
+            approveStatusMail();
           });
           Fluttertoast.showToast(
               msg: 'Approved successfully!',
@@ -323,6 +328,96 @@ class _UnRegTickets_ViewState extends State<UnRegTickets_View> {
   }
 
 
+  //send approve mail
+  void approveStatusMail() async {
+    String username = 'durgadevi@mindmade.in';
+    String password = 'Appu#001';
+
+    final smtpServer = gmail(username, password);
+    final equivalentMessage = Message()
+      ..from = Address(username, 'DurgaDevi')
+      ..recipients.add(Address(email))
+      ..ccRecipients.addAll([Address('surya@mindmade.in'),])
+    // ..bccRecipients.add('bccAddress@example.com')
+      ..subject = 'Your Ticket status ${formatter.format(DateTime.now())}'
+      ..text = 'Your Ticket is Approved ';
+    // ..html = "<h1>Test</h1>\n<p>Hey! Here's some HTML content</p>";
+    try {
+      await send(equivalentMessage, smtpServer);
+      print('Message sent: ' + send.toString());
+      Fluttertoast.showToast(
+          msg: 'Approve send via mail',
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 15.0
+      );
+    } on MailerException catch (e) {
+      print('Message not sent.');
+      for (var p in e.problems) {
+        print('Problem: ${p.code}: ${p.msg}');
+        Fluttertoast.showToast(
+            msg: 'Failed to send Approve',
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 15.0
+        );
+      }
+    }
+  }
+  //
+
+
+  //send reject  mail
+  void rejectStatusMail() async {
+    String username = 'durgadevi@mindmade.in';
+    String password = 'Appu#001';
+
+    final smtpServer = gmail(username, password);
+    final equivalentMessage = Message()
+      ..from = Address(username, 'DurgaDevi')
+      ..recipients.add(Address(email))
+      ..ccRecipients.addAll([Address('surya@mindmade.in'),])
+    // ..bccRecipients.add('bccAddress@example.com')
+      ..subject = 'Your Ticket status ${formatter.format(DateTime.now())}'
+      ..text = 'Your Ticket is Rejected ';
+    // ..html = "<h1>Test</h1>\n<p>Hey! Here's some HTML content</p>";
+    try {
+      await send(equivalentMessage, smtpServer);
+      print('Message sent: ' + send.toString());
+      Fluttertoast.showToast(
+          msg: 'Rejection send via mail',
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 15.0
+      );
+    } on MailerException catch (e) {
+      print('Message not sent.');
+      for (var p in e.problems) {
+        print('Problem: ${p.code}: ${p.msg}');
+        Fluttertoast.showToast(
+            msg: 'Failed to send Reject',
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 15.0
+        );
+      }
+    }
+  }
+  //
+
+
 
 
   @override
@@ -336,140 +431,141 @@ class _UnRegTickets_ViewState extends State<UnRegTickets_View> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          ApproveDailog(context);
-        }, label: Text('Approve'),
-        icon: Icon(Icons.beenhere_outlined ),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () {
+            ApproveDailog(context);
+          }, label: Text('Approve'),
+          icon: Icon(Icons.beenhere_outlined ),
 
-      ),
-      body: Stack(
-          children: [
-            ClipPath(
-              clipper: MyClipper(),
-              child: Container(
-                color: Colors.lightBlue,
+        ),
+        body: Stack(
+            children: [
+              ClipPath(
+                clipper: MyClipper(),
+                child: Container(
+                  color: Colors.lightBlue,
+                ),
               ),
-            ),
-            Positioned(
-              top: 20,
-              child:IconButton(
-                  onPressed: (){
-                    Navigator.pop(context);
-                  }, icon: Icon(Icons.arrow_back,color: Colors.black,)),
-            ),
-            Positioned(
-              top:65,
-              left: 22,
-              child:  SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      child:Text(UserName[0].toUpperCase()+UserName.substring(1),style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,color: Colors.white),),
-                    ),
-                    Container(
+              Positioned(
+                top: 20,
+                child:IconButton(
+                    onPressed: (){
+                      Navigator.pop(context);
+                    }, icon: Icon(Icons.arrow_back,color: Colors.black,)),
+              ),
+              Positioned(
+                top:65,
+                left: 22,
+                child:  SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        child:Text(UserName[0].toUpperCase()+UserName.substring(1),style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,color: Colors.white),),
+                      ),
+                      Container(
                         padding: EdgeInsets.only(top: 5),
                         child: Text(email, style: TextStyle(fontSize: 17, color: Colors.white),),),
 
-                    Container(
-                        padding: EdgeInsets.only(top: 5),
-                        child: Text(phonenumber, style: TextStyle(fontSize: 16, color: Colors.white,),)),
-                  ],
-                ),
-              ),),
-            Positioned(
-              top:110,
-              left: 235,
-              child: Container(
-                padding: EdgeInsets.all(3),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(100),
-                  color: Colors.white,
-                ),
+                      Container(
+                          padding: EdgeInsets.only(top: 5),
+                          child: Text(phonenumber, style: TextStyle(fontSize: 16, color: Colors.white,),)),
+                    ],
+                  ),
+                ),),
+              Positioned(
+                top:110,
+                left: 235,
                 child: Container(
-                  child: CircleAvatar(
+                  padding: EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(100),
+                    color: Colors.white,
+                  ),
+                  child: Container(
+                    child: CircleAvatar(
                       radius: 45,
                       backgroundImage:  NetworkImage(logo),
+                    ),
                   ),
-                ),
-              ), ),
-            Positioned(
-              top: 200,
-              left: 10,
-              child:  SingleChildScrollView(
-                child: Container(
-                  padding: EdgeInsets.only(bottom: 45,top:0),
-                  height: MediaQuery.of(context).size.height*0.8,
-                  width: MediaQuery.of(context).size.width,
-                  child:ListView(
-                    children: [
-                      ListTile(
-                          leading: Icon(Icons.person),
-                          title:Text('Register Id',style: TextStyle(fontSize: 15, color: Colors.black45),),
-                          subtitle:Text(registerId, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),)
-                      ),
-                      ListTile(
-                        leading: Icon(Icons.account_balance_outlined ),
-                        title: Text('Company Name',style: TextStyle(fontSize: 15, color: Colors.black45),),
-                        subtitle:Text(cmpyname, style: TextStyle(fontSize: 17, color: Color(0XFF333333)),)
-                      ),
-                      ListTile(
-                        leading: Icon(CupertinoIcons.person_circle ),
-                        title: Text("Client name", style: TextStyle(fontSize: 15, color: Colors.black45),),
-                        subtitle:Text(cliname, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
-                      ),
-                      ListTile(
-                        leading: Icon(Icons.lock),
-                        title: Text("Password", style: TextStyle(fontSize: 15, color: Colors.black45),),
-                        subtitle:Text(pass, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
-                      ),
-                      ListTile(
-                        leading: Icon(Icons.language),
-                        title: Text("Domain Name", style: TextStyle(fontSize: 15, color: Colors.black45),),
-                        subtitle:Text(domainname, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
-                      ),
-                      ListTile(
-                        leading: Icon(Icons.description ),
-                        title: Text("Description", style: TextStyle(fontSize: 15, color: Colors.black45),),
-                        subtitle:Text(description, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
-                      ),
-                      ListTile(
-                        leading: Icon(CupertinoIcons.doc_person_fill ),
-                        title: Text("Status", style: TextStyle(fontSize: 15, color: Colors.black45),),
-                        subtitle:Text(status, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
-                      ),
-                      ListTile(
-                        leading: Icon(CupertinoIcons.time ),
-                        title: Text("Created on", style: TextStyle(fontSize: 15, color: Colors.black45),),
-                        subtitle:Text(createdon, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
-                      ),
+                ), ),
+              Positioned(
+                top: 200,
+                left: 10,
+                child:  SingleChildScrollView(
+                  child: Container(
+                    padding: EdgeInsets.only(bottom: 45,top:0),
+                    height: MediaQuery.of(context).size.height*0.8,
+                    width: MediaQuery.of(context).size.width,
+                    child:ListView(
+                      children: [
+                        ListTile(
+                            leading: Icon(Icons.person),
+                            title:Text('Register Id',style: TextStyle(fontSize: 15, color: Colors.black45),),
+                            subtitle:Text(registerId, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),)
+                        ),
+                        ListTile(
+                            leading: Icon(Icons.account_balance_outlined ),
+                            title: Text('Company Name',style: TextStyle(fontSize: 15, color: Colors.black45),),
+                            subtitle:Text(cmpyname, style: TextStyle(fontSize: 17, color: Color(0XFF333333)),)
+                        ),
+                        ListTile(
+                          leading: Icon(CupertinoIcons.person_circle ),
+                          title: Text("Client name", style: TextStyle(fontSize: 15, color: Colors.black45),),
+                          subtitle:Text(cliname, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
+                        ),
+                        ListTile(
+                          leading: Icon(Icons.lock),
+                          title: Text("Password", style: TextStyle(fontSize: 15, color: Colors.black45),),
+                          subtitle:Text(pass, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
+                        ),
+                        ListTile(
+                          leading: Icon(Icons.language),
+                          title: Text("Domain Name", style: TextStyle(fontSize: 15, color: Colors.black45),),
+                          subtitle:Text(domainname, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
+                        ),
+                        ListTile(
+                          leading: Icon(Icons.description ),
+                          title: Text("Description", style: TextStyle(fontSize: 15, color: Colors.black45),),
+                          subtitle:Text(description, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
+                        ),
+                        ListTile(
+                          leading: Icon(CupertinoIcons.doc_person_fill ),
+                          title: Text("Status", style: TextStyle(fontSize: 15, color: Colors.black45),),
+                          subtitle:Text(status, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
+                        ),
+                        ListTile(
+                          leading: Icon(CupertinoIcons.time ),
+                          title: Text("Created on", style: TextStyle(fontSize: 15, color: Colors.black45),),
+                          subtitle:Text(createdon, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
+                        ),
 
-                      // ListTile(
-                      //     leading: Icon(CupertinoIcons.time_solid ),
-                      //     title: Text("Admin Updated On", style: TextStyle(fontSize: 15, color: Colors.black45),),
-                      //     subtitle:adm_updatedon==''?Text('Not yet updated.',
-                      //       style: TextStyle(fontSize: 18, color: Color(0XFF333333)),):
-                      //     Text(adm_updatedon, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),)
-                      // ),
-                      // ListTile(
-                      //     leading: Icon(CupertinoIcons.doc_person),
-                      //     //doc_checkmark  doc_checkmark_fill description_rounded doc_person
-                      //     title: Text("Admin Updated By", style: TextStyle(fontSize: 15, color: Colors.black45),),
-                      //     subtitle:adm_updatedby==''?Text('Not yet modified.',
-                      //       style: TextStyle(fontSize: 18, color: Color(0XFF333333)),):
-                      //     Text(adm_updatedby, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),)
-                      // ),
+                        // ListTile(
+                        //     leading: Icon(CupertinoIcons.time_solid ),
+                        //     title: Text("Admin Updated On", style: TextStyle(fontSize: 15, color: Colors.black45),),
+                        //     subtitle:adm_updatedon==''?Text('Not yet updated.',
+                        //       style: TextStyle(fontSize: 18, color: Color(0XFF333333)),):
+                        //     Text(adm_updatedon, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),)
+                        // ),
+                        // ListTile(
+                        //     leading: Icon(CupertinoIcons.doc_person),
+                        //     //doc_checkmark  doc_checkmark_fill description_rounded doc_person
+                        //     title: Text("Admin Updated By", style: TextStyle(fontSize: 15, color: Colors.black45),),
+                        //     subtitle:adm_updatedby==''?Text('Not yet modified.',
+                        //       style: TextStyle(fontSize: 18, color: Color(0XFF333333)),):
+                        //     Text(adm_updatedby, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),)
+                        // ),
 
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
 
-          ]
-      )
+            ]
+        )
     );
   }
 }
+
 
