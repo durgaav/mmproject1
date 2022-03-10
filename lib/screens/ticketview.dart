@@ -9,10 +9,12 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
+import 'package:mmcustomerservice/screens/data.dart';
 import 'package:mmcustomerservice/screens/ticket_assign.dart';
 import 'package:mmcustomerservice/ticketsModel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:open_file/open_file.dart' as fileOpen;
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class TicketViewPage extends StatefulWidget {
@@ -90,6 +92,8 @@ class _TicketViewPageState extends State<TicketViewPage> {
   List<String> fromAPI = [];
   String teamId = "0";
   List ids = [];
+  List idList = [];
+  var contextTeam = [];
   //endregion Variables
 
   //region Dialogs
@@ -414,6 +418,8 @@ class _TicketViewPageState extends State<TicketViewPage> {
 
       teams = tmAssignList.toList();
 
+      addContextList();
+
       fromAPI = pref.getStringList('Files')!;
       server = pref.getString('server')??'';
       seo = pref.getString('seo')??'';
@@ -507,6 +513,13 @@ class _TicketViewPageState extends State<TicketViewPage> {
 
   //endregion Functions
 
+  void addContextList(){
+    for(int i=0;i<teams.length;i++){
+      idList.add(teams[i].teamId);
+    }
+    context.read<Data>().addList(idList);
+  }
+
   @override
   void initState() {
 // TODO: implement initState
@@ -517,11 +530,11 @@ class _TicketViewPageState extends State<TicketViewPage> {
 
   @override
   Widget build(BuildContext context) {
-    for(int i=0;i<teams.length;i++){
-      ids.add(teams[i].teamId);
-    }
-    ids = ids.toSet().toList();
-    print("ids :" + ids.toString());
+    ids = context.watch<Data>().getList();
+    setState(() {
+      ids = ids.toSet().toList();
+    });
+    print("length>>> ${ids.length}");
     return Scaffold(
       //APP bar
         appBar: AppBar(
@@ -555,7 +568,7 @@ class _TicketViewPageState extends State<TicketViewPage> {
           child: FloatingActionButton(
             child: Icon(Icons.add),
             onPressed: () {
-              // assignDialog(context);
+              context.read<Data>().addList(ids);
               Navigator.push(context,
                   MaterialPageRoute(builder:
                       (context)=>TicketAssign(ticketId:ticketId,updatedBy: adm_update_by,)));
@@ -579,7 +592,7 @@ class _TicketViewPageState extends State<TicketViewPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Status',style: TextStyle(
+                              'Status ${ids}',style: TextStyle(
                                 fontSize: 20,fontWeight: FontWeight.bold,letterSpacing: 2
                             ),),
                             SizedBox(
@@ -643,12 +656,13 @@ class _TicketViewPageState extends State<TicketViewPage> {
                           style: TextStyle(fontSize: 15, color: Colors.black45),
                         ),
                         children: <Widget>[
-                          teams.isNotEmpty?
+                          ids.isNotEmpty?
                           ListView.builder(
                               itemCount: ids.length,
                               physics: NeverScrollableScrollPhysics(),
                               shrinkWrap: true,
                               itemBuilder: (context,index){
+                                print(index);
                                 int i = teamsNamelist.indexWhere((element) => element['teamId'] == ids[index]);
                                 String userName = teamsNamelist[i]['Username'].toString();
                                 return Column(
@@ -673,7 +687,6 @@ class _TicketViewPageState extends State<TicketViewPage> {
                                     ),
                                   ],
                                 );
-
                               }
                           ):
                           Container(

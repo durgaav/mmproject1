@@ -331,7 +331,6 @@ class _HomePageState extends State<HomePage> {
         'POST', Uri.parse('https://mindmadetech.in/api/tickets/new')
     );
     showAlert(context);
-
     if(files.isEmpty){
       request.headers['Content-Type'] = 'multipart/form-data';
       request.fields.addAll

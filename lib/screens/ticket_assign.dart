@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:mmcustomerservice/screens/data.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/cupertino.dart';
 import "package:flutter/material.dart";
 import 'package:fluttertoast/fluttertoast.dart';
@@ -28,7 +29,7 @@ class _TicketAssignState extends State<TicketAssign> {
   String? currentUser = '';
   List<teamModel> teamMemberList = [];
   List<bool> teamCheck = [];
-  List<String> teamId = [];
+  List teamId = [];
   String filterTeam = "all";
   DateFormat formatter = DateFormat('dd-MM-yyyy hh:mm a');
 
@@ -58,10 +59,9 @@ class _TicketAssignState extends State<TicketAssign> {
 
   Future<void> getTeam() async{
     showAlert(context);
-    var response = await http.get(Uri.parse("https://mindmadetech.in/api/team/list"));
-    print(response.statusCode);
     try{
-      hasNetwork();
+      var response = await http.get(Uri.parse("https://mindmadetech.in/api/team/list"));
+      print(response.statusCode);
       if(response.statusCode == 200){
         List team = jsonDecode(response.body);
         setState(() {
@@ -72,32 +72,35 @@ class _TicketAssignState extends State<TicketAssign> {
           }
         });
         Navigator.pop(context);
-
       }
       else{
-        hasNetwork();
         Navigator.pop(context);
-        Fluttertoast.showToast(
-            msg: "Something went wrong!",
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 15.0
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.wifi_outlined,color: Colors.white,),
+                  Text('  ${response.reasonPhrase.toString()}!'),
+                ],
+              ),
+              backgroundColor: Color(0xffE33C3C),
+              behavior: SnackBarBehavior.floating,
+            )
         );
       }
     }catch(ex){
-      onNetworkChecking();
       Navigator.pop(context);
-      Fluttertoast.showToast(
-          msg: "Please check your connection!",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 15.0
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.wifi_outlined,color: Colors.white,),
+                Text('  Something went wrong!'),
+              ],
+            ),
+            backgroundColor: Color(0xffE33C3C),
+            behavior: SnackBarBehavior.floating,
+          )
       );
     }
   }
@@ -157,47 +160,68 @@ class _TicketAssignState extends State<TicketAssign> {
 
   Future<void> teamAssign(String id , List teamId) async{
     showAlert(context);
-    var headers = {
-      'Content-Type': 'application/json'
-    };
-    var request = http.Request('POST', Uri.parse('https://mindmadetech.in/api/tickets/team/update'));
-    request.body = json.encode({
-      "ticketsId": "$id",
-      "teamId": teamId,
-      "Adm_UpdatedOn": formatter.format(DateTime.now()),
-      "Adm_UpdatedBy": "$currentUser"
-    });
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
+    try{
+      var headers = {
+        'Content-Type': 'application/json'
+      };
+      var request = http.Request('POST', Uri.parse('https://mindmadetech.in/api/tickets/team/update'));
+      request.body = json.encode({
+        "ticketsId": "$id",
+        "teamId": teamId,
+        "Adm_UpdatedOn": formatter.format(DateTime.now()),
+        "Adm_UpdatedBy": "$currentUser"
+      });
+      request.headers.addAll(headers);
+      http.StreamedResponse response = await request.send();
+      if (response.statusCode == 200) {
+        Navigator.pop(context);
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.done_all,color: Colors.white,),
+                  Text('  Team assigned!'),
+                ],
+              ),
+              backgroundColor: Color(0xff28CD1B),
+              behavior: SnackBarBehavior.floating,
+            )
+        );
+        // context.read<Data>().addList(teamId);
+        print(await response.stream.bytesToString());
+      }
+      else {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.wifi_outlined,color: Colors.white,),
+                  Text('  ${response.reasonPhrase.toString()}!'),
+                ],
+              ),
+              backgroundColor: Color(0xffE33C3C),
+              behavior: SnackBarBehavior.floating,
+            )
+        );
+      }
+    }catch(Exception){
       Navigator.pop(context);
-      Navigator.pop(context);
-      Fluttertoast.showToast(
-          msg: "Team assigned!",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-          fontSize: 15.0
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.wifi_outlined,color: Colors.white,),
+                Text('  Something went wrong!'),
+              ],
+            ),
+            backgroundColor: Color(0xffE33C3C),
+            behavior: SnackBarBehavior.floating,
+        )
       );
-      print(await response.stream.bytesToString());
     }
-    else {
-      Navigator.pop(context);
-      Fluttertoast.showToast(
-          msg: response.reasonPhrase.toString(),
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 15.0
-      );
-      print(response.reasonPhrase);
-    }
+
   }
 
   Future<void> getPrefs() async{
@@ -222,24 +246,30 @@ class _TicketAssignState extends State<TicketAssign> {
 
   @override
   Widget build(BuildContext context) {
+    List getids = context.watch<Data>().getList();
+    List addedList = teamId+getids;
     return Scaffold(
         floatingActionButton: FloatingActionButton.extended(
           onPressed: (){
             print(teamId);
             if(teamId.isEmpty){
-              Fluttertoast.showToast(
-                  msg: "Please select at-least one team member!",
-                  toastLength: Toast.LENGTH_LONG,
-                  gravity: ToastGravity.BOTTOM,
-                  timeInSecForIosWeb: 1,
-                  backgroundColor: Colors.red,
-                  textColor: Colors.white,
-                  fontSize: 15.0
+              ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Row(
+                      children: [
+                        Icon(Icons.close_outlined,color: Colors.white,),
+                        Text('  Please select at least one member!'),
+                      ],
+                    ),
+                    backgroundColor: Color(0xffE33C3C),
+                    behavior: SnackBarBehavior.floating,
+                  )
               );
             }
             else{
               teamAssign(ticketId, teamId);
             }
+            // context.read<Data>().addList(addedList);
           },
           label: Text('Commit team'),
           icon: Icon(Icons.thumb_up),

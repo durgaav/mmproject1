@@ -347,7 +347,7 @@ class _NotifScreenState extends State<NotifScreen> {
                                         clearNotify(ticketDetails[index].ticketsId.toString());
                                         color.removeAt(index);
                                         color.insert(index, true);
-                                        counts = counts-1;
+                                        counts = counts - 1;
                                         context.read<Data>().setCount(counts);
                                         if(counts==0){
                                           setState(() {

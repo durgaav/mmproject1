@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class Data extends ChangeNotifier {
   int _counter = 0;
+  List assignedList = [];
 
   void setCount(int count) {
     _counter = count;
@@ -10,12 +11,11 @@ class Data extends ChangeNotifier {
 
   int getcounter() => _counter;
 
-  void incrementCounter() {
-    _counter++;
+  void addList(List addedList){
+    assignedList = addedList;
     notifyListeners();
   }
 
-  void reset(){
-    _counter = 0;
-  }
+  List getList() => assignedList;
+
 }
