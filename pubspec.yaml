@@ -42,6 +42,7 @@ dependencies:
   mime:
   mailer: ^3.2.1
   flutter_speed_dial:
+  random_password_generator: ^0.2.1
 
 dev_dependencies:
   flutter_test:

@@ -223,7 +223,7 @@ class _CustomerState extends State<Customer> {
       await send(equivalentMessage, smtpServer);
       print('Message sent: ' + send.toString());
       Fluttertoast.showToast(
-          msg: 'Customer Credentials send via mail',
+          msg: 'Customer Credentials sent via mail',
           toastLength: Toast.LENGTH_LONG,
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 1,
