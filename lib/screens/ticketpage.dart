@@ -528,7 +528,7 @@ class _TicketsState extends State<Tickets> {
                       itemCount: ticketDetails.length,
                       itemBuilder: (BuildContext context, int index) {
                         return
-                          ticketDetails[index].domainName.toLowerCase().contains(searchText.toLowerCase())?
+                          ticketDetails[index].email.toLowerCase().contains(searchText.toLowerCase())?
                           sortString == 'all'?
                           Column(children: <Widget>[
                             Container(
@@ -547,10 +547,10 @@ class _TicketsState extends State<Tickets> {
                                           .primaries.length)],
                                       child: Text(
                                         ticketDetails[index]
-                                            .domainName !=
-                                            null
+                                            .email !=
+                                            ''
                                             ? ticketDetails[index]
-                                            .domainName[0]
+                                            .email[0]
                                             .toUpperCase()
                                             : "Un named"[0]
                                             .toUpperCase(),
@@ -645,29 +645,14 @@ class _TicketsState extends State<Tickets> {
                                         : SizedBox()
                                   ]),
                                 ),
-                                title: ticketDetails[index]
-                                    .domainName !=
-                                    null
-                                    ? Text(
-                                  choice == "email"
-                                      ? ticketDetails[index]
-                                      .email
-                                      : ticketDetails[index]
-                                      .domainName[0]
-                                      .toUpperCase() +
-                                      ticketDetails[index]
-                                          .domainName
-                                          .substring(1),
+                                title:ticketDetails[index].email.isNotEmpty?
+                                Text(ticketDetails[index].email,
                                   style:
-                                  TextStyle(fontSize: 17.5),
+                                  TextStyle(fontSize: 16.5),
                                   maxLines: 1,
-                                )
-                                    : Text('Un named'),
-                                subtitle: Text("Status : " +
-                                    ticketDetails[index]
-                                        .status
-                                        .toString()
-                                        .toLowerCase()),
+                                ):Text('Un specified'),
+                                subtitle:ticketDetails[index].status.isNotEmpty?
+                                Text(ticketDetails[index].status):Text('Un specified'),
                                 trailing: IconButton(
                                   onPressed: () {
                                     passDataToView(index);
@@ -684,7 +669,7 @@ class _TicketsState extends State<Tickets> {
                               color: Colors.black12,
                             ),
                           ]) :
-                          ticketDetails[index].domainName.toLowerCase().contains(searchText.toLowerCase())?
+                          ticketDetails[index].email.toLowerCase().contains(searchText.toLowerCase())?
                           ticketDetails[index].status.toString().toLowerCase() == sortString?
                           Column(children: <Widget>[
                             Container(
@@ -703,10 +688,9 @@ class _TicketsState extends State<Tickets> {
                                           .primaries.length)],
                                       child: Text(
                                         ticketDetails[index]
-                                            .username !=
-                                            null
+                                            .email.isNotEmpty
                                             ? ticketDetails[index]
-                                            .username[0]
+                                            .email[0]
                                             .toUpperCase()
                                             : "Un named"[0]
                                             .toUpperCase(),
@@ -801,25 +785,15 @@ class _TicketsState extends State<Tickets> {
                                         : SizedBox()
                                   ]),
                                 ),
-                                title: ticketDetails[index]
-                                    .username !=
-                                    null
-                                    ? Text(
-                                  ticketDetails[index]
-                                      .username[0]
-                                      .toUpperCase() +
-                                      ticketDetails[index]
-                                          .username
-                                          .substring(1),
+                                title:ticketDetails[index].email.isNotEmpty?
+                                    Text(
+                                   ticketDetails[index].email.toString(),
+                                      maxLines: 1,
                                   style:
-                                  TextStyle(fontSize: 17.5),
-                                )
-                                    : Text('Un named'),
-                                subtitle: Text("Status : " +
-                                    ticketDetails[index]
-                                        .status
-                                        .toString()
-                                        .toLowerCase()),
+                                  TextStyle(fontSize: 16,color: Colors.blue),
+                                ):Text('Un specified'),
+                                subtitle:ticketDetails[index].status.isNotEmpty?
+                                    Text(ticketDetails[index].status):Text('Un specified'),
                                 trailing: IconButton(
                                   onPressed: () {
                                     passDataToView(index);
@@ -838,7 +812,6 @@ class _TicketsState extends State<Tickets> {
                           ]):
                           Container():Container():Container();
                       }),
-
                 ): Center(
                   child: Container(
                     padding: EdgeInsets.only(top: 15),

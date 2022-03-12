@@ -312,7 +312,7 @@ class _NotifScreenState extends State<NotifScreen> {
             backgroundColor: Color(0Xff146bf7),
             title: counts==0?
             Text('Notifications'):
-            Text('$count New notifications'),
+            Text('$counts New notifications'),
           ),
           body: SingleChildScrollView(
             child: Column(
@@ -379,11 +379,11 @@ class _NotifScreenState extends State<NotifScreen> {
                                     },
                                     leading: Icon(Icons.notifications,size: 30,color:color[index]==false?Colors.green:Colors.black26,),
                                     title: Text(ticketDetails[index].email.toString(),maxLines: 1,style:
-                                    TextStyle(color: Colors.black,fontSize: 13,fontWeight:color[index]==false?bold:normal)
+                                    TextStyle(color: Colors.black,fontSize: 15,fontWeight:normal)
                                       ,),
                                     // subtitle: Text(snapshot.data![index].email,style:
                                     // TextStyle(color: Colors.red,fontSize: 13)),
-                                    trailing: Text("Ticket Id : "+ticketDetails[index].ticketsId.toString()
+                                    trailing: Text(ticketDetails[index].ticketsId.toString()
                                         ,style:
                                         TextStyle(fontWeight: bold,fontSize: 12)
                                     ),

@@ -11,6 +11,7 @@ import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
 import 'package:mmcustomerservice/screens/data.dart';
 import 'package:mmcustomerservice/ticketsModel.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:open_file/open_file.dart' as fileOpen;
 import 'package:provider/provider.dart';
@@ -647,7 +648,7 @@ class _TicketViewPageState extends State<TicketViewPage> {
                                 CheckboxListTile(
                                   subtitle: Text(
                                       teamsNamelist[index]['Team'].toString()),
-                                  title: Text(teamsNamelist[index]['Username']
+                                  title: Text(teamsNamelist[index]['Email']
                                       .toString()),
                                   autofocus: false,
                                   checkColor: Colors.white,
@@ -697,7 +698,6 @@ class _TicketViewPageState extends State<TicketViewPage> {
   }
 
   void loadAssignedTeam(){
-    if(ids.isNotEmpty){
       for (int i = 0; i < teams.length; i++) {
         ids.add(teams[i].teamId);
       }
@@ -709,9 +709,6 @@ class _TicketViewPageState extends State<TicketViewPage> {
       }
       teamsIndex.removeWhere((element) => element == -1);
       teamsIndex = teamsIndex.toSet().toList();
-    }else{
-      print('ids empty');
-    }
   }
 
   //endregion Functions
@@ -720,7 +717,15 @@ class _TicketViewPageState extends State<TicketViewPage> {
 // TODO: implement initState
     super.initState();
     getPref();
-    loadGivenData();
+    loadGivenData();() async {
+      var _permissionStatus = await Permission.storage.status;
+      if (_permissionStatus != PermissionStatus.granted) {
+        PermissionStatus permissionStatus = await Permission.storage.request();
+        setState(() {
+          _permissionStatus = permissionStatus;
+        });
+      }
+    }();
   }
 
   @override
@@ -874,7 +879,7 @@ class _TicketViewPageState extends State<TicketViewPage> {
                           shrinkWrap: true,
                           itemBuilder: (context, index) {
                             String userName = teamsNamelist[teamsIndex[index]]
-                                    ["Username"]
+                                    ["Email"]
                                 .toString();
                             print(userName);
                             return Column(
