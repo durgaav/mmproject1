@@ -41,6 +41,7 @@ dependencies:
   provider: ^5.0.0
   mime:
   mailer: ^3.2.1
+  flutter_speed_dial:
 
 dev_dependencies:
   flutter_test:

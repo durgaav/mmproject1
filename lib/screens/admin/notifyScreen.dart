@@ -27,6 +27,7 @@ class _NotifScreenState extends State<NotifScreen> {
   bool allCleared = false;
   List<TicketModel> ticketDetails = [];
   String teamId = '';
+  List teamListToPass = [];
   //endregion Vars
 
   //region Functions
@@ -53,6 +54,15 @@ class _NotifScreenState extends State<NotifScreen> {
                     ],
                   )));
         });
+  }
+
+  Future<void> fetchTeams() async {
+    http.Response res =
+    await http.get(Uri.parse('https://mindmadetech.in/api/team/list'));
+    if (res.statusCode == 200) {
+      List body = json.decode(res.body);
+      teamListToPass = body.toList();
+    }
   }
 
   //Getting unseen notify list
@@ -82,27 +92,34 @@ class _NotifScreenState extends State<NotifScreen> {
         });
       } else {
         Navigator.pop(context);
-        Fluttertoast.showToast(
-            msg: 'Something went wrong',
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 15.0);
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.wifi_outlined,color: Colors.white,),
+                  Text('  Something went wrong!'),
+                ],
+              ),
+              backgroundColor: Color(0xffE33C3C),
+              behavior: SnackBarBehavior.floating,
+            )
+        );
           onNetworkChecking();
       }
     }catch(ex){
       print(ex);
       Navigator.pop(context);
-      Fluttertoast.showToast(
-          msg: 'Something went wrong',
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 15.0
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.wifi_outlined,color: Colors.white,),
+                Text('  Something went wrong!'),
+              ],
+            ),
+            backgroundColor: Color(0xffE33C3C),
+            behavior: SnackBarBehavior.floating,
+          )
       );
         onNetworkChecking();
     }
@@ -263,7 +280,7 @@ class _NotifScreenState extends State<NotifScreen> {
         MaterialPageRoute(
             builder: (context) => TicketViewPage(
               tmAssignList: teamTick,
-              teamsNamelist: [],
+              teamsNamelist: teamListToPass.toList(),
             )));
   }
 
@@ -275,6 +292,7 @@ class _NotifScreenState extends State<NotifScreen> {
     super.initState();
     Future.delayed(Duration.zero,() async{
       fetchNotify();
+      fetchTeams();
     });
   }
 
@@ -360,8 +378,8 @@ class _NotifScreenState extends State<NotifScreen> {
                                       });
                                     },
                                     leading: Icon(Icons.notifications,size: 30,color:color[index]==false?Colors.green:Colors.black26,),
-                                    title: Text(ticketDetails[index].username.toString(),style:
-                                    TextStyle(color: Colors.black,fontSize: 16,fontWeight:color[index]==false?bold:normal)
+                                    title: Text(ticketDetails[index].email.toString(),maxLines: 1,style:
+                                    TextStyle(color: Colors.black,fontSize: 13,fontWeight:color[index]==false?bold:normal)
                                       ,),
                                     // subtitle: Text(snapshot.data![index].email,style:
                                     // TextStyle(color: Colors.red,fontSize: 13)),

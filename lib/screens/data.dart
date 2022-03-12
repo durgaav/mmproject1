@@ -12,7 +12,9 @@ class Data extends ChangeNotifier {
   int getcounter() => _counter;
 
   void addList(List addedList){
-    assignedList = addedList;
+    for(int i=0;i<addedList.length;i++){
+      assignedList.add(addedList[i]);
+    }
     notifyListeners();
   }
 

@@ -2,13 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:mime/mime.dart';
-import 'package:path/path.dart' as Path;
-import 'package:http_parser/http_parser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Register extends StatefulWidget {
@@ -18,30 +14,29 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> {
+  //text controller
   TextEditingController Cmpname = TextEditingController();
   TextEditingController Clientname = TextEditingController();
-  TextEditingController userController = TextEditingController();
   TextEditingController pass = TextEditingController();
   TextEditingController mailController = TextEditingController();
   TextEditingController phnoController = TextEditingController();
   TextEditingController domainController = TextEditingController();
   TextEditingController dsController = TextEditingController();
+  //end controller
 
-  List<File> files =[];
-  List extensions =[];
+//region variables
+  String extention = "*";
   List unAppTic = [];
   List filterdByPhn = [];
   String imgPath = "";
   DateFormat formatter = DateFormat('dd-MM-yyyy hh:mm a');
   bool _obscured = true;
-  bool imageremove = true;
-  bool fileremove = true;
   String userType = '';
-  bool filevisible = false;
-  bool imgvisible = false;
   String status = 'No status';
   String emailId = '';
+//end region
 
+  //file open
   OpenFiles(List<PlatformFile> files){
     ListView.builder(
         itemCount: files.length,
@@ -61,6 +56,9 @@ class _RegisterState extends State<Register> {
           );
         });
   }
+  //
+
+  //default loader
   showAlert(BuildContext context) {
     return showDialog(
         context: context,
@@ -83,39 +81,39 @@ class _RegisterState extends State<Register> {
                   )));
         });
   }
+  //
 
-  Future AddTicket(String cmp,String clname,String user,String passwrd,String email,
+
+  //add unreg ticket
+  Future AddTicket(String cmp,String clname,String passwrd,String email,
       String phno,String doname,String description) async {
     showAlert(context);
     var pref = await SharedPreferences.getInstance();
-    final request = http.MultipartRequest(
-        'POST', Uri.parse('https://mindmadetech.in/api/unregisteredcustomer/new')
-    );
-      request.headers['Content-Type'] = 'multipart/form-data';
-      request.fields.addAll
-        ({
-        'Companyname': cmp,
-        'Clientname': clname,
-        'Username': user,
-        'Password': passwrd,
-        'Email': email,
-        'Phonenumber': phno,
-        'DomainName':doname,
-        'Description':description,
-        'CreatedOn': formatter.format(DateTime.now()),
-      });
-        request.files.add(await http.MultipartFile.fromPath('file', files[0].path,
-            filename: Path.basename(files[0].path),
-            contentType: MediaType.parse(extensions[0].toString())));
+    try{
+      http.Response response = await http.post(
+          Uri.parse('https://mindmadetech.in/api/unregisteredcustomer/new'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8'
+          },
+          body: jsonEncode(<String, String>{
+            'Companyname': cmp.toString(),
+            'Clientname': clname.toString(),
+            'Password': passwrd.toString(),
+            'Email': email.toString(),
+            'Phonenumber': phno.toString(),
+            'DomainName':doname.toString(),
+            'Description':description.toString(),
+            'CreatedOn': formatter.format(DateTime.now()),
+            "Logo" : "https://mindmadetech.in/public/images/file-1645099812344.png",
+          }));
 
-      http.StreamedResponse response = await request.send();
-      String res = await response.stream.bytesToString();
-      print(response.statusCode);
+      print(jsonDecode(response.body));
+
       if (response.statusCode == 200) {
-        Navigator.of(context);
-        print('ticket');
-        if(res != 'Ticket added successfully'){
-          pref.setString('unregmailid', mailController.text);
+        Map<String, dynamic> map =
+        new Map<String, dynamic>.from(jsonDecode(response.body));
+        print(map['message'].toString());
+        if (map['message'].toString() == "Request sent successfully") {
           setState(() {
             emailId = pref.getString('unregmailid')??'';
             Cmpname = TextEditingController();
@@ -123,56 +121,100 @@ class _RegisterState extends State<Register> {
             pass = TextEditingController();
             mailController = TextEditingController();
             phnoController = TextEditingController();
-            userController = TextEditingController();
             domainController = TextEditingController();
             dsController = TextEditingController();
-            extensions = [];
-            files = [];
           });
-          Fluttertoast.showToast(
-              msg: 'Ticket added successfully!',
-              toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.green,
-              textColor: Colors.white,
-              fontSize: 15.0
+
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Ticket Created Successfuly'),
+                backgroundColor: Colors.lightGreen,
+              )
           );
-        }else{
-          Navigator.of(context);
-          Fluttertoast.showToast(
-              msg: 'Failed to added Ticket',
-              toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.green,
-              textColor: Colors.white,
-              fontSize: 15.0
+          Navigator.pop(context);
+        } else {
+          print(map['message'].toString());
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Email already Exists'),
+                backgroundColor: Colors.red[600],
+              )
           );
         }
       }
       else {
-        Navigator.of(context);
-        Fluttertoast.showToast(
-            msg:await response.reasonPhrase.toString(),
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 15.0
+        Navigator.pop(context);
+        onNetworkChecking();
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(await response.reasonPhrase.toString()),
+              backgroundColor: Colors.red[600],
+            )
         );
         print(response.reasonPhrase);
       }
+    } catch(ex){
+      Navigator.pop(context);
+      onNetworkChecking();
+    }
   }
+//end
 
-  void showfiles(){
-    if(files != null){
-      imgvisible = true;
-      filevisible = true;
+  //Network
+  onNetworkChecking() async {
+    bool isOnline = await hasNetwork();
+    if (isOnline == false) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('You are Offline!',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14,
+                    fontWeight: FontWeight.bold)
+            ),
+            backgroundColor: Color(0xffcd5c5c),
+            margin: EdgeInsets.only(left: 100,
+                right: 100,
+                bottom: 15),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
+                    Radius.circular(20))),
+          ));
+    }
+    else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+          SnackBar(
+            content: Text('Back to online!',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14,
+                    fontWeight: FontWeight.bold)
+            ),
+            backgroundColor: Colors.green,
+            margin: EdgeInsets.only(left: 100,
+                right: 100,
+                bottom: 10),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
+                    Radius.circular(20))),
+          ));
+    }
+    return isOnline;
+  }
+  //Network
+  Future<bool> hasNetwork() async {
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+    } on SocketException catch (_) {
+      //networkStatus = "offline";
+      return false;
     }
   }
 
+// ticket status
   Future<void> getTickets() async{
     var pref = await SharedPreferences.getInstance();
     try{
@@ -201,17 +243,19 @@ class _RegisterState extends State<Register> {
                 content: Text('Something wen wrong please try again.')
             )
         );
+
       }
     }catch(ex){
-
+      onNetworkChecking();
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: Colors.red,
+              backgroundColor: Colors.red,
               content: Text('Failed to fetch status...')
           )
       );
     }
   }
+//end status
 
   @override
   void initState() {
@@ -219,20 +263,19 @@ class _RegisterState extends State<Register> {
     super.initState();
     Future.delayed(
         Duration.zero, () async {
-          var pref = await SharedPreferences.getInstance();
+      var pref = await SharedPreferences.getInstance();
+      setState(() {
+        emailId = pref.getString('unregmailid')??'';
+        userType = pref.getString('usertype')??'';
+        if(emailId==null){
           setState(() {
-            emailId = pref.getString('unregmailid')??'';
-            userType = pref.getString('usertype')??'';
-            if(emailId==null){
-              setState(() {
-                emailId = '';
-              });
-            }
-            if(userType=='unreguser'){
-              getTickets();
-            }
+            emailId = '';
           });
-         showfiles();
+        }
+        if(userType=='unreguser'){
+          getTickets();
+        }
+      });
     });
   }
   @override
@@ -245,40 +288,40 @@ class _RegisterState extends State<Register> {
           userType=="unreguser"?PopupMenuButton(
               icon: Icon(Icons.info_outline , size: 30,),
               itemBuilder: (context) =>
-                  [
-                    PopupMenuItem(
-                        enabled: false,
-                        child:Text("$emailId")
-                    ),
-                    PopupMenuItem(
-                        child:Row(
-                          children: [
-                            status.toLowerCase()=="pending"?
-                            Icon(Icons.autorenew , color: Colors.blueAccent,):
-                            status.toLowerCase()=="approved"?
-                            Icon(CupertinoIcons.check_mark_circled_solid , color: Colors.green,):
-                            status.toLowerCase()=="reject"?
-                            Icon(Icons.close_outlined , color: Colors.red,):
-                            Container(),
-                            Text(
-                              status.toLowerCase()=='pending'?' '
-                                  '$status...    ':' $status    ',
-                              style: TextStyle(
+              [
+                PopupMenuItem(
+                    enabled: false,
+                    child:Text("$emailId")
+                ),
+                PopupMenuItem(
+                    child:Row(
+                      children: [
+                        status.toLowerCase()=="pending"?
+                        Icon(Icons.autorenew , color: Colors.blueAccent,):
+                        status.toLowerCase()=="approved"?
+                        Icon(CupertinoIcons.check_mark_circled_solid , color: Colors.green,):
+                        status.toLowerCase()=="reject"?
+                        Icon(Icons.close_outlined , color: Colors.red,):
+                        Container(),
+                        Text(
+                          status.toLowerCase()=='pending'?' '
+                              '$status...    ':' $status    ',
+                          style: TextStyle(
                               color: Colors.black
-                            ),)
-                          ],
-                        )
-                    ),
-                    PopupMenuItem(
-                        enabled: true,
-                        child:Text("Refresh..."),
-                        onTap: (){
-                          setState(() {
-                            getTickets();
-                          });
-                        },
-                    ),
-                  ]
+                          ),)
+                      ],
+                    )
+                ),
+                PopupMenuItem(
+                  enabled: true,
+                  child:Text("Refresh..."),
+                  onTap: (){
+                    setState(() {
+                      getTickets();
+                    });
+                  },
+                ),
+              ]
           ):Container()
         ],
       ),
@@ -314,20 +357,6 @@ class _RegisterState extends State<Register> {
                             border: OutlineInputBorder(),
                           ),
                           controller:Clientname ,
-                          keyboardType: TextInputType.text,
-                        ),
-                      ),
-                      SizedBox(height:10,),
-
-                      Container(
-                        height: 45,
-                        child: TextFormField(
-                          decoration: const InputDecoration(
-                            hintText: 'Enter a Username',
-                            labelText: 'UserName',
-                            border: OutlineInputBorder(),
-                          ),
-                          controller:userController ,
                           keyboardType: TextInputType.text,
                         ),
                       ),
@@ -411,99 +440,28 @@ class _RegisterState extends State<Register> {
                         keyboardType: TextInputType.text,
                       ),
                       SizedBox(height:10,),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            child: ElevatedButton(
-                              onPressed: () async{
-                                print("image path"+imgPath);
-                                print("Entering to file picker........");
-                                FilePickerResult? result = await FilePicker.platform.pickFiles(allowMultiple: false,
-                                  type: FileType.custom,
-                                  allowedExtensions: ['jpg','jpeg','png'],
-                                );
-                                PlatformFile file = result.files.first;
-                                if (result!=null){
-                                  setState(() {
-                                    files = result.paths.map((path) => File(path)).toList();
-                                  });
-                                  for(int i = 0;i<files.length ; i++){
-                                    extensions.add(lookupMimeType(files[i].path));
-                                  }
-                                  print(extensions);
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                shape: StadiumBorder(),
-                                onPrimary: Colors.white,
-                              ),child: Text('Choose Profile...'),
-                            ),
-                          ),
-                          Container(
-                            height: 60,
-                            alignment: Alignment.centerRight,
-                            child: ElevatedButton(onPressed: () {
-                              if(Cmpname.text.isEmpty||Clientname.text.isEmpty||userController.text.isEmpty||
-                                  pass.text.isEmpty||mailController.text.isEmpty||phnoController.text.isEmpty||domainController.text.isEmpty||dsController.text.isEmpty){
-                                Fluttertoast.showToast(
-                                    msg:'Please enter all details',
-                                    toastLength: Toast.LENGTH_LONG,
-                                    gravity: ToastGravity.BOTTOM,
-                                    timeInSecForIosWeb: 1,
-                                    backgroundColor: Colors.green,
-                                    textColor: Colors.white,
-                                    fontSize: 15.0
-                                );
-                              }else if(files.isEmpty){
-                                Fluttertoast.showToast(
-                                    msg:'Please Select at-least one file',
-                                    toastLength: Toast.LENGTH_LONG,
-                                    gravity: ToastGravity.BOTTOM,
-                                    timeInSecForIosWeb: 1,
-                                    backgroundColor: Colors.green,
-                                    textColor: Colors.white,
-                                    fontSize: 15.0
-                                );
-                              } else{
-                                setState(() {
-                                  showfiles();
-                                });
-                                AddTicket(Cmpname.text.toString(), Clientname.text.toString(), userController.text.toString(),
-                                    pass.text.toString(), mailController.text.toString(), phnoController.text.toString(),
-                                    domainController.text.toString(), dsController.text.toString());
-                              }
-                            },
-                              style: ElevatedButton.styleFrom(
-                                shape: StadiumBorder(),
-                                onPrimary: Colors.white,
-                              ),child: Text("send",style: TextStyle(fontSize: 17),),),
-                          ),
-                        ],
-                      ),
                       Container(
-                        child: ListView.builder(
-                            physics: NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            itemCount: files.length,
-                            itemBuilder: (BuildContext context , index){
-                              return ListTile(
-                                leading: Icon(Icons.image,color: Colors.green,size: 40,),
-                                title: Text(files[index].path.split('/').last,style: TextStyle(fontSize: 14),),
-                                trailing: IconButton(
-                                  onPressed: (){
-                                    print('hi');
-                                    setState(() {
-                                      files.removeAt(index);
-                                      if (files.length == -1) {
-                                        imageremove = false;
-                                      }
-                                    });
-                                  },
-                                  icon: Icon(Icons.close,color: Colors.red,size: 30,),
-                                ),
-                              );
-                            }),
+                        height: 60,
+                        alignment: Alignment.centerRight,
+                        child: ElevatedButton(onPressed: () {
+                          if(Cmpname.text.isEmpty||Clientname.text.isEmpty||
+                              pass.text.isEmpty||mailController.text.isEmpty||phnoController.text.isEmpty||domainController.text.isEmpty||dsController.text.isEmpty){
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    backgroundColor: Colors.red,
+                                    content: Text('Please enter all details')
+                                )
+                            );
+                          } else{
+                            AddTicket(Cmpname.text.toString(), Clientname.text.toString(),
+                                pass.text.toString(), mailController.text.toString(), phnoController.text.toString(),
+                                domainController.text.toString(), dsController.text.toString());
+                          }
+                        },
+                          style: ElevatedButton.styleFrom(
+                            shape: StadiumBorder(),
+                            onPrimary: Colors.white,
+                          ),child: Text("send",style: TextStyle(fontSize: 17),),),
                       ),
                     ],
                   ),

@@ -7,18 +7,17 @@ import 'package:http/http.dart' as http;
 import 'package:mmcustomerservice/screens/admin/team.dart';
 import 'package:mmcustomerservice/screens/ticketview.dart';
 import 'package:mmcustomerservice/ticketsModel.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Tickets extends StatefulWidget {
   String usertype = '';
   String currentUser = '';
   Tickets({required this.usertype, required this.currentUser, required});
-  @override
-  _TicketsState createState() => _TicketsState(
-        usertype: usertype,
-        currentUser: currentUser,
-      );
+@override
+_TicketsState createState() => _TicketsState(
+  usertype: usertype,
+  currentUser: currentUser,
+);
 }
 
 class _TicketsState extends State<Tickets> {
@@ -161,15 +160,15 @@ class _TicketsState extends State<Tickets> {
         context,
         MaterialPageRoute(
             builder: (context) => TicketViewPage(
-                  tmAssignList: teamTick,
-                  teamsNamelist:teamListToPass,
-                )));
+              tmAssignList: teamTick,
+              teamsNamelist:teamListToPass,
+            )));
   }
 
   Future<void> fetchTeams() async {
     print('Current user...... $currentUser');
     http.Response res =
-        await http.get(Uri.parse('https://mindmadetech.in/api/team/list'));
+    await http.get(Uri.parse('https://mindmadetech.in/api/team/list'));
     if (res.statusCode == 200) {
       List body = json.decode(res.body);
       teamListToPass = body.toList();
@@ -184,6 +183,7 @@ class _TicketsState extends State<Tickets> {
 
   Future<void> fetchTickets() async {
     showAlert(context);
+    print("kmsijkhwseiu"+currentUser);
     try {
       http.Response response;
       if (usertype == "admin") {
@@ -227,18 +227,18 @@ class _TicketsState extends State<Tickets> {
           return Container(
               child: AlertDialog(
                   content: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              CircularProgressIndicator(
-                color: Colors.deepPurpleAccent,
-              ),
-              Text(
-                '  Please wait...',
-                style: TextStyle(fontSize: 18),
-              ),
-            ],
-          )));
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      CircularProgressIndicator(
+                        color: Colors.deepPurpleAccent,
+                      ),
+                      Text(
+                        '  Please wait...',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                    ],
+                  )));
         });
   }
 
@@ -293,12 +293,8 @@ class _TicketsState extends State<Tickets> {
     print(currentUser);
     super.initState();
     Future.delayed(Duration.zero, () async {
-        fetchTeams();
-        fetchTickets();
-        var status = await Permission.storage.status;
-        if (!status.isGranted) {
-          await Permission.storage.request();
-        }
+      fetchTeams();
+      fetchTickets();
     });
   }
 
@@ -309,553 +305,555 @@ class _TicketsState extends State<Tickets> {
           backgroundColor: Color(0Xff146bf7),
           title: usertype != "client"
               ? Container(
-                  child: TextField(
-                    style: TextStyle(color: Colors.white),
-                    cursorColor: Colors.white,
-                    controller: searchController,
-                    onChanged: (value) {
-                      setState(() {
-                        searchText = value;
-                        if (searchText.length > 0) {
-                          clearSearch = true;
-                        } else {
-                          clearSearch = false;
-                        }
-                      });
-                    },
-                    decoration: InputDecoration(
-                        hintStyle: TextStyle(color: Colors.white),
-                        hintText: 'Search...',
-                        border: InputBorder.none,
-                        prefixIcon: Icon(
-                          Icons.search_rounded,
-                          color: Colors.white,
-                          size: 26,
-                        ),
-                        suffixIcon: Visibility(
-                          visible: clearSearch,
-                          child: IconButton(
-                            color: Colors.white,
-                            iconSize: 20,
-                            icon: Icon(
-                              Icons.close,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                searchText = "";
-                                searchController.clear();
-                                FocusScope.of(context).unfocus();
-                                clearSearch = false;
-                              });
-                            },
-                          ),
-                        )),
+            child: TextField(
+              style: TextStyle(color: Colors.white),
+              cursorColor: Colors.white,
+              controller: searchController,
+              onChanged: (value) {
+                setState(() {
+                  searchText = value;
+                  if (searchText.length > 0) {
+                    clearSearch = true;
+                  } else {
+                    clearSearch = false;
+                  }
+                });
+              },
+              decoration: InputDecoration(
+                  hintStyle: TextStyle(color: Colors.white),
+                  hintText: 'Search...',
+                  border: InputBorder.none,
+                  prefixIcon: Icon(
+                    Icons.search_rounded,
+                    color: Colors.white,
+                    size: 26,
                   ),
-                )
+                  suffixIcon: Visibility(
+                    visible: clearSearch,
+                    child: IconButton(
+                      color: Colors.white,
+                      iconSize: 20,
+                      icon: Icon(
+                        Icons.close,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          searchText = "";
+                          searchController.clear();
+                          FocusScope.of(context).unfocus();
+                          clearSearch = false;
+                        });
+                      },
+                    ),
+                  )),
+            ),
+          )
               : Text('My Tickets'),
           actions: [
             PopupMenuButton(
                 icon: Icon(Icons.filter_alt_outlined),
                 itemBuilder: (context) => [
-                      PopupMenuItem(
-                        enabled: false,
-                        child: Text('Sort by...'),
-                        value: 1,
-                      ),
-                      PopupMenuItem(
-                        onTap: () {
-                          setState(() {
-                            sortString = "completed";
-                            isVisible = false;
-                            isSorted = true;
-                            FocusScope.of(context).unfocus();
-                            filtered = ticketDetails
-                                .where((element) =>
-                                    element.status.toLowerCase() ==
-                                    '$sortString')
-                                .toList();
-                          });
-                        },
-                        child: Row(
-                          children: <Widget>[
-                            Icon(
-                              Icons.circle,
-                              color: Colors.green,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 6),
-                              child: Text("Completed"),
-                            ),
-                          ],
+                  PopupMenuItem(
+                    enabled: false,
+                    child: Text('Sort by...'),
+                    value: 1,
+                  ),
+                  PopupMenuItem(
+                    onTap: () {
+                      setState(() {
+                        sortString = "completed";
+                        isVisible = false;
+                        isSorted = true;
+                        FocusScope.of(context).unfocus();
+                        filtered = ticketDetails
+                            .where((element) =>
+                        element.status.toLowerCase() ==
+                            '$sortString')
+                            .toList();
+                      });
+                    },
+                    child: Row(
+                      children: <Widget>[
+                        Icon(
+                          Icons.circle,
+                          color: Colors.green,
                         ),
-                        value: 1,
-                      ),
-                      PopupMenuItem(
-                        onTap: () {
-                          setState(() {
-                            FocusScope.of(context).unfocus();
-                            //hintText = "Search in progress";
-                            sortString = "inprogress";
-                            isVisible = false;
-                            isSorted = true;
-                            print(sortString);
-                            filtered = ticketDetails
-                                .where((element) =>
-                                    element.status.toLowerCase() ==
-                                    '$sortString')
-                                .toList();
-                          });
-                        },
-                        child: Row(
-                          children: <Widget>[
-                            Icon(
-                              Icons.circle,
-                              color: Colors.yellow,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 6),
-                              child: Text("In progress"),
-                            ),
-                          ],
+                        Padding(
+                          padding: const EdgeInsets.only(left: 6),
+                          child: Text("Completed"),
                         ),
-                        value: 2,
-                      ),
-                      PopupMenuItem(
-                        onTap: () {
-                          setState(() {
-                            //hintText = "Search new";
-                            sortString = "new";
-                            isVisible = false;
-                            isSorted = true;
-                            filtered = ticketDetails
-                                .where((element) =>
-                                    element.status.toLowerCase() ==
-                                    '$sortString')
-                                .toList();
-                          });
-                        },
-                        child: Row(
-                          children: <Widget>[
-                            Icon(
-                              Icons.circle,
-                              color: Colors.blue,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 6),
-                              child: Text("New"),
-                            ),
-                          ],
+                      ],
+                    ),
+                    value: 1,
+                  ),
+                  PopupMenuItem(
+                    onTap: () {
+                      setState(() {
+                        FocusScope.of(context).unfocus();
+                        //hintText = "Search in progress";
+                        sortString = "inprogress";
+                        isVisible = false;
+                        isSorted = true;
+                        print(sortString);
+                        filtered = ticketDetails
+                            .where((element) =>
+                        element.status.toLowerCase() ==
+                            '$sortString')
+                            .toList();
+                      });
+                    },
+                    child: Row(
+                      children: <Widget>[
+                        Icon(
+                          Icons.circle,
+                          color: Colors.yellow,
                         ),
-                        value: 3,
-                      ),
-                      PopupMenuItem(
-                        onTap: () {
-                          setState(() {
-                            // hintText = "Search not assigned";
-                            sortString = "started";
-                            isVisible = false;
-                            isSorted = true;
-                            filtered = ticketDetails
-                                .where((element) =>
-                                    element.status.toLowerCase() ==
-                                    '$sortString')
-                                .toList();
-                          });
-                        },
-                        child: Row(
-                          children: <Widget>[
-                            Icon(
-                              Icons.circle,
-                              color: Colors.red,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 6),
-                              child: Text("Started"),
-                            ),
-                          ],
+                        Padding(
+                          padding: const EdgeInsets.only(left: 6),
+                          child: Text("In progress"),
                         ),
-                        value: 4,
-                      ),
-                      PopupMenuItem(
-                        onTap: () {
-                          setState(() {
-                            // hintText = "Search by user";
-                            sortString = "all";
-                            // isVisible = true;
-                            // isSorted = false;
-                          });
-                        },
-                        child: Row(
-                          children: <Widget>[
-                            Icon(
-                              Icons.account_box,
-                              color: Colors.amber,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 6),
-                              child: Text("All"),
-                            ),
-                          ],
+                      ],
+                    ),
+                    value: 2,
+                  ),
+                  PopupMenuItem(
+                    onTap: () {
+                      setState(() {
+                        //hintText = "Search new";
+                        sortString = "new";
+                        isVisible = false;
+                        isSorted = true;
+                        filtered = ticketDetails
+                            .where((element) =>
+                        element.status.toLowerCase() ==
+                            '$sortString')
+                            .toList();
+                      });
+                    },
+                    child: Row(
+                      children: <Widget>[
+                        Icon(
+                          Icons.circle,
+                          color: Colors.blue,
                         ),
-                        value: 4,
-                      ),
-                    ])
+                        Padding(
+                          padding: const EdgeInsets.only(left: 6),
+                          child: Text("New"),
+                        ),
+                      ],
+                    ),
+                    value: 3,
+                  ),
+                  PopupMenuItem(
+                    onTap: () {
+                      setState(() {
+                        // hintText = "Search not assigned";
+                        sortString = "started";
+                        isVisible = false;
+                        isSorted = true;
+                        filtered = ticketDetails
+                            .where((element) =>
+                        element.status.toLowerCase() ==
+                            '$sortString')
+                            .toList();
+                      });
+                    },
+                    child: Row(
+                      children: <Widget>[
+                        Icon(
+                          Icons.circle,
+                          color: Colors.red,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 6),
+                          child: Text("Started"),
+                        ),
+                      ],
+                    ),
+                    value: 4,
+                  ),
+                  PopupMenuItem(
+                    onTap: () {
+                      setState(() {
+                        // hintText = "Search by user";
+                        sortString = "all";
+                        // isVisible = true;
+                        // isSorted = false;
+                      });
+                    },
+                    child: Row(
+                      children: <Widget>[
+                        Icon(
+                          Icons.account_box,
+                          color: Colors.amber,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 6),
+                          child: Text("All"),
+                        ),
+                      ],
+                    ),
+                    value: 4,
+                  ),
+                ])
           ]),
       body:SingleChildScrollView(
-          child: RefreshIndicator(
-            onRefresh: refreshListener,
-            backgroundColor: Colors.white,
-            color: Colors.blue,
-            child: Column(
-                children: <Widget>[
-                  //Retry visible
-                  Visibility(
-                    visible: retryVisible,
-                    child: Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: InkWell(
-                          child: Text(
-                            "Load Failed, Tap here to retry !",
-                            style: TextStyle(color: Colors.red, fontSize: 16),
-                          ),
-                          onTap: () => setState(() {
-                                fetchTickets();
-                              })),
-                    ),
+        child: RefreshIndicator(
+          onRefresh: refreshListener,
+          backgroundColor: Colors.white,
+          color: Colors.blue,
+          child: Column(
+              children: <Widget>[
+                //Retry visible
+                Visibility(
+                  visible: retryVisible,
+                  child: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: InkWell(
+                        child: Text(
+                          "Load Failed, Tap here to retry !",
+                          style: TextStyle(color: Colors.red, fontSize: 16),
+                        ),
+                        onTap: () => setState(() {
+                          fetchTickets();
+                        })),
                   ),
-                  //All status
-                  ticketDetails.length > 0 ?
+                ),
+                //All status
+                ticketDetails.length > 0 ?
+                Container(
+                  height: MediaQuery.of(context).size.height * 0.9,
+                  child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: ticketDetails.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return
+                          ticketDetails[index].domainName.toLowerCase().contains(searchText.toLowerCase())?
+                          sortString == 'all'?
+                          Column(children: <Widget>[
                             Container(
-                            height: MediaQuery.of(context).size.height * 0.9,
-                            child: ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: ticketDetails.length,
-                                  itemBuilder: (BuildContext context, int index) {
-                                    return
-                                    ticketDetails[index].username.toLowerCase().contains(searchText.toLowerCase())?
-                                    sortString == 'all'?
-                                    Column(children: <Widget>[
-                                            Container(
-                                              height: 70,
-                                              child: ListTile(
-                                                onTap: () {
-                                                  passDataToView(index);
-                                                },
-                                                leading: Container(
-                                                  child: Stack(children: <Widget>[
-                                                    CircleAvatar(
-                                                      radius: 35,
-                                                      backgroundColor:
-                                                          Colors.primaries[Random()
-                                                              .nextInt(Colors
-                                                                  .primaries.length)],
-                                                      child: Text(
-                                                        ticketDetails[index]
-                                                                    .username !=
-                                                                null
-                                                            ? ticketDetails[index]
-                                                                .username[0]
-                                                                .toUpperCase()
-                                                            : "Un named"[0]
-                                                                .toUpperCase(),
-                                                        style: TextStyle(
-                                                            color: Colors.white,
-                                                            fontSize: 25,
-                                                            fontWeight:
-                                                                FontWeight.w900),
-                                                      ),
-                                                    ),
-                                                    ticketDetails[index]
-                                                                .status
-                                                                .toString()
-                                                                .toLowerCase() ==
-                                                            "completed"
-                                                        ? Positioned(
-                                                            left: 50,
-                                                            top: 35,
-                                                            child: CircleAvatar(
-                                                              radius: 9,
-                                                              backgroundColor:
-                                                                  Colors.white,
-                                                              child: CircleAvatar(
-                                                                backgroundColor:
-                                                                    Colors.green,
-                                                                radius: 8,
-                                                              ),
-                                                            ))
-                                                        : ticketDetails[index]
-                                                                    .status
-                                                                    .toString()
-                                                                    .toLowerCase() ==
-                                                                "inprogress"
-                                                            ? Positioned(
-                                                                left: 50,
-                                                                top: 35,
-                                                                child: CircleAvatar(
-                                                                  radius: 9,
-                                                                  backgroundColor:
-                                                                      Colors.white,
-                                                                  child: CircleAvatar(
-                                                                    backgroundColor:
-                                                                        Colors
-                                                                            .yellowAccent,
-                                                                    radius: 8,
-                                                                  ),
-                                                                ))
-                                                            : ticketDetails[index]
-                                                                        .status
-                                                                        .toString()
-                                                                        .toLowerCase() ==
-                                                                    "new"
-                                                                ? Positioned(
-                                                                    left: 50,
-                                                                    top: 35,
-                                                                    child:
-                                                                        CircleAvatar(
-                                                                      radius: 9,
-                                                                      backgroundColor:
-                                                                          Colors
-                                                                              .white,
-                                                                      child:
-                                                                          CircleAvatar(
-                                                                        backgroundColor:
-                                                                            Colors
-                                                                                .blue,
-                                                                        radius: 8,
-                                                                      ),
-                                                                    ))
-                                                                : ticketDetails[index]
-                                                                            .status
-                                                                            .toString()
-                                                                            .toLowerCase() ==
-                                                                        "started"
-                                                                    ? Positioned(
-                                                                        left: 50,
-                                                                        top: 35,
-                                                                        child:
-                                                                            CircleAvatar(
-                                                                          radius: 9,
-                                                                          backgroundColor:
-                                                                              Colors
-                                                                                  .white,
-                                                                          child:
-                                                                              CircleAvatar(
-                                                                            backgroundColor:
-                                                                                Colors
-                                                                                    .red,
-                                                                            radius: 8,
-                                                                          ),
-                                                                        ))
-                                                                    : SizedBox()
-                                                  ]),
-                                                ),
-                                                title: ticketDetails[index]
-                                                            .username !=
-                                                        null
-                                                    ? Text(
-                                                        choice == "email"
-                                                            ? ticketDetails[index]
-                                                                .email
-                                                            : ticketDetails[index]
-                                                                    .username[0]
-                                                                    .toUpperCase() +
-                                                                ticketDetails[index]
-                                                                    .username
-                                                                    .substring(1),
-                                                        style:
-                                                            TextStyle(fontSize: 17.5),
-                                                        maxLines: 1,
-                                                      )
-                                                    : Text('Un named'),
-                                                subtitle: Text("Status : " +
-                                                    ticketDetails[index]
-                                                        .status
-                                                        .toString()
-                                                        .toLowerCase()),
-                                                trailing: IconButton(
-                                                  onPressed: () {
-                                                    passDataToView(index);
-                                                  },
-                                                  icon: Icon(
-                                                    Icons.arrow_right,
-                                                    size: 35,
-                                                    color: Colors.blueAccent,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            Divider(
-                                              color: Colors.black12,
-                                            ),
-                                          ]) :
-                                    ticketDetails[index].username.toLowerCase().contains(searchText.toLowerCase())?
-                                    ticketDetails[index].status.toString().toLowerCase() == sortString?
-                                    Column(children: <Widget>[
-                                            Container(
-                                              height: 70,
-                                              child: ListTile(
-                                                onTap: () {
-                                                  passDataToView(index);
-                                                },
-                                                leading: Container(
-                                                  child: Stack(children: <Widget>[
-                                                    CircleAvatar(
-                                                      radius: 35,
-                                                      backgroundColor:
-                                                          Colors.primaries[Random()
-                                                              .nextInt(Colors
-                                                                  .primaries.length)],
-                                                      child: Text(
-                                                        ticketDetails[index]
-                                                                    .username !=
-                                                                null
-                                                            ? ticketDetails[index]
-                                                                .username[0]
-                                                                .toUpperCase()
-                                                            : "Un named"[0]
-                                                                .toUpperCase(),
-                                                        style: TextStyle(
-                                                            color: Colors.white,
-                                                            fontSize: 25,
-                                                            fontWeight:
-                                                                FontWeight.w900),
-                                                      ),
-                                                    ),
-                                                    ticketDetails[index]
-                                                                .status
-                                                                .toString()
-                                                                .toLowerCase() ==
-                                                            "completed"
-                                                        ? Positioned(
-                                                            left: 50,
-                                                            top: 35,
-                                                            child: CircleAvatar(
-                                                              radius: 9,
-                                                              backgroundColor:
-                                                                  Colors.white,
-                                                              child: CircleAvatar(
-                                                                backgroundColor:
-                                                                    Colors.green,
-                                                                radius: 8,
-                                                              ),
-                                                            ))
-                                                        : ticketDetails[index]
-                                                                    .status
-                                                                    .toString()
-                                                                    .toLowerCase() ==
-                                                                "inprogress"
-                                                            ? Positioned(
-                                                                left: 50,
-                                                                top: 35,
-                                                                child: CircleAvatar(
-                                                                  radius: 9,
-                                                                  backgroundColor:
-                                                                      Colors.white,
-                                                                  child: CircleAvatar(
-                                                                    backgroundColor:
-                                                                        Colors
-                                                                            .yellowAccent,
-                                                                    radius: 8,
-                                                                  ),
-                                                                ))
-                                                            : ticketDetails[index]
-                                                                        .status
-                                                                        .toString()
-                                                                        .toLowerCase() ==
-                                                                    "new"
-                                                                ? Positioned(
-                                                                    left: 50,
-                                                                    top: 35,
-                                                                    child:
-                                                                        CircleAvatar(
-                                                                      radius: 9,
-                                                                      backgroundColor:
-                                                                          Colors
-                                                                              .white,
-                                                                      child:
-                                                                          CircleAvatar(
-                                                                        backgroundColor:
-                                                                            Colors
-                                                                                .blue,
-                                                                        radius: 8,
-                                                                      ),
-                                                                    ))
-                                                                : ticketDetails[index]
-                                                                            .status
-                                                                            .toString()
-                                                                            .toLowerCase() ==
-                                                                        "started"
-                                                                    ? Positioned(
-                                                                        left: 50,
-                                                                        top: 35,
-                                                                        child:
-                                                                            CircleAvatar(
-                                                                          radius: 9,
-                                                                          backgroundColor:
-                                                                              Colors
-                                                                                  .white,
-                                                                          child:
-                                                                              CircleAvatar(
-                                                                            backgroundColor:
-                                                                                Colors
-                                                                                    .red,
-                                                                            radius: 8,
-                                                                          ),
-                                                                        ))
-                                                                    : SizedBox()
-                                                  ]),
-                                                ),
-                                                title: ticketDetails[index]
-                                                            .username !=
-                                                        null
-                                                    ? Text(
-                                                        ticketDetails[index]
-                                                                .username[0]
-                                                                .toUpperCase() +
-                                                            ticketDetails[index]
-                                                                .username
-                                                                .substring(1),
-                                                        style:
-                                                            TextStyle(fontSize: 17.5),
-                                                      )
-                                                    : Text('Un named'),
-                                                subtitle: Text("Status : " +
-                                                    ticketDetails[index]
-                                                        .status
-                                                        .toString()
-                                                        .toLowerCase()),
-                                                trailing: IconButton(
-                                                  onPressed: () {
-                                                    passDataToView(index);
-                                                  },
-                                                  icon: Icon(
-                                                    Icons.arrow_right,
-                                                    size: 35,
-                                                    color: Colors.blueAccent,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            Divider(
-                                              color: Colors.black12,
-                                            ),
-                                          ]):
-                                    Container():Container():Container();
-                                  }),
-
-                          ): Center(
-                              child: Container(
-                                padding: EdgeInsets.only(top: 15),
-                                child: Text(
-                                  'No data found!',
-                                  style: TextStyle(
-                                      fontSize: 25, color: Colors.deepPurple),
+                              height: 70,
+                              child: ListTile(
+                                onTap: () {
+                                  passDataToView(index);
+                                },
+                                leading: Container(
+                                  child: Stack(children: <Widget>[
+                                    CircleAvatar(
+                                      radius: 35,
+                                      backgroundColor:
+                                      Colors.primaries[Random()
+                                          .nextInt(Colors
+                                          .primaries.length)],
+                                      child: Text(
+                                        ticketDetails[index]
+                                            .domainName !=
+                                            null
+                                            ? ticketDetails[index]
+                                            .domainName[0]
+                                            .toUpperCase()
+                                            : "Un named"[0]
+                                            .toUpperCase(),
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 25,
+                                            fontWeight:
+                                            FontWeight.w900),
+                                      ),
+                                    ),
+                                    ticketDetails[index]
+                                        .status
+                                        .toString()
+                                        .toLowerCase() ==
+                                        "completed"
+                                        ? Positioned(
+                                        left: 50,
+                                        top: 35,
+                                        child: CircleAvatar(
+                                          radius: 9,
+                                          backgroundColor:
+                                          Colors.white,
+                                          child: CircleAvatar(
+                                            backgroundColor:
+                                            Colors.green,
+                                            radius: 8,
+                                          ),
+                                        ))
+                                        : ticketDetails[index]
+                                        .status
+                                        .toString()
+                                        .toLowerCase() ==
+                                        "inprogress"
+                                        ? Positioned(
+                                        left: 50,
+                                        top: 35,
+                                        child: CircleAvatar(
+                                          radius: 9,
+                                          backgroundColor:
+                                          Colors.white,
+                                          child: CircleAvatar(
+                                            backgroundColor:
+                                            Colors
+                                                .yellowAccent,
+                                            radius: 8,
+                                          ),
+                                        ))
+                                        : ticketDetails[index]
+                                        .status
+                                        .toString()
+                                        .toLowerCase() ==
+                                        "new"
+                                        ? Positioned(
+                                        left: 50,
+                                        top: 35,
+                                        child:
+                                        CircleAvatar(
+                                          radius: 9,
+                                          backgroundColor:
+                                          Colors
+                                              .white,
+                                          child:
+                                          CircleAvatar(
+                                            backgroundColor:
+                                            Colors
+                                                .blue,
+                                            radius: 8,
+                                          ),
+                                        ))
+                                        : ticketDetails[index]
+                                        .status
+                                        .toString()
+                                        .toLowerCase() ==
+                                        "started"
+                                        ? Positioned(
+                                        left: 50,
+                                        top: 35,
+                                        child:
+                                        CircleAvatar(
+                                          radius: 9,
+                                          backgroundColor:
+                                          Colors
+                                              .white,
+                                          child:
+                                          CircleAvatar(
+                                            backgroundColor:
+                                            Colors
+                                                .red,
+                                            radius: 8,
+                                          ),
+                                        ))
+                                        : SizedBox()
+                                  ]),
+                                ),
+                                title: ticketDetails[index]
+                                    .domainName !=
+                                    null
+                                    ? Text(
+                                  choice == "email"
+                                      ? ticketDetails[index]
+                                      .email
+                                      : ticketDetails[index]
+                                      .domainName[0]
+                                      .toUpperCase() +
+                                      ticketDetails[index]
+                                          .domainName
+                                          .substring(1),
+                                  style:
+                                  TextStyle(fontSize: 17.5),
+                                  maxLines: 1,
+                                )
+                                    : Text('Un named'),
+                                subtitle: Text("Status : " +
+                                    ticketDetails[index]
+                                        .status
+                                        .toString()
+                                        .toLowerCase()),
+                                trailing: IconButton(
+                                  onPressed: () {
+                                    passDataToView(index);
+                                  },
+                                  icon: Icon(
+                                    Icons.arrow_right,
+                                    size: 35,
+                                    color: Colors.blueAccent,
+                                  ),
                                 ),
                               ),
-                            )
-                ]),
-          ),
+                            ),
+                            Divider(
+                              color: Colors.black12,
+                            ),
+                          ]) :
+                          ticketDetails[index].domainName.toLowerCase().contains(searchText.toLowerCase())?
+                          ticketDetails[index].status.toString().toLowerCase() == sortString?
+                          Column(children: <Widget>[
+                            Container(
+                              height: 70,
+                              child: ListTile(
+                                onTap: () {
+                                  passDataToView(index);
+                                },
+                                leading: Container(
+                                  child: Stack(children: <Widget>[
+                                    CircleAvatar(
+                                      radius: 35,
+                                      backgroundColor:
+                                      Colors.primaries[Random()
+                                          .nextInt(Colors
+                                          .primaries.length)],
+                                      child: Text(
+                                        ticketDetails[index]
+                                            .username !=
+                                            null
+                                            ? ticketDetails[index]
+                                            .username[0]
+                                            .toUpperCase()
+                                            : "Un named"[0]
+                                            .toUpperCase(),
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 25,
+                                            fontWeight:
+                                            FontWeight.w900),
+                                      ),
+                                    ),
+                                    ticketDetails[index]
+                                        .status
+                                        .toString()
+                                        .toLowerCase() ==
+                                        "completed"
+                                        ? Positioned(
+                                        left: 50,
+                                        top: 35,
+                                        child: CircleAvatar(
+                                          radius: 9,
+                                          backgroundColor:
+                                          Colors.white,
+                                          child: CircleAvatar(
+                                            backgroundColor:
+                                            Colors.green,
+                                            radius: 8,
+                                          ),
+                                        ))
+                                        : ticketDetails[index]
+                                        .status
+                                        .toString()
+                                        .toLowerCase() ==
+                                        "inprogress"
+                                        ? Positioned(
+                                        left: 50,
+                                        top: 35,
+                                        child: CircleAvatar(
+                                          radius: 9,
+                                          backgroundColor:
+                                          Colors.white,
+                                          child: CircleAvatar(
+                                            backgroundColor:
+                                            Colors
+                                                .yellowAccent,
+                                            radius: 8,
+                                          ),
+                                        ))
+                                        : ticketDetails[index]
+                                        .status
+                                        .toString()
+                                        .toLowerCase() ==
+                                        "new"
+                                        ? Positioned(
+                                        left: 50,
+                                        top: 35,
+                                        child:
+                                        CircleAvatar(
+                                          radius: 9,
+                                          backgroundColor:
+                                          Colors
+                                              .white,
+                                          child:
+                                          CircleAvatar(
+                                            backgroundColor:
+                                            Colors
+                                                .blue,
+                                            radius: 8,
+                                          ),
+                                        ))
+                                        : ticketDetails[index]
+                                        .status
+                                        .toString()
+                                        .toLowerCase() ==
+                                        "started"
+                                        ? Positioned(
+                                        left: 50,
+                                        top: 35,
+                                        child:
+                                        CircleAvatar(
+                                          radius: 9,
+                                          backgroundColor:
+                                          Colors
+                                              .white,
+                                          child:
+                                          CircleAvatar(
+                                            backgroundColor:
+                                            Colors
+                                                .red,
+                                            radius: 8,
+                                          ),
+                                        ))
+                                        : SizedBox()
+                                  ]),
+                                ),
+                                title: ticketDetails[index]
+                                    .username !=
+                                    null
+                                    ? Text(
+                                  ticketDetails[index]
+                                      .username[0]
+                                      .toUpperCase() +
+                                      ticketDetails[index]
+                                          .username
+                                          .substring(1),
+                                  style:
+                                  TextStyle(fontSize: 17.5),
+                                )
+                                    : Text('Un named'),
+                                subtitle: Text("Status : " +
+                                    ticketDetails[index]
+                                        .status
+                                        .toString()
+                                        .toLowerCase()),
+                                trailing: IconButton(
+                                  onPressed: () {
+                                    passDataToView(index);
+                                  },
+                                  icon: Icon(
+                                    Icons.arrow_right,
+                                    size: 35,
+                                    color: Colors.blueAccent,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Divider(
+                              color: Colors.black12,
+                            ),
+                          ]):
+                          Container():Container():Container();
+                      }),
+
+                ): Center(
+                  child: Container(
+                    padding: EdgeInsets.only(top: 15),
+                    child: Text(
+                      'No data found!',
+                      style: TextStyle(
+                          fontSize: 25, color: Colors.deepPurple),
+                    ),
+                  ),
+                )
+              ]),
         ),
+      ),
     );
   }
 }
+
+

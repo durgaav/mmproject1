@@ -44,7 +44,6 @@ class _TeamViewPageState extends State<TeamViewPage> {
                   TextButton(onPressed: () {
                         deleteAlbum(teamId,Isdeleted);
                         Navigator.pop(context);
-
                   },
                       child: Text('Yes', style: TextStyle(fontSize: 16),))
                 ],

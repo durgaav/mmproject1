@@ -10,7 +10,6 @@ import 'package:intl/intl.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
 import 'package:mmcustomerservice/screens/data.dart';
-import 'package:mmcustomerservice/screens/ticket_assign.dart';
 import 'package:mmcustomerservice/ticketsModel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:open_file/open_file.dart' as fileOpen;
@@ -18,23 +17,25 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class TicketViewPage extends StatefulWidget {
-
   List<TeamAssign> tmAssignList = [];
   List teamsList = [];
   List teamsNamelist = [];
-  TicketViewPage({required this.tmAssignList , required this.teamsNamelist});
+  TicketViewPage({required this.tmAssignList, required this.teamsNamelist});
 
   @override
-  _TicketViewPageState createState() => _TicketViewPageState(tmAssignList: tmAssignList , teamsNamelist: teamsNamelist);
+  _TicketViewPageState createState() => _TicketViewPageState(
+      tmAssignList: tmAssignList, teamsNamelist: teamsNamelist);
 }
+
 class _TicketViewPageState extends State<TicketViewPage> {
   List<TeamAssign> tmAssignList = [];
   List teamsNamelist = [];
-  _TicketViewPageState({required this.tmAssignList , required this.teamsNamelist});
+  _TicketViewPageState(
+      {required this.tmAssignList, required this.teamsNamelist});
 
   //region Strings
   String ticketId = '';
-  String Notification='';
+  String Notification = '';
   String Username = '';
   String Email = '';
   String Phonenumber = '';
@@ -61,13 +62,15 @@ class _TicketViewPageState extends State<TicketViewPage> {
       tm_cmpleUpdOn = '',
       tm_compleupBy = '',
       tm_CompModOn = "",
-      tm_CompModby = "" , projectCode = "";
-  String server = '',seo = '',design = '',development = '';
+      tm_CompModby = "",
+      projectCode = "";
+  String server = '', seo = '', design = '', development = '';
   //endregion Strings
 
   //region Variables
   List<TeamAssign> teams = [];
   List getName = [];
+  List<int> teamsIndex = [];
   String dropdownValue = "Design";
   final List<String> datas = ["Seo", "Design", "Development", "Server"];
   String dropdown = "Inprogress";
@@ -83,17 +86,22 @@ class _TicketViewPageState extends State<TicketViewPage> {
   int _total = 0, _received = 0;
   final List<int> _bytes = [];
   bool checkDesign = false;
+  List emptyList = [];
   bool checkDev = false;
   bool checkSer = false;
   bool checkSeo = false;
   bool _loading = false;
+  String currentUser = '';
   double _progressValue = 0.0;
   List filteredby = [];
   List<String> fromAPI = [];
   String teamId = "0";
+  List<bool> teamCheck = [];
+  List teamsId = [];
   List ids = [];
   List idList = [];
   var contextTeam = [];
+  List userNames = [];
   //endregion Variables
 
   //region Dialogs
@@ -121,16 +129,16 @@ class _TicketViewPageState extends State<TicketViewPage> {
                           ),
                           Expanded(
                               child: Container(
-                                alignment: Alignment.centerRight,
-                                child: IconButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  icon: Icon(Icons.close),
-                                  color: Colors.red,
-                                  iconSize: 25,
-                                ),
-                              ))
+                            alignment: Alignment.centerRight,
+                            child: IconButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              icon: Icon(Icons.close),
+                              color: Colors.red,
+                              iconSize: 25,
+                            ),
+                          ))
                         ],
                       ),
                       Container(
@@ -172,7 +180,7 @@ class _TicketViewPageState extends State<TicketViewPage> {
                           alignment: Alignment.centerRight,
                           child: RaisedButton(
                               onPressed: () {
-                                statusUpdate(ticketId,statusVal);
+                                statusUpdate(ticketId, statusVal);
                               },
                               color: Colors.blue,
                               child: Text(
@@ -187,23 +195,22 @@ class _TicketViewPageState extends State<TicketViewPage> {
         });
   }
 
-  showAlert(BuildContext context,String alertText) {
+  showAlert(BuildContext context, String alertText) {
     return showDialog(
         context: context,
         barrierDismissible: false,
         builder: (context) {
           return AlertDialog(
               content: Row(
-                children: <Widget>[
-                  CircularProgressIndicator(),
-                  Text(' $alertText'),
-                ],
-              )
-          );
+            children: <Widget>[
+              CircularProgressIndicator(),
+              Text(' $alertText'),
+            ],
+          ));
         });
   }
-  void sendMail() async {
 
+  void sendMail() async {
     String username = 'durgadevi@mindmade.in';
     String password = 'Appu#001';
 
@@ -211,8 +218,10 @@ class _TicketViewPageState extends State<TicketViewPage> {
     final equivalentMessage = Message()
       ..from = Address(username, 'DurgaDevi')
       ..recipients.add(Address('durgavenkatesh805@gmail.com'))
-      ..ccRecipients.addAll([Address('surya@mindmade.in'), 'destCc2@example.com'])
-    // ..bccRecipients.add('bccAddress@example.com')
+      ..ccRecipients.addAll([
+        Address('surya@mindmade.in'),
+      ])
+      // ..bccRecipients.add('bccAddress@example.com')
       ..subject = 'Ticket Status ${DateTime.now()}'
       ..text = 'Your Ticket Process is Completed successfully';
     // ..html = "<h1>Test</h1>\n<p>Hey! Here's some HTML content</p>";
@@ -226,8 +235,7 @@ class _TicketViewPageState extends State<TicketViewPage> {
           timeInSecForIosWeb: 1,
           backgroundColor: Colors.green,
           textColor: Colors.white,
-          fontSize: 15.0
-      );
+          fontSize: 15.0);
     } on MailerException catch (e) {
       print('Message not sent.');
       for (var p in e.problems) {
@@ -239,8 +247,7 @@ class _TicketViewPageState extends State<TicketViewPage> {
             timeInSecForIosWeb: 1,
             backgroundColor: Colors.green,
             textColor: Colors.white,
-            fontSize: 15.0
-        );
+            fontSize: 15.0);
       }
     }
   }
@@ -248,7 +255,7 @@ class _TicketViewPageState extends State<TicketViewPage> {
 
   //File dwnld
   Future<String> downloadFile(String url, String fileName, String dir) async {
-    showAlert(context," Downloading...");
+    showAlert(context, " Downloading...");
     HttpClient httpClient = new HttpClient();
     File file;
     String filePath = '';
@@ -297,24 +304,102 @@ class _TicketViewPageState extends State<TicketViewPage> {
     return filePath;
   }
 
+  Future<void> teamAssign(String id , List teamId) async{
+    showAlert(context, " Please wait...");
+    try{
+      var headers = {
+        'Content-Type': 'application/json'
+      };
+      var request = http.Request('POST', Uri.parse('https://mindmadetech.in/api/tickets/team/update'));
+      request.body = json.encode({
+        "ticketsId": "$id",
+        "teamId": teamId,
+        "Adm_UpdatedOn": formatter.format(DateTime.now()),
+        "Adm_UpdatedBy": "$currentUser"
+      });
+      request.headers.addAll(headers);
+      http.StreamedResponse response = await request.send();
+      if (response.statusCode == 200) {
+        Navigator.pop(context);
+        setState(() {
+          teamsId = teamsId + ids;
+          ids = [];
+          ids = ids + teamsId;
+          ids = ids.toSet().toList();
+          for (int i = 0; i < ids.length; i++) {
+            teamsIndex.add(
+                teamsNamelist.indexWhere((element) => element['teamId'].toString() == ids[i].toString()));
+          }
+          teamsIndex.removeWhere((element) => element == -1);
+          teamsIndex = teamsIndex.toSet().toList();
+          print(teamsIndex);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.done_all,color: Colors.white,),
+                  Text('  Team assigned!'),
+                ],
+              ),
+              backgroundColor: Color(0xff198D0F),
+              behavior: SnackBarBehavior.floating,
+            )
+        );
+      }
+      else {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.wifi_outlined,color: Colors.white,),
+                  Text('  ${response.reasonPhrase.toString()}!'),
+                ],
+              ),
+              backgroundColor: Color(0xffE33C3C),
+              behavior: SnackBarBehavior.floating,
+            )
+        );
+      }
+    }catch(Exception){
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.wifi_outlined,color: Colors.white,),
+                Text('  Something went wrong!'),
+              ],
+            ),
+            backgroundColor: Color(0xffE33C3C),
+            behavior: SnackBarBehavior.floating,
+          )
+      );
+    }
+
+  }
+
   //Status update tm
-  Future<void> statusUpdate(String id , String val) async {
+  Future<void> statusUpdate(String id, String val) async {
     var pref = await SharedPreferences.getInstance();
-    String assignId = pref.getString('tickAssignId')??'';
-    print("Id..............."+assignId);
-    showAlert(context,"Updating...");
-    String fieldOn='' , fieldBy='' ;
-    if(val == 'Inprogress'){
+    String assignId = pref.getString('tickAssignId') ?? '';
+    print("Id..............." + assignId);
+    showAlert(context, "Updating...");
+    String fieldOn = '', fieldBy = '';
+    if (val == 'Inprogress') {
       setState(() {
         fieldOn = "Tm_Process_UpdatedOn";
         fieldBy = 'Tm_Process_UpdatedBy';
       });
-    }if(val == 'Started'){
+    }
+    if (val == 'Started') {
       setState(() {
         fieldOn = "Tm_Start_UpdatedOn";
         fieldBy = 'Tm_Start_UpdatedBy';
       });
-    }if(val == 'Completed'){
+    }
+    if (val == 'Completed') {
       setState(() {
         fieldOn = "Tm_Complete_UpdatedOn";
         fieldBy = 'Tm_Complete_UpdatedBy';
@@ -327,8 +412,8 @@ class _TicketViewPageState extends State<TicketViewPage> {
           Uri.parse('https://mindmadetech.in/api/tickets/status/update'));
       request.body = json.encode({
         "Status": val.toLowerCase(),
-        "ticketsId" : ticketId,
-        "tickets_assignId" : tmAssignList[0].ticketsAssignId,
+        "ticketsId": ticketId,
+        "tickets_assignId": tmAssignList[0].ticketsAssignId,
         fieldOn: formatter.format(DateTime.now()),
         fieldBy: createdBy
       });
@@ -344,8 +429,7 @@ class _TicketViewPageState extends State<TicketViewPage> {
             timeInSecForIosWeb: 1,
             backgroundColor: Colors.green,
             textColor: Colors.white,
-            fontSize: 15.0
-        );
+            fontSize: 15.0);
         Navigator.pop(context);
         setState(() {
           if (val == "Started") {
@@ -376,7 +460,7 @@ class _TicketViewPageState extends State<TicketViewPage> {
             fontSize: 15.0);
         Navigator.pop(context);
       }
-    }catch(ex){
+    } catch (ex) {
       onNetworkChecking();
       Navigator.pop(context);
     }
@@ -384,118 +468,100 @@ class _TicketViewPageState extends State<TicketViewPage> {
 
   //Getting login prefs
   Future<void> getPref() async {
+    print('loading preference...........');
     var pref = await SharedPreferences.getInstance();
-    if (pref != null) {
-      createdBy = pref.getString('username')!;
-      userType = pref.getString('usertype')!;
+    print(pref.getString("usertypeMail"));
+      createdBy = pref.getString('usertypeMail')??'';
+      userType = pref.getString("usertype")??'';
       if (userType == "admin") {
         setState(() {
           floatBtnVisi = true;
           tmStatusBtn = false;
           adDateVisi = false;
         });
-      } else if(userType == "team"){
+      } else if (userType == "team") {
         setState(() {
           tmStatusBtn = true;
           adDateVisi = true;
         });
-      }else{
+      } else {
         setState(() {
           tmStatusBtn = false;
           adDateVisi = true;
         });
       }
-    }
     print("Created by = " + createdBy);
     print(userType);
   }
 
   //Loading previous screen data
-  Future<void> loadGivenData() async{
+  Future<void> loadGivenData() async {
     var pref = await SharedPreferences.getInstance();
 
     setState(() {
-
+      currentUser = pref.getString('username')??'';
       teams = tmAssignList.toList();
-
-      addContextList();
-
       fromAPI = pref.getStringList('Files')!;
-      server = pref.getString('server')??'';
-      seo = pref.getString('seo')??'';
-      design = pref.getString('design')??'';
-      development = pref.getString('development')??'';
-      ticketId = pref.getString("tickId")??'';
-      Username = pref.getString("UserName")??'';
-      Email = pref.getString("MailID")??'';
-      Phonenumber = pref.getString("PhoneNum")??'';
-      DomainName = pref.getString("DomainNm")??'';
-      Description = pref.getString("Desc")??'';
-      Status = pref.getString("Statuses")??'';
-      Notification = pref.getString("Notify")??'';
-      createdOn = pref.getString("cusCreatedOn")??'';
+      server = pref.getString('server') ?? '';
+      seo = pref.getString('seo') ?? '';
+      design = pref.getString('design') ?? '';
+      development = pref.getString('development') ?? '';
+      ticketId = pref.getString("tickId") ?? '';
+      Username = pref.getString("UserName") ?? '';
+      Email = pref.getString("MailID") ?? '';
+      Phonenumber = pref.getString("PhoneNum") ?? '';
+      DomainName = pref.getString("DomainNm") ?? '';
+      Description = pref.getString("Desc") ?? '';
+      Status = pref.getString("Statuses") ?? '';
+      Notification = pref.getString("Notify") ?? '';
+      createdOn = pref.getString("cusCreatedOn") ?? '';
       // pref.getString("cusModifiedOn")??'';
-      adm_updte_on = pref.getString("admCreatedOn")??'';
-      adm_update_by = pref.getString("admUpdatedBy")??'';
-      adm_modify_on = pref.getString("admModifiedOn")??'';
-      adm_mod_by = pref.getString("admModifiedBy")??'';
-      adm_updte_on = pref.getString("admUpdatedOn")??'';
-      adm_mod_by = pref.getString("admUpdatedBy")??'';
-      tm_startupdateon = pref.getString("tmStartUpdatedOn")??'';
-      tm_startupdateBy = pref.getString("tmStartUpdatedBy")??'';
-      tm_startModon = pref.getString("tmStartModifiedOn")??'';
-      tm_startModBy = pref.getString("tmStartModifiedBy")??'';
-      tm_procesupdOn = pref.getString("tmProcessUpdatedOn")??'';
-      tm_procesupdBy= pref.getString("tmProcessUpdatedBy")??'';
-      tm_procesModOn = pref.getString("tmProcessModifiedOn")??'';
-      tm_procesModBy = pref.getString("tmProcessModifiedBy")??'';
-      tm_cmpleUpdOn = pref.getString("tmCompleteUpdatedOn")??'';
-      tm_compleupBy = pref.getString("tmCompleteUpdatedBy")??'';
-      tm_startModon = pref.getString("tmCompleteModifiedOn")??'';
-      tm_startModBy = pref.getString("tmCompleteModifiedBy")??'';
+      adm_updte_on = pref.getString("admCreatedOn") ?? '';
+      adm_update_by = pref.getString("admUpdatedBy") ?? '';
+      adm_modify_on = pref.getString("admModifiedOn") ?? '';
+      adm_mod_by = pref.getString("admModifiedBy") ?? '';
+      adm_updte_on = pref.getString("admUpdatedOn") ?? '';
+      adm_mod_by = pref.getString("admUpdatedBy") ?? '';
+      tm_startupdateon = pref.getString("tmStartUpdatedOn") ?? '';
+      tm_startupdateBy = pref.getString("tmStartUpdatedBy") ?? '';
+      tm_startModon = pref.getString("tmStartModifiedOn") ?? '';
+      tm_startModBy = pref.getString("tmStartModifiedBy") ?? '';
+      tm_procesupdOn = pref.getString("tmProcessUpdatedOn") ?? '';
+      tm_procesupdBy = pref.getString("tmProcessUpdatedBy") ?? '';
+      tm_procesModOn = pref.getString("tmProcessModifiedOn") ?? '';
+      tm_procesModBy = pref.getString("tmProcessModifiedBy") ?? '';
+      tm_cmpleUpdOn = pref.getString("tmCompleteUpdatedOn") ?? '';
+      tm_compleupBy = pref.getString("tmCompleteUpdatedBy") ?? '';
+      tm_startModon = pref.getString("tmCompleteModifiedOn") ?? '';
+      tm_startModBy = pref.getString("tmCompleteModifiedBy") ?? '';
     });
-
   }
 
   //Network
   onNetworkChecking() async {
     bool isOnline = await hasNetwork();
     if (isOnline == false) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('You are Offline!',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14,
-                    fontWeight: FontWeight.bold)
-            ),
-            backgroundColor: Color(0xffcd5c5c),
-            margin: EdgeInsets.only(left: 100,
-                right: 100,
-                bottom: 15),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(
-                    Radius.circular(20))),
-          ));
-    }
-    else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-          SnackBar(
-            content: Text('Back to online!',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14,
-                    fontWeight: FontWeight.bold)
-            ),
-            backgroundColor: Colors.green,
-            margin: EdgeInsets.only(left: 100,
-                right: 100,
-                bottom: 10),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(
-                    Radius.circular(20))),
-          ));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('You are Offline!',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+        backgroundColor: Color(0xffcd5c5c),
+        margin: EdgeInsets.only(left: 100, right: 100, bottom: 15),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20))),
+      ));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Back to online!',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.green,
+        margin: EdgeInsets.only(left: 100, right: 100, bottom: 10),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20))),
+      ));
     }
     return isOnline;
   }
@@ -511,15 +577,144 @@ class _TicketViewPageState extends State<TicketViewPage> {
     }
   }
 
-  //endregion Functions
-
-  void addContextList(){
-    for(int i=0;i<teams.length;i++){
-      idList.add(teams[i].teamId);
-    }
-    context.read<Data>().addList(idList);
+  void showTeamsBottom() {
+    showModalBottomSheet(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        context: context,
+        builder: (context) {
+          return Column(
+            children: [
+              Container(
+                padding: EdgeInsets.all(10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Team Select',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                    RaisedButton(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                      ),
+                      color: Colors.deepPurple,
+                      onPressed: () {
+                        if(teamsId.isEmpty){
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Row(
+                                  children: [
+                                    Icon(Icons.close_outlined,color: Colors.white,),
+                                    Text('  Please select at least one member!'),
+                                  ],
+                                ),
+                                backgroundColor: Color(0xffE33C3C),
+                                behavior: SnackBarBehavior.floating,
+                              )
+                          );
+                        }
+                        else{
+                          Navigator.pop(context);
+                          teamAssign(ticketId, teamsId);
+                        }
+                      },
+                      child: Text(
+                        'Assign Now !',
+                        style: TextStyle(fontSize: 15, color: Colors.white,fontWeight: FontWeight.bold),
+                      ),
+                      // icon: Icon(Icons.close_rounded,color:Colors.red,size: 30,)
+                    )
+                  ],
+                ),
+              ),
+              Container(
+                height: 350,
+                padding: EdgeInsets.all(8),
+                child: StatefulBuilder(
+                  builder: (BuildContext context,
+                      void Function(void Function()) setState) {
+                    return Scrollbar(
+                      isAlwaysShown: true,
+                      child: ListView.builder(
+                          itemCount: teamsNamelist.length,
+                          itemBuilder: (context, index) {
+                            teamCheck.add(false);
+                            return Column(
+                              children: [
+                                CheckboxListTile(
+                                  subtitle: Text(
+                                      teamsNamelist[index]['Team'].toString()),
+                                  title: Text(teamsNamelist[index]['Username']
+                                      .toString()),
+                                  autofocus: false,
+                                  checkColor: Colors.white,
+                                  activeColor: Colors.green,
+                                  selected: teamCheck[index],
+                                  value: teamCheck[index],
+                                  onChanged: (bool? value) {
+                                    setState(() {
+                                      if (teamCheck[index] == true) {
+                                        teamCheck[index] = false;
+                                        teamsId.removeWhere((element) =>
+                                            element ==
+                                            teamsNamelist[index]['teamId']
+                                                .toString());
+                                      } else {
+                                        teamCheck[index] = true;
+                                        if (teamsId.contains(teamsNamelist[index]
+                                                ['teamId']
+                                            .toString())) {
+                                          print('exists...');
+                                        } else {
+                                          teamsId.add(teamsNamelist[index]
+                                                  ['teamId']
+                                              .toString());
+                                        }
+                                      }
+                                    });
+                                  },
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                  child: Divider(
+                                    height: 0.5,
+                                    color: Colors.blueAccent,
+                                  ),
+                                )
+                              ],
+                            );
+                          }),
+                    );
+                  },
+                )
+              ),
+            ],
+          );
+        });
   }
 
+  void loadAssignedTeam(){
+    if(ids.isNotEmpty){
+      for (int i = 0; i < teams.length; i++) {
+        ids.add(teams[i].teamId);
+      }
+      ids = ids.toSet().toList();
+
+      for (int i = 0; i < ids.length; i++) {
+        teamsIndex.add(
+            teamsNamelist.indexWhere((element) => element['teamId'].toString() == ids[i].toString()));
+      }
+      teamsIndex.removeWhere((element) => element == -1);
+      teamsIndex = teamsIndex.toSet().toList();
+    }else{
+      print('ids empty');
+    }
+  }
+
+  //endregion Functions
   @override
   void initState() {
 // TODO: implement initState
@@ -530,519 +725,534 @@ class _TicketViewPageState extends State<TicketViewPage> {
 
   @override
   Widget build(BuildContext context) {
-    ids = context.watch<Data>().getList();
-    setState(() {
-      ids = ids.toSet().toList();
-    });
-    print("length>>> ${ids.length}");
+    loadAssignedTeam();
     return Scaffold(
-      //APP bar
+        //APP bar
         appBar: AppBar(
+          actions: [
+            TextButton(
+              onPressed: (){
+                setState(() {
+                  ids = [];
+                  teamsIndex = [];
+                });
+              },
+              child:Row(
+                children: [
+                  Icon(Icons.how_to_reg_outlined , color: Colors.white,),
+                  Text(' Re Assign!' ,style: TextStyle(color: Colors.white,),)
+                ],
+              ),
+            )
+          ],
           backgroundColor: Color(0Xff146bf7),
           title: Text('Ticket ID : $ticketId'),
         ),
         floatingActionButton: this.Status.toLowerCase() == "completed"
             ? Visibility(
-          visible: floatBtnVisi,
-          child: FloatingActionButton(
-            child: Icon(Icons.mail),
-            onPressed: () {
-              //Mail send
-              //mailDialog(context);
-              sendMail();
-            },
-          ),
-        )
+                visible: floatBtnVisi,
+                child: FloatingActionButton(
+                  child: Icon(Icons.mail),
+                  onPressed: () {
+                    //Mail send
+                    //mailDialog(context);
+                    sendMail();
+                  },
+                ),
+              )
             : tmStatusBtn == true
-            ? Visibility(
-            visible: tmStatusBtn,
-            child: FloatingActionButton.extended(
-              onPressed: () {
-                updateStatusDialog(context);
-              },
-              label: Text('Update status'),
-              icon: Icon(Icons.thumb_up),
-            ))
-            : Visibility(
-          visible: floatBtnVisi,
-          child: FloatingActionButton(
-            child: Icon(Icons.add),
-            onPressed: () {
-              context.read<Data>().addList(ids);
-              Navigator.push(context,
-                  MaterialPageRoute(builder:
-                      (context)=>TicketAssign(ticketId:ticketId,updatedBy: adm_update_by,)));
-            },
-          ),
-        ),
+                ? Visibility(
+                    visible: tmStatusBtn,
+                    child: FloatingActionButton.extended(
+                      onPressed: () {
+                        updateStatusDialog(context);
+                      },
+                      label: Text('Update status'),
+                      icon: Icon(Icons.thumb_up),
+                    ))
+                : Visibility(
+                    visible: floatBtnVisi,
+                    child: FloatingActionButton(
+                      child: Icon(Icons.add),
+                      onPressed: () {
+                        showTeamsBottom();
+                      },
+                    ),
+                  ),
         body: SingleChildScrollView(
             child: Container(
-              padding: EdgeInsets.all(7.0),
-              child:Column(
+          padding: EdgeInsets.all(7.0),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: <
+                  Widget>[
+            Card(
+              color: Colors.blue[100],
+              elevation: 3,
+              child: Container(
+                alignment: Alignment.centerLeft,
+                width: double.infinity,
+                padding: EdgeInsets.all(7.0),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Card(
-                      color: Colors.blue[100],
-                      elevation: 3,
-                      child: Container(
-                        alignment: Alignment.centerLeft,
-                        width: double.infinity,
-                        padding: EdgeInsets.all(7.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Status ${ids}',style: TextStyle(
-                                fontSize: 20,fontWeight: FontWeight.bold,letterSpacing: 2
-                            ),),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Row(
+                  children: [
+                    Text(
+                      'Status',
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 2),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      children: [
+                        Status.toLowerCase() == 'completed'
+                            ? Icon(
+                                Icons.done_all,
+                                size: 30,
+                                color: Colors.green,
+                              )
+                            : Status.toLowerCase() == 'new'
+                                ? Icon(
+                                    Icons.bookmark_add,
+                                    size: 30,
+                                    color: Colors.blueAccent,
+                                  )
+                                : Status.toLowerCase() == 'started'
+                                    ? Icon(
+                                        Icons.cached_sharp,
+                                        size: 30,
+                                        color: Colors.red,
+                                      )
+                                    : Status.toLowerCase() == 'inprogress'
+                                        ? Icon(
+                                            CupertinoIcons.clock,
+                                            size: 30,
+                                            color: Colors.deepPurpleAccent,
+                                          )
+                                        : Container(),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          '  $Status',
+                          style: TextStyle(fontSize: 18, letterSpacing: 1),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ),
+            Card(
+              elevation: 3,
+              child: ExpansionTile(
+                leading: Icon(
+                  Icons.thumb_up,
+                  size: 30,
+                  color: Colors.orangeAccent,
+                ),
+                title: Text(
+                  'Teams Assigned',
+                  style: TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+                subtitle: Text(
+                  'Click for more...',
+                  style: TextStyle(fontSize: 15, color: Colors.black45),
+                ),
+                children: <Widget>[
+                  ids.isNotEmpty
+                      ? ListView.builder(
+                          itemCount: teamsIndex.length,
+                          physics: NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemBuilder: (context, index) {
+                            String userName = teamsNamelist[teamsIndex[index]]
+                                    ["Username"]
+                                .toString();
+                            print(userName);
+                            return Column(
                               children: [
-                                Status.toLowerCase() == 'completed'?
-                                Icon(
-                                  Icons.done_all,
-                                  size: 30,
-                                  color: Colors.green,
-                                ):Status.toLowerCase() == 'new'?
-                                Icon(
-                                  Icons.bookmark_add,
-                                  size: 30,
-                                  color: Colors.blueAccent,
-                                ):Status.toLowerCase() == 'started'?
-                                Icon(
-                                  Icons.cached_sharp ,
-                                  size: 30,
-                                  color: Colors.red,
-                                ):Status.toLowerCase() == 'inprogress'?
-                                Icon(
-                                  CupertinoIcons.clock ,
-                                  size: 30,
-                                  color: Colors.deepPurpleAccent,
-                                ):Container(),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                Text(
-                                  '  $Status',style: TextStyle(
-                                    fontSize: 18,letterSpacing: 1
-                                ),),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                    Card(
-                      elevation: 3,
-                      child: ExpansionTile(
-                        leading: Icon(
-                          Icons.thumb_up,
-                          size: 30,
-                          color: Colors.orangeAccent,
-                        ),
-                        title: Text(
-                          'Teams Assigned',
-                          style: TextStyle(
-                            fontSize: 16,
-                          ),
-                        ),
-                        subtitle: Text(
-                          'Click for more...',
-                          style: TextStyle(fontSize: 15, color: Colors.black45),
-                        ),
-                        children: <Widget>[
-                          ids.isNotEmpty?
-                          ListView.builder(
-                              itemCount: ids.length,
-                              physics: NeverScrollableScrollPhysics(),
-                              shrinkWrap: true,
-                              itemBuilder: (context,index){
-                                print(index);
-                                int i = teamsNamelist.indexWhere((element) => element['teamId'] == ids[index]);
-                                String userName = teamsNamelist[i]['Username'].toString();
-                                return Column(
-                                  children: [
-                                    ListTile(
-                                      leading: CircleAvatar(
-                                        child: Text(
-                                            ids[index].toString()
-                                        ),
-                                      ),
-                                      title: Text(
-                                        userName,
-                                        style: TextStyle(fontSize: 16),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 10),
-                                      child: Divider(
-                                        height: 0.5,
-                                        color: Colors.blueAccent,
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              }
-                          ):
-                          Container(
-                            height: 50,
-                            child: Center(
-                                child:Text('No teams assigned...!')
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                    Card(
-                      elevation: 3,
-                      child: ExpansionTile(
-                        leading: Icon(
-                          Icons.account_circle,
-                          size: 35,
-                          color: Colors.green,
-                        ),
-                        title: Text(
-                          'Customer Info',
-                          style: TextStyle(
-                            fontSize: 16,
-                          ),
-                        ),
-                        subtitle: Text(
-                          '$Username',
-                          style: TextStyle(fontSize: 15, color: Colors.black45),
-                        ),
-                        children: <Widget>[
-                          ListTile(
-                            title: Text('Username',
-                                style: TextStyle(fontSize: 15, color: Colors.black45)),
-                            subtitle: Text(
-                              '$Username',
-                              style: TextStyle(fontSize: 16, color: Colors.black),
-                            ),
-                          ),
-                          ListTile(
-                            title: Text('Phone',
-                                style: TextStyle(fontSize: 15, color: Colors.black45)),
-                            subtitle: Text(
-                              '$Phonenumber',
-                              style: TextStyle(fontSize: 16, color: Colors.black),
-                            ),
-                            trailing: IconButton(
-                              onPressed: () {
-                                launch("tel://$Phonenumber");
-                              },
-                              icon: Icon(Icons.phone),
-                              color: Colors.green,
-                              iconSize: 30,
-                            ),
-                          ),
-                          ListTile(
-                            title: Text('Email',
-                                style: TextStyle(fontSize: 15, color: Colors.black45)),
-                            subtitle: Text(
-                              '$Email',
-                              style: TextStyle(fontSize: 16, color: Colors.black),
-                            ),
-                          ),
-                          ListTile(
-                            title: Text('Domain name',
-                                style: TextStyle(fontSize: 15, color: Colors.black45)),
-                            subtitle: Text(
-                              '$DomainName',
-                              style: TextStyle(fontSize: 16, color: Colors.black),
-                            ),
-                            trailing: IconButton(
-                              onPressed: () async{
-                                if(DomainName.startsWith("http")){
-                                  if (await canLaunch(DomainName)) {
-                                    await launch(DomainName);
-                                  } else {
-                                    throw 'Could not launch $DomainName';
-                                  }
-                                }else{
-                                  if (await canLaunch("https://"+DomainName)) {
-                                    await launch("https://"+DomainName);
-                                  } else {
-                                    throw 'Could not launch $DomainName';
-                                  }
-                                }
-                              },
-                              icon: Icon(Icons.language),
-                              color: Colors.green,
-                              iconSize: 30,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Visibility(
-                      visible: adDateVisi,
-                      child: Card(
-                        elevation: 3,
-                        child: ExpansionTile(
-                          leading: Icon(
-                            Icons.calendar_today,
-                            size: 35,
-                            color: Colors.grey,
-                          ),
-                          title: Text(
-                            'Admin Updates',
-                            style: TextStyle(
-                              fontSize: 16,
-                            ),
-                          ),
-                          subtitle: Text(
-                            'Click for more...',
-                            style: TextStyle(fontSize: 15, color: Colors.black45),
-                          ),
-                          children: <Widget>[
-                            ListTile(
-                              title: Text('Admin updated on',
-                                  style: TextStyle(fontSize: 15, color: Colors.black45)),
-                              subtitle: Text(
-                                '$adm_updte_on',
-                                style: TextStyle(fontSize: 16, color: Colors.black),
-                              ),
-                            ),
-                            ListTile(
-                              title: Text('Updated by',
-                                  style: TextStyle(fontSize: 15, color: Colors.black45)),
-                              subtitle: Text(
-                                '$adm_update_by',
-                                style: TextStyle(fontSize: 16, color: Colors.black),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Card(
-                      elevation: 3,
-                      child: ExpansionTile(
-                        leading: Icon(
-                          Icons.bug_report_rounded,
-                          size: 35,
-                          color: Colors.red,
-                        ),
-                        title: Text(
-                          'Customer Issues',
-                          style: TextStyle(
-                            fontSize: 16,
-                          ),
-                        ),
-                        subtitle: Text(
-                          'Click for more...',
-                          style: TextStyle(fontSize: 15, color: Colors.black45),
-                        ),
-                        children: <Widget>[
-                          ListTile(
-                            title: Text('Description',
-                                style: TextStyle(fontSize: 15, color: Colors.black45)),
-                            subtitle: Text(
-                              '$Description',
-                              style: TextStyle(fontSize: 16, color: Colors.black),
-                            ),
-                          ),
-                          ListTile(
-                            title: Text('Ticket created on',
-                                style: TextStyle(fontSize: 15, color: Colors.black45)),
-                            subtitle: Text(
-                              '$createdOn',
-                              style: TextStyle(fontSize: 16, color: Colors.black),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Card(
-                      elevation: 3,
-                      child: ExpansionTile(
-                        leading: Icon(
-                          Icons.attach_file,
-                          size: 35,
-                          color: Colors.blue,
-                        ),
-                        title: Text(
-                          'Attachments',
-                          style: TextStyle(
-                            fontSize: 16,
-                          ),
-                        ),
-                        subtitle: Text(
-                          'Click for more...',
-                          style: TextStyle(fontSize: 15, color: Colors.black45),
-                        ),
-                        children: <Widget>[
-                          fromAPI.isNotEmpty?
-                          ListView.builder(
-                              itemCount: fromAPI.length,
-                              physics: NeverScrollableScrollPhysics(),
-                              shrinkWrap: true,
-                              itemBuilder: (context,index){
-                                return ListTile(
-                                  onTap: (){
-                                    String filename = Screenshots.split("/").last;
-                                    setState(() {
-                                      downloadFile(fromAPI[index], fromAPI[index].split("/").last,
-                                          'storage/emulated/0/Download');
-                                    });
-                                  },
-                                  subtitle: Text(
-                                    '${fromAPI[index].split("/").last}',
-                                    style: TextStyle(fontSize: 14),
+                                ListTile(
+                                  leading: CircleAvatar(
+                                    child: Text(userName[0].toUpperCase()),
                                   ),
                                   title: Text(
-                                    'Download file',
+                                    userName,
                                     style: TextStyle(fontSize: 16),
                                   ),
-                                  trailing: IconButton(
-                                    onPressed: () {
-                                      String filename = Screenshots.split("/").last;
-                                      setState(() {
-                                        downloadFile(fromAPI[index], fromAPI[index].split("/").last,
-                                            'storage/emulated/0/Download');
-                                      });
-                                    },
-                                    icon: Icon(Icons.cloud_download),
-                                    color: Colors.blue,
-                                    iconSize: 40,
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                  child: Divider(
+                                    height: 0.5,
+                                    color: Colors.blueAccent,
                                   ),
-                                );
-                              }
-                          ):
-                          Container(
-                            height: 50,
-                            child: Center(
-                                child:Text('No attachments found...')
-                            ),
-                          )
-                        ],
+                                ),
+                              ],
+                            );
+                          })
+                      : Container(
+                          height: 50,
+                          child: Center(child: Text('No teams assigned...!')),
+                        )
+                ],
+              ),
+            ),
+            Card(
+              elevation: 3,
+              child: ExpansionTile(
+                leading: Icon(
+                  Icons.account_circle,
+                  size: 35,
+                  color: Colors.green,
+                ),
+                title: Text(
+                  'Customer Info',
+                  style: TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+                subtitle: Text(
+                  '$Username',
+                  style: TextStyle(fontSize: 15, color: Colors.black45),
+                ),
+                children: <Widget>[
+                  ListTile(
+                    title: Text('Username',
+                        style: TextStyle(fontSize: 15, color: Colors.black45)),
+                    subtitle: Text(
+                      '$Username',
+                      style: TextStyle(fontSize: 16, color: Colors.black),
+                    ),
+                  ),
+                  ListTile(
+                    title: Text('Phone',
+                        style: TextStyle(fontSize: 15, color: Colors.black45)),
+                    subtitle: Text(
+                      '$Phonenumber',
+                      style: TextStyle(fontSize: 16, color: Colors.black),
+                    ),
+                    trailing: IconButton(
+                      onPressed: () {
+                        launch("tel://$Phonenumber");
+                      },
+                      icon: Icon(Icons.phone),
+                      color: Colors.green,
+                      iconSize: 30,
+                    ),
+                  ),
+                  ListTile(
+                    title: Text('Email',
+                        style: TextStyle(fontSize: 15, color: Colors.black45)),
+                    subtitle: Text(
+                      '$Email',
+                      style: TextStyle(fontSize: 16, color: Colors.black),
+                    ),
+                  ),
+                  ListTile(
+                    title: Text('Domain name',
+                        style: TextStyle(fontSize: 15, color: Colors.black45)),
+                    subtitle: Text(
+                      '$DomainName',
+                      style: TextStyle(fontSize: 16, color: Colors.black),
+                    ),
+                    trailing: IconButton(
+                      onPressed: () async {
+                        if (DomainName.startsWith("http")) {
+                          if (await canLaunch(DomainName)) {
+                            await launch(DomainName);
+                          } else {
+                            throw 'Could not launch $DomainName';
+                          }
+                        } else {
+                          if (await canLaunch("https://" + DomainName)) {
+                            await launch("https://" + DomainName);
+                          } else {
+                            throw 'Could not launch $DomainName';
+                          }
+                        }
+                      },
+                      icon: Icon(Icons.language),
+                      color: Colors.green,
+                      iconSize: 30,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Visibility(
+              visible: adDateVisi,
+              child: Card(
+                elevation: 3,
+                child: ExpansionTile(
+                  leading: Icon(
+                    Icons.calendar_today,
+                    size: 35,
+                    color: Colors.grey,
+                  ),
+                  title: Text(
+                    'Admin Updates',
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                  subtitle: Text(
+                    'Click for more...',
+                    style: TextStyle(fontSize: 15, color: Colors.black45),
+                  ),
+                  children: <Widget>[
+                    ListTile(
+                      title: Text('Admin updated on',
+                          style:
+                              TextStyle(fontSize: 15, color: Colors.black45)),
+                      subtitle: Text(
+                        '$adm_updte_on',
+                        style: TextStyle(fontSize: 16, color: Colors.black),
                       ),
                     ),
-                    Card(
-                      elevation: 3,
-                      child: ExpansionTile(
-                        leading: Icon(
-                          CupertinoIcons.clock,
-                          size: 35,
-                          color: Colors.indigo,
-                        ),
-                        title: Text(
-                          'Team Timelines',
-                          style: TextStyle(
-                            fontSize: 16,
-                          ),
-                        ),
-                        subtitle: Text(
-                          'Click for more...',
-                          style: TextStyle(fontSize: 15, color: Colors.black45),
-                        ),
-                        children: <Widget>[
-                          // userType=='admin'?Column(
-                          //   children: [
-                          //     Text('Assigned Teams', style: TextStyle(fontSize: 17.0)),
-                          //     SizedBox(height: 10,),
-                          //     Container(
-                          //       child: Table(
-                          //         defaultColumnWidth: FixedColumnWidth(90.0),
-                          //         border: TableBorder.all(
-                          //             color: Colors.black,
-                          //             style: BorderStyle.solid,
-                          //             width: 1),
-                          //         children: [
-                          //           TableRow( children: [
-                          //             Column(children:[Text('Server', style: TextStyle(fontSize: 13.0))]),
-                          //             Column(children:[Text('SEO', style: TextStyle(fontSize: 13.0))]),
-                          //             Column(children:[Text('Design', style: TextStyle(fontSize: 13.0))]),
-                          //             Column(children:[Text('Development', style: TextStyle(fontSize: 13.0))]),
-                          //           ]),
-                          //           TableRow( children: [
-                          //             Column(children:[
-                          //               server=="y"?Icon(Icons.done,color: Colors.green,):
-                          //                       Icon(Icons.close,color: Colors.red,)
-                          //             ]),
-                          //             Column(children:[seo=="y"?Icon(Icons.done,color: Colors.green,):
-                          //             Icon(Icons.close,color: Colors.red,)]),
-                          //             Column(children:[design=="y"?Icon(Icons.done,color: Colors.green,):
-                          //             Icon(Icons.close,color: Colors.red,)]),
-                          //             Column(children:[development=="y"?Icon(Icons.done,color: Colors.green,):
-                          //             Icon(Icons.close,color: Colors.red,)]),
-                          //           ]),
-                          //         ],
-                          //       ),
-                          //     ),
-                          //   ],
-                          // ):Container(),
-                          ListTile(
-                            title: Text('Team Started On',
-                                style: TextStyle(fontSize: 15, color: Colors.black45)),
-                            subtitle: Text(
-                              '$tm_startupdateon',
-                              style: TextStyle(fontSize: 16, color: Colors.black),
-                            ),
-                          ),
-                          ListTile(
-                            title: Text('Started By',
-                                style: TextStyle(fontSize: 15, color: Colors.black45)),
-                            subtitle: Text(
-                              '$tm_startupdateBy',
-                              style: TextStyle(fontSize: 16, color: Colors.black),
-                            ),
-                          ), ListTile(
-                            title: Text('Team Updates On',
-                                style: TextStyle(fontSize: 15, color: Colors.black45)),
-                            subtitle: Text(
-                              '$tm_procesupdOn',
-                              style: TextStyle(fontSize: 16, color: Colors.black),
-                            ),
-                          ),
-                          ListTile(
-                            title: Text('Updates By',
-                                style: TextStyle(fontSize: 15, color: Colors.black45)),
-                            subtitle: Text(
-                              '$tm_procesupdBy',
-                              style: TextStyle(fontSize: 16, color: Colors.black),
-                            ),
-                          ),
-                          ListTile(
-                            title: Text('Team Completed On',
-                                style: TextStyle(fontSize: 15, color: Colors.black45)),
-                            subtitle: Text(
-                              '$tm_cmpleUpdOn',
-                              style: TextStyle(fontSize: 16, color: Colors.black),
-                            ),
-                          ),
-                          ListTile(
-                            title: Text('Completed By',
-                                style: TextStyle(fontSize: 15, color: Colors.black45)),
-                            subtitle: Text(
-                              '$tm_compleupBy',
-                              style: TextStyle(fontSize: 16, color: Colors.black),
-                            ),
-                          ),
+                    ListTile(
+                      title: Text('Updated by',
+                          style:
+                              TextStyle(fontSize: 15, color: Colors.black45)),
+                      subtitle: Text(
+                        '$adm_update_by',
+                        style: TextStyle(fontSize: 16, color: Colors.black),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Card(
+              elevation: 3,
+              child: ExpansionTile(
+                leading: Icon(
+                  Icons.bug_report_rounded,
+                  size: 35,
+                  color: Colors.red,
+                ),
+                title: Text(
+                  'Customer Issues',
+                  style: TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+                subtitle: Text(
+                  'Click for more...',
+                  style: TextStyle(fontSize: 15, color: Colors.black45),
+                ),
+                children: <Widget>[
+                  ListTile(
+                    title: Text('Description',
+                        style: TextStyle(fontSize: 15, color: Colors.black45)),
+                    subtitle: Text(
+                      '$Description',
+                      style: TextStyle(fontSize: 16, color: Colors.black),
+                    ),
+                  ),
+                  ListTile(
+                    title: Text('Ticket created on',
+                        style: TextStyle(fontSize: 15, color: Colors.black45)),
+                    subtitle: Text(
+                      '$createdOn',
+                      style: TextStyle(fontSize: 16, color: Colors.black),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Card(
+              elevation: 3,
+              child: ExpansionTile(
+                leading: Icon(
+                  Icons.attach_file,
+                  size: 35,
+                  color: Colors.blue,
+                ),
+                title: Text(
+                  'Attachments',
+                  style: TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+                subtitle: Text(
+                  'Click for more...',
+                  style: TextStyle(fontSize: 15, color: Colors.black45),
+                ),
+                children: <Widget>[
+                  fromAPI.isNotEmpty
+                      ? ListView.builder(
+                          itemCount: fromAPI.length,
+                          physics: NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              onTap: () {
+                                String filename = Screenshots.split("/").last;
+                                setState(() {
+                                  downloadFile(
+                                      fromAPI[index],
+                                      fromAPI[index].split("/").last,
+                                      'storage/emulated/0/Download');
+                                });
+                              },
+                              subtitle: Text(
+                                '${fromAPI[index].split("/").last}',
+                                style: TextStyle(fontSize: 14),
+                              ),
+                              title: Text(
+                                'Download file',
+                                style: TextStyle(fontSize: 16),
+                              ),
+                              trailing: IconButton(
+                                onPressed: () {
+                                  String filename = Screenshots.split("/").last;
+                                  setState(() {
+                                    downloadFile(
+                                        fromAPI[index],
+                                        fromAPI[index].split("/").last,
+                                        'storage/emulated/0/Download');
+                                  });
+                                },
+                                icon: Icon(Icons.cloud_download),
+                                color: Colors.blue,
+                                iconSize: 40,
+                              ),
+                            );
+                          })
+                      : Container(
+                          height: 50,
+                          child: Center(child: Text('No attachments found...')),
+                        )
+                ],
+              ),
+            ),
+            Card(
+              elevation: 3,
+              child: ExpansionTile(
+                leading: Icon(
+                  CupertinoIcons.clock,
+                  size: 35,
+                  color: Colors.indigo,
+                ),
+                title: Text(
+                  'Team Timelines',
+                  style: TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+                subtitle: Text(
+                  'Click for more...',
+                  style: TextStyle(fontSize: 15, color: Colors.black45),
+                ),
+                children: <Widget>[
+                  // userType=='admin'?Column(
+                  //   children: [
+                  //     Text('Assigned Teams', style: TextStyle(fontSize: 17.0)),
+                  //     SizedBox(height: 10,),
+                  //     Container(
+                  //       child: Table(
+                  //         defaultColumnWidth: FixedColumnWidth(90.0),
+                  //         border: TableBorder.all(
+                  //             color: Colors.black,
+                  //             style: BorderStyle.solid,
+                  //             width: 1),
+                  //         children: [
+                  //           TableRow( children: [
+                  //             Column(children:[Text('Server', style: TextStyle(fontSize: 13.0))]),
+                  //             Column(children:[Text('SEO', style: TextStyle(fontSize: 13.0))]),
+                  //             Column(children:[Text('Design', style: TextStyle(fontSize: 13.0))]),
+                  //             Column(children:[Text('Development', style: TextStyle(fontSize: 13.0))]),
+                  //           ]),
+                  //           TableRow( children: [
+                  //             Column(children:[
+                  //               server=="y"?Icon(Icons.done,color: Colors.green,):
+                  //                       Icon(Icons.close,color: Colors.red,)
+                  //             ]),
+                  //             Column(children:[seo=="y"?Icon(Icons.done,color: Colors.green,):
+                  //             Icon(Icons.close,color: Colors.red,)]),
+                  //             Column(children:[design=="y"?Icon(Icons.done,color: Colors.green,):
+                  //             Icon(Icons.close,color: Colors.red,)]),
+                  //             Column(children:[development=="y"?Icon(Icons.done,color: Colors.green,):
+                  //             Icon(Icons.close,color: Colors.red,)]),
+                  //           ]),
+                  //         ],
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ):Container(),
+                  ListTile(
+                    title: Text('Team Started On',
+                        style: TextStyle(fontSize: 15, color: Colors.black45)),
+                    subtitle: Text(
+                      '$tm_startupdateon',
+                      style: TextStyle(fontSize: 16, color: Colors.black),
+                    ),
+                  ),
+                  ListTile(
+                    title: Text('Started By',
+                        style: TextStyle(fontSize: 15, color: Colors.black45)),
+                    subtitle: Text(
+                      '$tm_startupdateBy',
+                      style: TextStyle(fontSize: 16, color: Colors.black),
+                    ),
+                  ),
+                  ListTile(
+                    title: Text('Team Updates On',
+                        style: TextStyle(fontSize: 15, color: Colors.black45)),
+                    subtitle: Text(
+                      '$tm_procesupdOn',
+                      style: TextStyle(fontSize: 16, color: Colors.black),
+                    ),
+                  ),
+                  ListTile(
+                    title: Text('Updates By',
+                        style: TextStyle(fontSize: 15, color: Colors.black45)),
+                    subtitle: Text(
+                      '$tm_procesupdBy',
+                      style: TextStyle(fontSize: 16, color: Colors.black),
+                    ),
+                  ),
+                  ListTile(
+                    title: Text('Team Completed On',
+                        style: TextStyle(fontSize: 15, color: Colors.black45)),
+                    subtitle: Text(
+                      '$tm_cmpleUpdOn',
+                      style: TextStyle(fontSize: 16, color: Colors.black),
+                    ),
+                  ),
+                  ListTile(
+                    title: Text('Completed By',
+                        style: TextStyle(fontSize: 15, color: Colors.black45)),
+                    subtitle: Text(
+                      '$tm_compleupBy',
+                      style: TextStyle(fontSize: 16, color: Colors.black),
+                    ),
+                  ),
 
-                          // ListTile(
-                          //   title: Text('Started modified on',style: TextStyle(fontSize: 15,color: Colors.black45)),
-                          //   subtitle: Text('$tm_startModon',style: TextStyle(fontSize: 16,color: Colors.black),),
-                          // ),
-                          // Divider(
-                          //   height: 2,
-                          //   color: Colors.black,
-                          // ),
-                          // ListTile(
-                          //   title: Text('Started modified by',style: TextStyle(fontSize: 15,color: Colors.black45)),
-                          //   subtitle: Text('$tm_startModon',style: TextStyle(fontSize: 16,color: Colors.black),),
-                          // ),
-                        ],
-                      ),
-                    ),
-                  ]),
-            )));
+                  // ListTile(
+                  //   title: Text('Started modified on',style: TextStyle(fontSize: 15,color: Colors.black45)),
+                  //   subtitle: Text('$tm_startModon',style: TextStyle(fontSize: 16,color: Colors.black),),
+                  // ),
+                  // Divider(
+                  //   height: 2,
+                  //   color: Colors.black,
+                  // ),
+                  // ListTile(
+                  //   title: Text('Started modified by',style: TextStyle(fontSize: 15,color: Colors.black45)),
+                  //   subtitle: Text('$tm_startModon',style: TextStyle(fontSize: 16,color: Colors.black),),
+                  // ),
+                ],
+              ),
+            ),
+          ]),
+        )));
   }
 }
-

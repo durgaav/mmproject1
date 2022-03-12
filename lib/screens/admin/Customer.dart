@@ -33,7 +33,7 @@ class _CustomerState extends State<Customer> {
   DateFormat formatter = DateFormat('dd-MM-yyyy hh:mm a');
   //Edittext
   TextEditingController searchController = new TextEditingController();
-  TextEditingController compName = new TextEditingController(), usrNm = new TextEditingController(), passWd = new TextEditingController(),
+  TextEditingController compName = new TextEditingController(), passWd = new TextEditingController(),
       mailId = new TextEditingController(),
       phnNum = new TextEditingController(),clientNm = new TextEditingController(),projectCode = new TextEditingController(text: "MM000");
   //List and File
@@ -94,6 +94,14 @@ class _CustomerState extends State<Customer> {
 
                       ],
                     ),
+                    TextField(
+                      decoration: const InputDecoration(
+                        hintText: 'Email here',
+                        labelText: 'Email',
+                      ),
+                      controller: mailId,
+                      keyboardType: TextInputType.emailAddress,
+                    ),
                     TextFormField(
                       decoration: const InputDecoration(
                         hintText: 'Enter your Companyname',
@@ -112,27 +120,11 @@ class _CustomerState extends State<Customer> {
                     ),
                     TextField(
                       decoration: const InputDecoration(
-                        hintText: 'Enter a Username',
-                        labelText: 'Username',
-                      ),
-                      controller: usrNm,
-                      keyboardType: TextInputType.text,
-                    ),
-                    TextField(
-                      decoration: const InputDecoration(
                         hintText: 'Password here',
                         labelText: 'Password',
                       ),
                       controller: passWd,
                       keyboardType: TextInputType.visiblePassword,
-                    ),
-                    TextField(
-                      decoration: const InputDecoration(
-                        hintText: 'Email here',
-                        labelText: 'Email',
-                      ),
-                      controller: mailId,
-                      keyboardType: TextInputType.emailAddress,
                     ),
                     TextFormField(
                       decoration: const InputDecoration(
@@ -157,7 +149,6 @@ class _CustomerState extends State<Customer> {
                                 ),
                                 onPressed: () {
                                   if (compName.text.isEmpty ||
-                                      usrNm.text.isEmpty ||
                                       passWd.text.isEmpty ||
                                       mailId.text.isEmpty ||
                                       phnNum.text.length < 10 ||
@@ -174,7 +165,6 @@ class _CustomerState extends State<Customer> {
                                   } else {
                                     AddNewUser(
                                         compName.text.toString(),
-                                        usrNm.text.toString(),
                                         passWd.text.toString(),
                                         mailId.text.toString(),
                                         phnNum.text.toString(),
@@ -211,27 +201,25 @@ class _CustomerState extends State<Customer> {
 
 //send mail
   void sendMailToClient() async {
-    setState(() {
-      mailId.text.toString();
-      passWd.text.toString();
-      usrNm.text.toString();
-    });
-    print(mailId);
-    print(passWd);
-    print(usrNm);
-    String username = 'durgadevi@mindmade.in';
-    String password = 'Appu#001';
-
-    final smtpServer = gmail(username, password);
-    final equivalentMessage = Message()
-      ..from = Address(username, 'DurgaDevi')
-      ..recipients.add(Address(mailId.text.toString()))
-    // ..ccRecipients.addAll([Address('surya@mindmade.in'), 'destCc2@example.com'])
-    // ..bccRecipients.add('bccAddress@example.com')
-      ..subject = 'Your Credentials ${formatter.format(DateTime.now())}'
-      ..text = '* Username: ${usrNm.text.toString()} \n* Password:${passWd.text.toString()}';
-    // ..html = "<h1>Test</h1>\n<p>Hey! Here's some HTML content</p>";
     try {
+      setState(() {
+        mailId.text.toString();
+        passWd.text.toString();
+      });
+      print(mailId);
+      print(passWd);
+      String username = 'durgadevi@mindmade.in';
+      String password = 'Appu#001';
+
+      final smtpServer = gmail(username, password);
+      final equivalentMessage = Message()
+        ..from = Address(username, 'DurgaDevi')
+        ..recipients.add(Address(mailId.text.toString()))
+        ..ccRecipients.addAll([Address('surya@mindmade.in'),])
+      // ..bccRecipients.add('bccAddress@example.com')
+        ..subject = 'Your Credentials ${formatter.format(DateTime.now())}'
+        ..text = '* Username: ${mailId.text.toString()} \n* Password:${passWd.text.toString()}';
+      // ..html = "<h1>Test</h1>\n<p>Hey! Here's some HTML content</p>";
       await send(equivalentMessage, smtpServer);
       print('Message sent: ' + send.toString());
       Fluttertoast.showToast(
@@ -260,8 +248,6 @@ class _CustomerState extends State<Customer> {
     }
   }
 
-//
-
   //Default loader
   showAlert(BuildContext context) {
     return showDialog(
@@ -287,8 +273,8 @@ class _CustomerState extends State<Customer> {
   }
 
   //Add new customer logic
-  Future AddNewUser(String comp, String user, String pass, String mail, String phn, String client,String proCode,BuildContext context) async {
-    // showAlert(context);
+  Future AddNewUser(String comp,String pass, String mail, String phn, String client,String proCode,BuildContext context) async {
+    showAlert(context);
     print("procode...."+proCode);
     print(_image);
     try {
@@ -298,12 +284,11 @@ class _CustomerState extends State<Customer> {
       request.fields.addAll({
         'Companyname': comp,
         'Clientname': client,
-        'Username': user,
         'Password': pass,
         'Email': mail,
         'Phonenumber': phn,
-        'Createdon': formatter.format(DateTime.now()),
-        'Createdby': '$createdBy'
+        'CreatedOn': formatter.format(DateTime.now()),
+        'CreatedBy': '$createdBy'
       });
       request.files.add(await http.MultipartFile.fromPath('file', _image.path,
           filename: Path.basename(_image.path),
@@ -314,6 +299,7 @@ class _CustomerState extends State<Customer> {
         if (res.contains("Username already Exists!")||res.contains("Projectcode already Exists!")) {
           Navigator.of(context, rootNavigator: true).pop();
           Navigator.of(context, rootNavigator: true).pop();
+          Navigator.pop(context);
           Fluttertoast.showToast(
               msg: "Username/ProjectCode already Exists!",
               toastLength: Toast.LENGTH_LONG,
@@ -323,13 +309,13 @@ class _CustomerState extends State<Customer> {
               textColor: Colors.white,
               fontSize: 15.0
           );
+          Navigator.pop(context);
           return response;
         } else {
           Navigator.pop(context);
           setState(() {
             searchController = new TextEditingController(text: "");
             compName = new TextEditingController(text: "");
-            usrNm = new TextEditingController(text: "");
             passWd = new TextEditingController(text: "");
             mailId = new TextEditingController(text: "");
             phnNum = new TextEditingController(text: "");
@@ -338,6 +324,7 @@ class _CustomerState extends State<Customer> {
             _image=File('');
             fetchCustomer();
           });
+          Navigator.pop(context);
           Fluttertoast.showToast(
               msg: 'Customer added successfully!',
               toastLength: Toast.LENGTH_LONG,
@@ -349,6 +336,7 @@ class _CustomerState extends State<Customer> {
           );
         }
       } else {
+        Navigator.pop(context);
         onNetworkChecking();
         print(await response.stream.bytesToString());
         print(response.statusCode);
@@ -365,6 +353,7 @@ class _CustomerState extends State<Customer> {
 
     } catch(ex){
       onNetworkChecking();
+      Navigator.pop(context);
       Fluttertoast.showToast(
           msg: 'Something went wrong',
           toastLength: Toast.LENGTH_LONG,
@@ -462,7 +451,7 @@ class _CustomerState extends State<Customer> {
   Future<void> getPref() async {
     var pref = await SharedPreferences.getInstance();
     if (pref != null) {
-      createdBy = pref.getString('username')!;
+      createdBy = pref.getString('usertypeMail')!;
     }
     print("Created by = " + createdBy);
   }
@@ -546,7 +535,6 @@ class _CustomerState extends State<Customer> {
         onPressed: () {
           dialogBuilder(context);
           print(MediaQuery.of(context).size.width);
-          //showAlert(context);
         },
         child: Icon(
           Icons.person_add_alt_outlined ,
@@ -636,7 +624,7 @@ class _CustomerState extends State<Customer> {
                             shrinkWrap: true,
                             itemCount: data.length,
                             itemBuilder: (BuildContext context, int index) {
-                              return data[index].Username.toLowerCase().contains(searchText.toString().toLowerCase())
+                              return data[index].Companyname.toLowerCase().contains(searchText.toString().toLowerCase())
                                   ? Column(children: <Widget>[
                                 ListTile(
                                   onTap: () {
@@ -650,9 +638,9 @@ class _CustomerState extends State<Customer> {
                                     ),
                                   ),
                                   title: Text(
-                                    data[index].Username[0].toUpperCase() +
+                                    data[index].Companyname[0].toUpperCase() +
                                         data[index]
-                                            .Username
+                                            .Companyname
                                             .substring(1)
                                             .toLowerCase(),
                                     style: TextStyle(fontSize: 17.5),
@@ -738,14 +726,11 @@ class GetCustomer {
         Companyname: json['Companyname'].toString(),
         Logo: json['Logo'].toString(),
         Clientname: json['Clientname'].toString(),
-        Createdby: json['Createdby'].toString(),
-        Createdon: json['Createdon'].toString(),
-        Modifiedby: json['Modifiedby'].toString(),
-        Modifiedon: json['Modifiedon'].toString(),
+        Createdby: json['CreatedBy'].toString(),
+        Createdon: json['CreatedOn'].toString(),
+        Modifiedby: json['ModifiedBy'].toString(),
+        Modifiedon: json['ModifiedOn'].toString(),
         Isdeleted: json['Isdeleted'].toString());
   }
 }
-
-
-
 
