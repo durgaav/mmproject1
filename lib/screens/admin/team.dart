@@ -466,6 +466,7 @@ class _TeamListState extends State<TeamList> {
 
   @override
   Widget build(BuildContext context) {
+    teamList = teamList.reversed.toList();
     return Scaffold(
       appBar: AppBar(
           backgroundColor: Color(0Xff146bf7),
@@ -661,7 +662,6 @@ class _TeamListState extends State<TeamList> {
                       })),
             ),
           ),
-
           Padding(
             padding:EdgeInsets.only(top:8.0,bottom: 8.0),
             child: Text(
@@ -673,7 +673,6 @@ class _TeamListState extends State<TeamList> {
               ),
             ),
           ),
-
           Visibility(
               visible: isVisible,
               child:Container(
@@ -684,6 +683,7 @@ class _TeamListState extends State<TeamList> {
                     backgroundColor: Colors.blue,
                     color: Colors.white,
                     child: ListView.builder(
+                      shrinkWrap: true,
                         itemCount: teamList.length,
                         itemBuilder: (BuildContext context, int index) {
                           return (teamList[index].Isdeleted == "n")
@@ -715,88 +715,99 @@ class _TeamListState extends State<TeamList> {
                                           fontSize: 15, color: Colors.black45),
                                     ),
                                     children: <Widget>[
-                                      ListTile(
-                                        title: Text('Id & Team',
-                                            style: TextStyle(
-                                                fontSize: 15, color: Colors.black45)),
-                                        subtitle: Text(
-                                          teamList[index].teamId + " & " +teamList[index].Team,
-                                          style: TextStyle(
-                                              fontSize: 16, color: Colors.black),
+                                      Container(
+                                        decoration:BoxDecoration(
+                                          color:Colors.blue[50],
+                                          borderRadius: BorderRadius.circular(17)
                                         ),
-                                      ),
-                                      ListTile(
-                                        title: Text('Email',
-                                            style: TextStyle(
-                                                fontSize: 15, color: Colors.black45)),
-                                        subtitle: Text(
-                                          teamList[index].email,
-                                          style: TextStyle(
-                                              fontSize: 16, color: Colors.black),
-                                        ),
+                                        margin:EdgeInsets.all(10),
+                                        child: Column(
+                                          children: [
+                                            ListTile(
+                                              title: Text('Id & Team',
+                                                  style: TextStyle(
+                                                      fontSize: 15, color: Colors.black45)),
+                                              subtitle: Text(
+                                                teamList[index].teamId + " & " +teamList[index].Team,
+                                                style: TextStyle(
+                                                    fontSize: 16, color: Colors.black),
+                                              ),
+                                            ),
+                                            ListTile(
+                                              title: Text('Email',
+                                                  style: TextStyle(
+                                                      fontSize: 15, color: Colors.black45)),
+                                              subtitle: Text(
+                                                teamList[index].email,
+                                                style: TextStyle(
+                                                    fontSize: 16, color: Colors.black),
+                                              ),
 
-                                      ),
-                                      ListTile(
-                                        title: Text('Password',
-                                            style: TextStyle(
-                                                fontSize: 15, color: Colors.black45)),
-                                        subtitle: Text(
-                                          teamList[index].Password,
-                                          style: TextStyle(
-                                              fontSize: 16, color: Colors.black),
-                                        ),
-                                      ),
-                                      ListTile(
-                                        onTap:(){
-                                          launch("tel://${teamList[index].phone}");
-                                        },
-                                        title: Text('Phone',
-                                            style: TextStyle(
-                                                fontSize: 15, color: Colors.black45)),
-                                        subtitle: Text(
-                                          teamList[index].phone,
-                                          style: TextStyle(
-                                              fontSize: 16, color: Colors.black
-                                          ),
-                                        ),
-                                      ),
-                                      ListTile(
-                                        leading:Container(
-                                          margin: EdgeInsets.all(10),
-                                          decoration: BoxDecoration(
-                                            color: Colors.red[100],
-                                            borderRadius: BorderRadius.circular(20)
-                                          ),
-                                          width:222,
-                                          child: Row(
-                                            children: [
-                                              FlatButton(
-                                                  onPressed: (){
-                                                    edittm(context,index);
-                                                  },
-                                                  child: Row(
-                                                    children: [
-                                                      Icon(Icons.edit_outlined , size: 25,color: Colors.deepPurple,),
-                                                      Text(" Edit   ",style: TextStyle(
-                                                          fontSize: 16, color: Colors.black)),
-                                                    ],
-                                                  )
+                                            ),
+                                            ListTile(
+                                              title: Text('Password',
+                                                  style: TextStyle(
+                                                      fontSize: 15, color: Colors.black45)),
+                                              subtitle: Text(
+                                                teamList[index].Password,
+                                                style: TextStyle(
+                                                    fontSize: 16, color: Colors.black),
                                               ),
-                                              Container(width: 3,color: Colors.white,),
-                                              FlatButton(
-                                                  onPressed: (){
-                                                    deletetmDailog(context,index);
-                                                  },
-                                                  child: Row(
-                                                    children: [
-                                                      Icon(Icons.delete_outline , size: 25,color: Colors.red,),
-                                                      Text(" Delete",style: TextStyle(
-                                                          fontSize: 16, color: Colors.black)),
-                                                    ],
-                                                  )
+                                            ),
+                                            ListTile(
+                                              onTap:(){
+                                                launch("tel://${teamList[index].phone}");
+                                              },
+                                              title: Text('Phone',
+                                                  style: TextStyle(
+                                                      fontSize: 15, color: Colors.black45)),
+                                              subtitle: Text(
+                                                teamList[index].phone,
+                                                style: TextStyle(
+                                                    fontSize: 16, color: Colors.black
+                                                ),
                                               ),
-                                            ],
-                                          ),
+                                            ),
+                                            ListTile(
+                                              leading:Container(
+                                                margin: EdgeInsets.all(10),
+                                                decoration: BoxDecoration(
+                                                    color: Colors.blueAccent[100],
+                                                    borderRadius: BorderRadius.circular(20)
+                                                ),
+                                                width:222,
+                                                child: Row(
+                                                  children: [
+                                                    FlatButton(
+                                                        onPressed: (){
+                                                          edittm(context,index);
+                                                        },
+                                                        child: Row(
+                                                          children: [
+                                                            Icon(Icons.edit_outlined , size: 25,color: Colors.red,),
+                                                            Text(" Edit   ",style: TextStyle(
+                                                                fontSize: 16, color: Colors.white)),
+                                                          ],
+                                                        )
+                                                    ),
+                                                    Container(width: 3,color: Colors.white,),
+                                                    FlatButton(
+                                                        onPressed: (){
+                                                          deletetmDailog(context,index);
+                                                        },
+                                                        child: Row(
+                                                          children: [
+                                                            Icon(Icons.delete_outline , size: 25,color: Colors.red,),
+                                                            Text(" Delete",style: TextStyle(
+                                                                fontSize: 16, color: Colors.white)),
+                                                          ],
+                                                        )
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ],
@@ -946,7 +957,8 @@ class _TeamListState extends State<TeamList> {
       ),
     );
   }
-//delete tm
+
+   //delete tm
   Future<void> deleteAlbum(String teamId) async {
     showAlert(context);
     try{
