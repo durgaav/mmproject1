@@ -534,6 +534,7 @@ class _CustomerState extends State<Customer> {
 
   @override
   Widget build(BuildContext context) {
+    data = data.reversed.toList();
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {

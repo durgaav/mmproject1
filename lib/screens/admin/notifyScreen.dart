@@ -309,6 +309,13 @@ class _NotifScreenState extends State<NotifScreen> {
     return Scaffold(
           backgroundColor: Colors.white,
           appBar: AppBar(
+            centerTitle: true,
+            leading: IconButton(
+              onPressed: (){Navigator.pop(context);},
+              icon:Icon(CupertinoIcons.back),
+              iconSize: 30,
+              splashColor: Colors.purpleAccent,
+            ),
             backgroundColor: Color(0Xff146bf7),
             title: counts==0?
             Text('Notifications'):

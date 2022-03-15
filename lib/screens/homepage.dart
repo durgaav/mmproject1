@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:mmcustomerservice/screens/data.dart';
+import 'package:mmcustomerservice/screens/ticketpage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -46,6 +47,7 @@ class _HomePageState extends State<HomePage> {
   int cmCount=0;
   int countIn =0;
   int nCount =0;
+  int inprogrCount = 0;
 
   TextEditingController phnoController = TextEditingController();
   TextEditingController domainController = TextEditingController();
@@ -79,6 +81,7 @@ class _HomePageState extends State<HomePage> {
         //notifyUnSeenCount
         counts = map['notifyunseen'];
         setState(() {
+          fetchAllTick();
           if(counts==0){
             opacity = 0.0;
           }else{
@@ -127,6 +130,8 @@ class _HomePageState extends State<HomePage> {
           print(comCount.length);
           print('completed' + ' $cmCount');
 
+          print(inprogrCount);
+
           countIn = inCounts.length;
           print(inCounts.length);
           print('Inprogress' + '$countIn');
@@ -134,6 +139,7 @@ class _HomePageState extends State<HomePage> {
           nCount = newCount.length;
           print(newCount.length);
           print('Assign' + '$nCount');
+
         });
         Navigator.pop(context);
       }
@@ -188,8 +194,9 @@ class _HomePageState extends State<HomePage> {
         setState(() {
           usertype = userType;
           currentUser = currentUserStr;
+          Counttk();
+          fetchAllCounting();
         });
-        fetchAllCounting();
       }
       else if(userType=="team"){
         setState(() {
@@ -313,13 +320,11 @@ class _HomePageState extends State<HomePage> {
 //add new ticket
   Future AddNewTicket(String Email, String Phonenumber,
       String DomainName, String Description, BuildContext context) async {
-
+    showAlert(context);
     try{
       final request = http.MultipartRequest(
           'POST', Uri.parse('https://mindmadetech.in/api/tickets/new')
       );
-      showAlert(context);
-
       if(files.isEmpty){
         request.headers['Content-Type'] = 'multipart/form-data';
         request.fields.addAll
@@ -333,8 +338,8 @@ class _HomePageState extends State<HomePage> {
         http.StreamedResponse response = await request.send();
         String res = await response.stream.bytesToString();
         if (response.statusCode == 200) {
-          Navigator.pop(context);
           if(res.contains('Ticket added successfully')){
+            Navigator.pop(context);
             setState(() {
               phnoController = new TextEditingController(text: "");
               domainController = new TextEditingController(text: "");
@@ -352,7 +357,20 @@ class _HomePageState extends State<HomePage> {
                   behavior: SnackBarBehavior.floating,
                 )
             );
+          }else{
             Navigator.pop(context);
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Row(
+                    children: [
+                      Icon(Icons.done_all,color: Colors.white,),
+                      Text('Error occurred'),
+                    ],
+                  ),
+                  backgroundColor: green,
+                  behavior: SnackBarBehavior.floating,
+                )
+            );
           }
         }
         else {
@@ -442,6 +460,19 @@ class _HomePageState extends State<HomePage> {
   }
   //endregion
 
+  Future<void> fetchAllTick() async{
+    http.Response response = await http.get(Uri.parse('https://mindmadetech.in/api/tickets/list'));
+    if(response.statusCode==200){
+      print('in prog counts.........');
+      List body = jsonDecode(response.body);
+      List inProg = body.where((element) => element['Status'].toString().toLowerCase()=='inprogress').toList();
+      setState(() {
+        inprogrCount = inProg.length;
+      });
+      print('in prog counts.........$inprogrCount');
+    }
+  }
+
   void showfiles(){
     if(files != null){
       imgvisible = true;
@@ -457,6 +488,7 @@ class _HomePageState extends State<HomePage> {
     Future.delayed(
         Duration.zero, () async {
       screenVisibility();
+      fetchAllTick();
       showfiles();
     });
   }
@@ -509,6 +541,7 @@ class _HomePageState extends State<HomePage> {
         child: Scaffold(
             drawer:MainMenus(usertype: usertype, currentUser: currentUser),
             appBar: AppBar(
+                elevation: 0.0,
                 backgroundColor: Color(0Xff146bf7),
                 title: Text('Dashboard'),
                 actions: <Widget>[
@@ -576,12 +609,12 @@ class _HomePageState extends State<HomePage> {
                 child:SingleChildScrollView(
                   child: Column(
                     children: [
-                      SizedBox(
-                        height: 20,
-                      ),
                       (users == true)?
                       Column(
                         children: [
+                          SizedBox(
+                            height: 20,
+                          ),
                           Text('Create New Ticket',style: TextStyle(
                               fontSize: 20
                           ),),
@@ -703,11 +736,189 @@ class _HomePageState extends State<HomePage> {
                               )
                           )
                         ],
-                      ):
-                      Container(
+                      ):Container(),
+                      usertype=="admin"?Container(
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(8),
+                              width: double.infinity,
+                              height: MediaQuery.of(context).size.height*0.9,
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Card(
+                                        color: Colors.orange,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(20.0),
+                                        ),
+                                        child: Container(
+                                          height:200,
+                                          width: 160,
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children: [
+                                              Icon(Icons.local_attraction_outlined,size: 45,color: Colors.white,),
+                                              SizedBox(height: 10,),
+                                              Text('No Of Tickets',style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),),
+                                              SizedBox(height: 10,),
+                                              Text('$ticketCount',style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w900,
+                                                fontSize: 20
+                                              ),),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      Card(
+                                        color: Colors.green,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(20.0),
+                                        ),
+                                        child: Container(
+                                          height:200,
+                                          width: 160,
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children: [
+                                              Icon(Icons.account_circle ,size: 40,color: Colors.white,),
+                                              SizedBox(height: 10,),
+                                              Text('No Of Clients',style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),),
+                                              SizedBox(height: 10,),
+                                              Text('$clientCount',style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 20,
+                                              ),),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Card(
+                                        color: Colors.purple,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(20.0),
+                                        ),
+                                        child: Container(
+                                          height:200,
+                                          width: 160,
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children: [
+                                              Icon(Icons.group_rounded,size: 40,color: Colors.white,),
+                                              SizedBox(height: 10,),
+                                              Text('No Of Team',style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),),
+                                              SizedBox(height: 10,),
+                                              Text('$teamCount',style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 20
+                                              ),),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      Card(
+                                        color: Colors.redAccent,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(20.0),
+                                        ),
+                                        child: Container(
+                                          height:200,
+                                          width: 160,
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children: [
+                                              Icon(Icons.change_circle_outlined ,size: 40,color: Colors.white,),
+                                              SizedBox(height: 10,),
+                                              Text('No Of \nInprogress',
+                                                textAlign: TextAlign.center
+                                                ,style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),),
+                                              SizedBox(height: 10,),
+                                              Text('$inprogrCount',style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Container(
+                                    width: 200,
+                                    height: 50,
+                                    margin: EdgeInsets.only(top: 30),
+                                    child: RaisedButton(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20.0),
+                                      ),
+                                      color: Colors.blueAccent,
+                                      onPressed: (){
+                                        Navigator.push(context,
+                                          MaterialPageRoute(builder: (context)=>Tickets(
+                                            usertype: usertype,
+                                            currentUser:currentUser,
+                                          )),);
+                                      },
+                                      child: Text('Go To Tickets',style: TextStyle(
+                                        color: Colors.white
+                                      ),),
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 200,
+                                    height: 50,
+                                    margin: EdgeInsets.only(top: 30),
+                                    child: RaisedButton(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20.0),
+                                      ),
+                                      color: Colors.blueAccent,
+                                      onPressed: (){
+                                        SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                                      },
+                                      child: Text('Exit App',style: TextStyle(
+                                        color: Colors.white
+                                      ),),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ):Container(),
+                      usertype=="team"?Container(
                         width: MediaQuery.of(context).size.width,
                         child: Column(
                           children: <Widget>[
+                            SizedBox(height: 20,),
                             Container(
                               padding: EdgeInsets.only(left: 20, right: 20),
                               width: 300,
@@ -891,7 +1102,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ],
                         ),
-                      ),
+                      ):Container(),
                     ],
                   ),
                 )

@@ -1,8 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mmcustomerservice/screens/admin/Customer.dart';
 import 'package:mmcustomerservice/screens/admin/ad_ticketnew.dart';
 import 'package:mmcustomerservice/screens/admin/notifyScreen.dart';
 import 'package:mmcustomerservice/screens/admin/unregister_tickets.dart';
+import 'package:mmcustomerservice/screens/change_password.dart';
 import 'package:mmcustomerservice/screens/data.dart';
 import 'package:mmcustomerservice/screens/login.dart';
 import 'package:mmcustomerservice/screens/admin/team.dart';
@@ -52,6 +54,7 @@ class _MainMenusState extends State<MainMenus> {
         return "Good Night";
       }
     }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -76,6 +79,8 @@ class _MainMenusState extends State<MainMenus> {
       });
     });
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -265,7 +270,8 @@ class _MainMenusState extends State<MainMenus> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => AdticketNew()),
+                                builder: (context) => AdticketNew()
+                            ),
                           );
                         },
                         leading: Icon(Icons.add,size: 27,),
@@ -279,6 +285,17 @@ class _MainMenusState extends State<MainMenus> {
                     ],
                   ),
                 ),
+                usertype!="customer"?ListTile(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ChangePassword()),
+                    );
+                  },
+                  leading: Icon(Icons.password_outlined,size: 27,),
+                  title: Text('Change Password',style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 15),),
+                ):Container(),
                 ListTile(
                   onTap: (){
                     logout(context);
@@ -288,7 +305,6 @@ class _MainMenusState extends State<MainMenus> {
                       color: Colors.redAccent,fontWeight: FontWeight.bold,fontSize: 15
                   ),),
                 ),
-
               ],
             ),
           ),

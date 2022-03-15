@@ -595,10 +595,12 @@ class _ViewPageState extends State<ViewPage> {
               ),
               Positioned(
                 top: 20,
-                child:IconButton(
-                    onPressed: (){
-                      Navigator.pop(context);
-                    }, icon: Icon(Icons.arrow_back,color: Colors.black,)),
+                child: IconButton(
+                  onPressed: (){Navigator.pop(context);},
+                  icon:Icon(CupertinoIcons.back),
+                  iconSize: 30,
+                  splashColor: Colors.purpleAccent,
+                ),
               ),
               Positioned(
                 top:65,
