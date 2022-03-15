@@ -4,7 +4,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
 import 'package:http_parser/http_parser.dart';
@@ -19,7 +18,6 @@ class ViewPage extends StatefulWidget {
 
 class _ViewPageState extends State<ViewPage> {
   String usersId='';
-  String username='';
   String password='';
   String phonenumber='';
   String address='';
@@ -32,9 +30,12 @@ class _ViewPageState extends State<ViewPage> {
   String Modifiedon='';
   String Modifiedby='';
   String Isdeleted='';
-  String proCode = '';
 
   //region Var
+  Color green =Color(0xff198D0F);
+  Color red = Color(0xffE33C3C);
+
+
   var controller = TextEditingController();
   var _image = new File("");
   String extention="*";
@@ -66,9 +67,7 @@ class _ViewPageState extends State<ViewPage> {
                       color: Colors.red,
                       size: 25,
                     ),
-                    Text('  Alert!',
-                        style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+                    Text('  Alert!', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
                   ],
                 ),
                 content: Text('Customer details will be deleted.',
@@ -143,40 +142,49 @@ class _ViewPageState extends State<ViewPage> {
         String s = await response.stream.bytesToString();
         if(s.contains("Is deleted : y")){
           Navigator.of(context,rootNavigator: true).pop();
-          Fluttertoast.showToast(
-              msg: 'Customer deleted successfully!',
-              toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.green,
-              textColor: Colors.white,
-              fontSize: 15.0
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.done_all,color: Colors.white,),
+                    Text('Customer deleted successfully!'),
+                  ],
+                ),
+                backgroundColor: green,
+                behavior: SnackBarBehavior.floating,
+              )
           );
           Navigator.of(context,rootNavigator: true).pop();
         }else{
           Navigator.of(context,rootNavigator: true).pop();
-          Fluttertoast.showToast(
-              msg: 'Failed to remove!',
-              toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.red,
-              textColor: Colors.white,
-              fontSize: 15.0
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.announcement_outlined,color: Colors.white,),
+                    Text('Failed to remove!'),
+                  ],
+                ),
+                backgroundColor: red,
+                behavior: SnackBarBehavior.floating,
+              )
           );
         }
       }
       else {
         print(response.reasonPhrase);
         Navigator.of(context,rootNavigator: true).pop();
-        Fluttertoast.showToast(
-            msg: response.reasonPhrase.toString(),
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 15.0
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.announcement_outlined,color: Colors.white,),
+                  Text( response.reasonPhrase.toString()),
+                ],
+              ),
+              backgroundColor: red,
+              behavior: SnackBarBehavior.floating,
+            )
         );
       }
     }catch(ex){
@@ -244,7 +252,6 @@ class _ViewPageState extends State<ViewPage> {
     var pref = await SharedPreferences.getInstance();
     setState(() {
       usersId = pref.getString('userId').toString();
-      username =pref.getString('cus_user').toString();
       password = pref.getString('cus_pass').toString();
       email = pref.getString('email').toString();
       phonenumber = pref.getString('phno').toString();
@@ -257,12 +264,11 @@ class _ViewPageState extends State<ViewPage> {
       Modifiedby = pref.getString('Modifiedby').toString();
       Modifiedon= pref.getString('Modifiedon').toString();
       Isdeleted = pref.getString('Isdeleted').toString();
-      proCode = pref.getString('proCode').toString();
     });
   }
 
   //Update the user details
-  Future<void> updateUser(String cmp, String usr, String pass, String mailid,String phone, String client , BuildContext context) async {
+  Future<void> updateUser(String cmp, String pass, String mailid,String phone, String client , BuildContext context) async {
     showAlert(context);
     try{
       var request = http.MultipartRequest('PUT', Uri.parse('https://mindmadetech.in/api/customer/update/$usersId'));
@@ -271,11 +277,9 @@ class _ViewPageState extends State<ViewPage> {
           'Logo': Logo,
           'Companyname':cmp,
           'Clientname':client,
-          'Username': usr,
           'Password':pass,
           'Email': mailid,
           'Phonenumber': phone,
-          'Projectcode':'$proCode',
           'Createdon': Createdon,
           'Createdby': Createdby,
           'Modifiedon': formatter.format(DateTime.now()),
@@ -290,13 +294,11 @@ class _ViewPageState extends State<ViewPage> {
         request.fields.addAll({
           'Companyname':cmp,
           'Clientname':client,
-          'Username': usr,
           'Password':pass,
           'Email': mailid,
           'Phonenumber': phone,
           'Createdon': Createdon,
           'Createdby': Createdby,
-          'Projectcode':'$proCode',
           'Modifiedon': formatter.format(DateTime.now()),
           'Modifiedby': createdBy
         });
@@ -310,18 +312,20 @@ class _ViewPageState extends State<ViewPage> {
           _image == File("");
           Navigator.of(context,rootNavigator: true).pop();
           Navigator.of(context,rootNavigator: true).pop();
-          Fluttertoast.showToast(
-              msg: 'Changes saved!',
-              toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.green,
-              textColor: Colors.white,
-              fontSize: 15.0
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.done_all,color: Colors.white,),
+                    Text( 'Changes saved!'),
+                  ],
+                ),
+                backgroundColor: green,
+                behavior: SnackBarBehavior.floating,
+              )
           );
           setState(() {
             usersId = usersId;
-            username= usr;
             password= pass;
             phonenumber= phone;
             address= address;
@@ -338,14 +342,17 @@ class _ViewPageState extends State<ViewPage> {
           _image == File("");
           Navigator.of(context,rootNavigator: true).pop();
           Navigator.of(context,rootNavigator: true).pop();
-          Fluttertoast.showToast(
-              msg: 'Something went wrong!',
-              toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.red,
-              textColor: Colors.white,
-              fontSize: 15.0
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.announcement_outlined,color: Colors.white,),
+                    Text('Something went wrong!'),
+                  ],
+                ),
+                backgroundColor:red,
+                behavior: SnackBarBehavior.floating,
+              )
           );
         }
       }
@@ -353,14 +360,17 @@ class _ViewPageState extends State<ViewPage> {
         print(response.reasonPhrase);
         Navigator.of(context,rootNavigator: true).pop();
         Navigator.of(context,rootNavigator: true).pop();
-        Fluttertoast.showToast(
-            msg: response.reasonPhrase.toString(),
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.green,
-            textColor: Colors.white,
-            fontSize: 15.0
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.announcement_outlined,color: Colors.white,),
+                  Text(response.reasonPhrase.toString()),
+                ],
+              ),
+              backgroundColor:red,
+              behavior: SnackBarBehavior.floating,
+            )
         );
       }
     }catch(ex){
@@ -374,7 +384,7 @@ class _ViewPageState extends State<ViewPage> {
 //edit dialog
   void showeditDialog(context) {
     TextEditingController compName = new TextEditingController(text: "$Companyname")
-    , usrNm = new TextEditingController(text: "$username") , passWd = new TextEditingController(text: "$password") ,
+    ,  passWd = new TextEditingController(text: "$password") ,
         mailId  = new TextEditingController(text: "$email"),
         phnNum = new TextEditingController(text: "$phonenumber"),clientNm = new TextEditingController(text: "$Clientname");
     showDialog(
@@ -476,19 +486,15 @@ class _ViewPageState extends State<ViewPage> {
                                       phnNum.text.length < 10 ||
                                       clientNm.text.isEmpty
                                   ) {
-                                    Fluttertoast.showToast(
-                                        msg: 'please check the values!',
-                                        toastLength: Toast.LENGTH_LONG,
-                                        gravity: ToastGravity.BOTTOM,
-                                        timeInSecForIosWeb: 1,
-                                        backgroundColor: Colors.red,
-                                        textColor: Colors.white,
-                                        fontSize: 15.0
-                                    );
                                     print("value not entered......");
                                     Navigator.pop(context);
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text('please check the values!'),
+                                        SnackBar(content: Row(
+                                          children: [
+                                            Icon(Icons.article_outlined,color: Colors.white,),
+                                            Text('please check the values!'),
+                                          ],
+                                        ),
                                           backgroundColor: Colors.red,
                                           behavior: SnackBarBehavior.floating,
                                         )
@@ -496,7 +502,6 @@ class _ViewPageState extends State<ViewPage> {
                                   } else {
                                     updateUser(
                                         compName.text.toString(),
-                                        usrNm.text.toString(),
                                         passWd.text.toString(),
                                         mailId.text.toString(),
                                         phnNum.text.toString(),
@@ -603,17 +608,20 @@ class _ViewPageState extends State<ViewPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        child: Text(
+                        child:Companyname.isEmpty?Text('Value not specified',
+                          style: TextStyle(fontSize: 18, color: Color(0XFF333333)),): Text(
                           '${Companyname[0].toUpperCase() + Companyname.substring(1).toLowerCase()}',
                           style: TextStyle(fontSize: 22, color: Colors.white),),
                       ),
                       Container(
                           padding: EdgeInsets.only(top: 5),
-                          child: Text(this.email,style: TextStyle(fontSize: 16,color: Colors.white,))),
+                          child:email.isEmpty?Text('Value not specified',
+                            style: TextStyle(fontSize: 18, color: Color(0XFF333333)),): Text(this.email,style: TextStyle(fontSize: 16,color: Colors.white,))),
 
                       Container(
                           padding: EdgeInsets.only(top: 5),
-                          child: Text(this.phonenumber, style: TextStyle(fontSize: 16, color: Colors.white,),)),
+                          child: phonenumber.isEmpty?Text('Value not specified',
+                            style: TextStyle(fontSize: 18, color: Color(0XFF333333)),):Text(this.phonenumber, style: TextStyle(fontSize: 16, color: Colors.white,),)),
                     ],
                   ),
                 ),),
@@ -645,51 +653,47 @@ class _ViewPageState extends State<ViewPage> {
                     child:ListView(
                       //shrinkWrap: true,
                       children: [
-                        // ListTile(
-                        //   leading: Icon(Icons.person),
-                        //   title:Text("Project Code",
-                        //     style: TextStyle(fontSize: 15, color: Colors.black45),),
-                        //   subtitle:proCode==''?Text(' no project code',
-                        //     style: TextStyle(fontSize: 18, color: Color(0XFF333333)),):
-                        //   Text(proCode, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),)
-                        // ),
                         ListTile(
                           leading: Icon(Icons.description_rounded),
                           title: Text("User ID", style: TextStyle(fontSize: 15, color: Colors.black45),),
-                          subtitle:Text(this.usersId, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
+                          subtitle:usersId.isEmpty?Text('Value not specified',
+                            style: TextStyle(fontSize: 18, color: Color(0XFF333333)),):Text(this.usersId, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
                         ),
                         ListTile(
                           leading: Icon(CupertinoIcons.person_circle ),
                           title: Text("Client name", style: TextStyle(fontSize: 15, color: Colors.black45),),
-                          subtitle:Text(this.Clientname, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
+                          subtitle:Clientname.isEmpty?Text('Value not specified',
+                            style: TextStyle(fontSize: 18, color: Color(0XFF333333)),):Text(this.Clientname, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
                         ),
                         ListTile(
                           leading: Icon(Icons.lock),
                           title: Text("Password", style: TextStyle(fontSize: 15, color: Colors.black45),),
-                          subtitle:Text(this.password, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
+                          subtitle:password.isEmpty?Text('Value not specified',
+                            style: TextStyle(fontSize: 18, color: Color(0XFF333333)),):Text(this.password, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
                         ),
                         ListTile(
                           leading: Icon(CupertinoIcons.time ),
                           title: Text("Created on", style: TextStyle(fontSize: 15, color: Colors.black45),),
-                          subtitle:Text(this.Createdon, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
+                          subtitle:Createdon.isEmpty?Text('Value not specified',
+                            style: TextStyle(fontSize: 18, color: Color(0XFF333333)),):Text(this.Createdon, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
                         ),
                         ListTile(
                           leading: Icon(CupertinoIcons.doc_person_fill ),
                           title: Text("Created by", style: TextStyle(fontSize: 15, color: Colors.black45),),
-                          subtitle:Text(this.Createdby, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
+                          subtitle:Createdby.isEmpty?Text('Value not specified',
+                            style: TextStyle(fontSize: 18, color: Color(0XFF333333)),):Text(this.Createdby, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),),
                         ),
                         ListTile(
                             leading: Icon(CupertinoIcons.time_solid ),
                             title: Text("Modified on", style: TextStyle(fontSize: 15, color: Colors.black45),),
-                            subtitle:Modifiedon=='null'?Text('Not yet modified.',
+                            subtitle:Modifiedon.isEmpty?Text('Not yet modified.',
                               style: TextStyle(fontSize: 18, color: Color(0XFF333333)),):
                             Text(Modifiedon, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),)
                         ),
                         ListTile(
                             leading: Icon(CupertinoIcons.doc_person),
-                            //doc_checkmark  doc_checkmark_fill description_rounded doc_person
                             title: Text("Modified by", style: TextStyle(fontSize: 15, color: Colors.black45),),
-                            subtitle:Modifiedby=='null'?Text('Not yet modified.',
+                            subtitle:Modifiedby.isEmpty?Text('Not yet modified.',
                               style: TextStyle(fontSize: 18, color: Color(0XFF333333)),):
                             Text(Modifiedby, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),)
                         ),

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -9,11 +10,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart' as Path;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:http_parser/http_parser.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
-
 
 
 class Customer extends StatefulWidget {
@@ -24,6 +23,9 @@ class Customer extends StatefulWidget {
 class _CustomerState extends State<Customer> {
 
   //region Variables
+  Color green =Color(0xff198D0F);
+  Color red = Color(0xffE33C3C);
+
   //Strings
   String extention = "*";
   String searchText = "";
@@ -35,7 +37,7 @@ class _CustomerState extends State<Customer> {
   TextEditingController searchController = new TextEditingController();
   TextEditingController compName = new TextEditingController(), passWd = new TextEditingController(),
       mailId = new TextEditingController(),
-      phnNum = new TextEditingController(),clientNm = new TextEditingController(),projectCode = new TextEditingController(text: "MM000");
+      phnNum = new TextEditingController(),clientNm = new TextEditingController();
   //List and File
   File _image = new File("");
   List<GetCustomer> data = [];
@@ -153,23 +155,21 @@ class _CustomerState extends State<Customer> {
                                       mailId.text.isEmpty ||
                                       phnNum.text.length < 10 ||
                                       clientNm.text.isEmpty||_image.path.isEmpty) {
-                                    print("value not entered......");
-                                    Fluttertoast.showToast(
-                                        msg: 'Please Fill the all Detials',
-                                        toastLength: Toast.LENGTH_LONG,
-                                        gravity: ToastGravity.BOTTOM,
-                                        timeInSecForIosWeb: 1,
-                                        backgroundColor: Colors.red,
-                                        textColor: Colors.white,
-                                        fontSize: 15.0);
+
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text('Fields cannot be blank!'),
+                                          backgroundColor: Colors.red,
+                                        )
+                                    );
                                   } else {
+
                                     AddNewUser(
                                         compName.text.toString(),
                                         passWd.text.toString(),
                                         mailId.text.toString(),
                                         phnNum.text.toString(),
                                         clientNm.text.toString(),
-                                        projectCode.text.toString(),
                                         context
                                     );
                                     sendMailToClient();
@@ -198,7 +198,6 @@ class _CustomerState extends State<Customer> {
     );
   }
 
-
 //send mail
   void sendMailToClient() async {
     try {
@@ -222,27 +221,23 @@ class _CustomerState extends State<Customer> {
       // ..html = "<h1>Test</h1>\n<p>Hey! Here's some HTML content</p>";
       await send(equivalentMessage, smtpServer);
       print('Message sent: ' + send.toString());
-      Fluttertoast.showToast(
-          msg: 'Customer Credentials sent via mail',
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-          fontSize: 15.0
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Customer Credentials send via mail'),
+            backgroundColor: Colors.lightGreen,
+            behavior: SnackBarBehavior.floating,
+          )
       );
     } on MailerException catch (e) {
       print('Message not sent.');
       for (var p in e.problems) {
         print('Problem: ${p.code}: ${p.msg}');
-        Fluttertoast.showToast(
-            msg: 'Failed to send credentials',
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.green,
-            textColor: Colors.white,
-            fontSize: 15.0
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to send credentials!'),
+              backgroundColor: Colors.red[200],
+              behavior: SnackBarBehavior.floating,
+            )
         );
       }
     }
@@ -273,9 +268,8 @@ class _CustomerState extends State<Customer> {
   }
 
   //Add new customer logic
-  Future AddNewUser(String comp,String pass, String mail, String phn, String client,String proCode,BuildContext context) async {
+  Future AddNewUser(String comp,String pass, String mail, String phn, String client,BuildContext context) async {
     showAlert(context);
-    print("procode...."+proCode);
     print(_image);
     try {
       final request = http.MultipartRequest(
@@ -296,18 +290,21 @@ class _CustomerState extends State<Customer> {
       http.StreamedResponse response = await request.send();
       if (response.statusCode == 200) {
         String res = await response.stream.bytesToString();
-        if (res.contains("Username already Exists!")||res.contains("Projectcode already Exists!")) {
+        if (res.contains("Username already Exists!")) {
           Navigator.of(context, rootNavigator: true).pop();
           Navigator.of(context, rootNavigator: true).pop();
           Navigator.pop(context);
-          Fluttertoast.showToast(
-              msg: "Username/ProjectCode already Exists!",
-              toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.red,
-              textColor: Colors.white,
-              fontSize: 15.0
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.close,color: Colors.white,),
+                    Text(' EmailId already Exists!'),
+                  ],
+                ),
+                backgroundColor:red,
+                behavior: SnackBarBehavior.floating,
+              )
           );
           Navigator.pop(context);
           return response;
@@ -320,19 +317,21 @@ class _CustomerState extends State<Customer> {
             mailId = new TextEditingController(text: "");
             phnNum = new TextEditingController(text: "");
             clientNm = new TextEditingController(text: "");
-            projectCode = new TextEditingController(text: "");
             _image=File('');
             fetchCustomer();
           });
           Navigator.pop(context);
-          Fluttertoast.showToast(
-              msg: 'Customer added successfully!',
-              toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.green,
-              textColor: Colors.white,
-              fontSize: 15.0
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.done_all,color: Colors.white,),
+                    Text(' Customer added successfully!'),
+                  ],
+                ),
+                backgroundColor: green,
+                behavior: SnackBarBehavior.floating,
+              )
           );
         }
       } else {
@@ -341,27 +340,35 @@ class _CustomerState extends State<Customer> {
         print(await response.stream.bytesToString());
         print(response.statusCode);
         print(response.reasonPhrase);
-        Fluttertoast.showToast(
-            msg: response.reasonPhrase.toString(),
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 15.0);
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.announcement_outlined,color: Colors.white,),
+                  Text(" "+response.reasonPhrase.toString()),
+                ],
+              ),
+              backgroundColor: red,
+              behavior: SnackBarBehavior.floating,
+            )
+        );
       }
 
     } catch(ex){
       onNetworkChecking();
       Navigator.pop(context);
-      Fluttertoast.showToast(
-          msg: 'Something went wrong',
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 15.0);
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.announcement_outlined,color: Colors.white,),
+                Text(' Something went wrong'),
+              ],
+            ),
+            backgroundColor: red,
+            behavior: SnackBarBehavior.floating,
+          )
+      );
     }
   }
   //Getting customer list
@@ -473,10 +480,8 @@ class _CustomerState extends State<Customer> {
     pref.remove('Modifiedby');
     pref.remove('Modifiedon');
     pref.remove('Isdeleted');
-    pref.remove('proCode');
 
     pref.setString('userId',data[index].usersId??'');
-    pref.setString('cus_user',data[index].Username??'');
     pref.setString('cus_pass',data[index].Password??'');
     pref.setString('email',data[index].Email??'');
     pref.setString('phno',data[index].Phonenumber??'');
@@ -489,7 +494,6 @@ class _CustomerState extends State<Customer> {
     pref.setString('Modifiedby',data[index].Modifiedby??'');
     pref.setString('Modifiedon',data[index].Modifiedon??'');
     pref.setString('Isdeleted',data[index].Isdeleted??'');
-    pref.setString('proCode',data[index].proectCode??'');
 
     Navigator.push(context, MaterialPageRoute(builder: (context) => ViewPage()),);
   }
@@ -543,52 +547,15 @@ class _CustomerState extends State<Customer> {
         backgroundColor: Colors.blue,
       ),
       appBar: AppBar(
-        backgroundColor: Color(0Xff146bf7),
-        title: Container(
-          child: TextField(
-            style: TextStyle(color: Colors.white),
-            cursorColor: Colors.white,
-            controller: searchController,
-            onChanged: (value) {
-              setState(() {
-                searchText = value;
-                if(searchText.length > 0){
-                  clearSearch = true;
-                }else{
-                  clearSearch = false;
-                  FocusScope.of(context).unfocus();
-                }
-              });
-            },
-            decoration: InputDecoration(
-                hintStyle: TextStyle(color: Colors.white),
-                hintText: 'Search...',
-                border: InputBorder.none,
-                prefixIcon: Icon(
-                  Icons.search_rounded,
-                  color: Colors.white,
-                  size: 26,
-                ),
-                suffixIcon: Visibility(
-                  visible: clearSearch,
-                  child: IconButton(
-                    color: Colors.white,
-                    iconSize: 16,
-                    icon: Icon(
-                      Icons.close,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        searchText = "";
-                        searchController.clear();
-                        FocusScope.of(context).unfocus();
-                        clearSearch = false;
-                      });
-                    },
-                  ),
-                )),
+          leading: IconButton(
+            onPressed: (){Navigator.pop(context);},
+            icon:Icon(CupertinoIcons.back),
+            iconSize: 30,
+            splashColor: Colors.purpleAccent,
           ),
-        ),
+          centerTitle: true,
+          backgroundColor: Color(0Xff146bf7),
+          title:Text('Clients')
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -596,6 +563,55 @@ class _CustomerState extends State<Customer> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
+                Container(
+                  margin: EdgeInsets.all(10),
+                  height: 45,
+                  child: TextField(
+                    style: TextStyle(color: Colors.black),
+                    cursorColor: Colors.black,
+                    controller: searchController,
+                    onChanged: (value) {
+                      setState(() {
+                        searchText = value;
+                        if (searchText.length > 0) {
+                          clearSearch = true;
+                        } else {
+                          clearSearch = false;
+                        }
+                      });
+                    },
+                    decoration: InputDecoration(
+                        contentPadding: EdgeInsets.all(5),
+                        hintStyle: TextStyle(color: Colors.black),
+                        hintText: 'Search...',
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10)
+                        ),
+                        prefixIcon: Icon(
+                          Icons.search_rounded,
+                          color: Colors.black54,
+                          size: 26,
+                        ),
+                        suffixIcon: Visibility(
+                          visible: clearSearch,
+                          child: IconButton(
+                            color: Colors.black54,
+                            iconSize: 24,
+                            icon: Icon(
+                                Icons.cancel_outlined
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                searchText = "";
+                                searchController.clear();
+                                FocusScope.of(context).unfocus();
+                                clearSearch = false;
+                              });
+                            },
+                          ),
+                        )),
+                  ),
+                ),
                 //Refrsh visible
                 Visibility(
                   visible: retryVisible,
@@ -615,7 +631,7 @@ class _CustomerState extends State<Customer> {
                 //Designs
                 Container(
                     width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height * 0.9,
+                    height: MediaQuery.of(context).size.height * 0.81,
                     child: RefreshIndicator(
                         onRefresh: refreshListener,
                         backgroundColor: Colors.blue,
@@ -637,15 +653,12 @@ class _CustomerState extends State<Customer> {
                                       NetworkImage(data[index].Logo),
                                     ),
                                   ),
-                                  title: Text(
+                                  title:(data[index].Companyname.isNotEmpty)? Text(
                                     data[index].Companyname[0].toUpperCase() +
-                                        data[index]
-                                            .Companyname
-                                            .substring(1)
-                                            .toLowerCase(),
+                                        data[index].Companyname.substring(1).toLowerCase(),
                                     style: TextStyle(fontSize: 17.5),
-                                  ),
-                                  subtitle: Text(data[index].Email.toString(),maxLines: 1,),
+                                  ):Text('value not specified'),
+                                  subtitle:(data[index].Email.isNotEmpty)?Text(data[index].Email.toString(),maxLines: 1,):Text('mail id not specified'),
                                   trailing: IconButton(
                                     onPressed: () {
                                       passDatatoScren(index);
@@ -671,7 +684,8 @@ class _CustomerState extends State<Customer> {
                           ),
                         )
                     ))
-              ]),
+              ]
+          ),
 
         ),
       ),
@@ -682,7 +696,6 @@ class _CustomerState extends State<Customer> {
 
 class GetCustomer {
   String usersId;
-  String Username;
   String Password;
   String Email;
   String Phonenumber;
@@ -695,12 +708,9 @@ class GetCustomer {
   String Modifiedon;
   String Modifiedby;
   String Isdeleted;
-  String proectCode;
 
   GetCustomer(
       {required this.usersId,
-        required this.Username,
-        required this.proectCode,
         required this.Password,
         required this.Email,
         required this.Phonenumber,
@@ -716,9 +726,7 @@ class GetCustomer {
 
   factory GetCustomer.fromJson(Map<String, dynamic> json) {
     return GetCustomer(
-        proectCode: json['Projectcode'].toString(),
         usersId: json['usersId'].toString(),
-        Username: json['Username'].toString(),
         Password: json['Password'].toString(),
         Email: json['Email'].toString(),
         Phonenumber: json['Phonenumber'].toString(),
@@ -733,4 +741,6 @@ class GetCustomer {
         Isdeleted: json['Isdeleted'].toString());
   }
 }
+
+
 

@@ -25,6 +25,11 @@ class _RegisterState extends State<Register> {
   //end controller
 
 //region variables
+  Color green =Color(0xff198D0F);
+  Color red = Color(0xffE33C3C);
+
+
+
   String extention = "*";
   List unAppTic = [];
   List filterdByPhn = [];
@@ -127,8 +132,14 @@ class _RegisterState extends State<Register> {
 
           ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Ticket Created Successfuly'),
-                backgroundColor: Colors.lightGreen,
+                content: Row(
+                  children: [
+                    Icon(Icons.done_all),
+                    Text('Ticket Created Successfuly'),
+                  ],
+                ),
+                backgroundColor: green,
+                behavior: SnackBarBehavior.floating,
               )
           );
           Navigator.pop(context);
@@ -137,8 +148,14 @@ class _RegisterState extends State<Register> {
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Email already Exists'),
-                backgroundColor: Colors.red[600],
+                content: Row(
+                  children: [
+                    Icon(Icons.announcement_sharp),
+                    Text('Email already Exists'),
+                  ],
+                ),
+                backgroundColor: red,
+                behavior: SnackBarBehavior.floating,
               )
           );
         }
@@ -148,8 +165,14 @@ class _RegisterState extends State<Register> {
         onNetworkChecking();
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(await response.reasonPhrase.toString()),
-              backgroundColor: Colors.red[600],
+              content: Row(
+                children: [
+                  Icon(Icons.announcement,color: Colors.white,),
+                  Text(response.reasonPhrase.toString()),
+                ],
+              ),
+              backgroundColor: red,
+              behavior: SnackBarBehavior.floating,
             )
         );
         print(response.reasonPhrase);
@@ -448,8 +471,14 @@ class _RegisterState extends State<Register> {
                               pass.text.isEmpty||mailController.text.isEmpty||phnoController.text.isEmpty||domainController.text.isEmpty||dsController.text.isEmpty){
                             ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                    backgroundColor: Colors.red,
-                                    content: Text('Please enter all details')
+                                    backgroundColor: red,
+                                    content: Row(
+                                      children: [
+                                        Icon(Icons.article,color: Colors.white,),
+                                        Text('Please enter all details'),
+                                      ],
+                                    ),
+                                  behavior: SnackBarBehavior.floating,
                                 )
                             );
                           } else{

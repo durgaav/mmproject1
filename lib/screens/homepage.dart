@@ -4,7 +4,6 @@ import 'package:mmcustomerservice/screens/data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mmcustomerservice/screens/admin/notifyScreen.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as Path;
@@ -23,6 +22,10 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
 
   //region Global variables
+  Color green =Color(0xff198D0F);
+  Color red = Color(0xffE33C3C);
+
+
   int notifyUnSeenCount = 0;
   int teamCount = 0;
   int ticketCount = 0;
@@ -44,18 +47,10 @@ class _HomePageState extends State<HomePage> {
   int countIn =0;
   int nCount =0;
 
-  TextEditingController emailController = TextEditingController();
   TextEditingController phnoController = TextEditingController();
   TextEditingController domainController = TextEditingController();
   TextEditingController dsController = TextEditingController();
 
-  String dropdownValue = "select category";
-  final List<String> datas = [
-    "images",
-    "pdf",
-    'zip','doc',
-    'docx',"select category"
-  ];
   PlatformFile? file;
 
   //file upload
@@ -182,28 +177,6 @@ class _HomePageState extends State<HomePage> {
   }
   //end loader
 
-  //fetch client
-  Future<void> fetchClientDetails() async{
-    try{
-      http.Response response = await http.get(Uri.parse("https://mindmadetech.in/api/customer/list"));
-      if(response.statusCode==200){
-        List list = jsonDecode(response.body);
-        List filterUser = list.where((element) => element['Username']=="$currentUser").toList();
-        setState(() {
-          proCode = filterUser.map((e) => e['Projectcode']).toString().replaceAll("(", "").replaceAll(")", "");
-        });
-        print(proCode);
-      }else{
-        Navigator.pop(context);
-        onNetworkChecking();
-      }
-    }catch(ex){
-      Navigator.pop(context);
-      onNetworkChecking();
-    }
-  }
-  //end
-
   //screen visibility
   Future screenVisibility() async{
       var pref = await SharedPreferences.getInstance();
@@ -233,7 +206,7 @@ class _HomePageState extends State<HomePage> {
           notiIconVisi=false;
           usertype = userType;
           currentUser = currentUserStr;
-          fetchClientDetails();
+         // fetchClientDetails();
         });
       }
       print(admin.toString()+users.toString()+team.toString());
@@ -338,7 +311,7 @@ class _HomePageState extends State<HomePage> {
   //end open file
 
 //add new ticket
-  Future AddNewTicket(String Username, String Email, String Phonenumber,
+  Future AddNewTicket(String Email, String Phonenumber,
       String DomainName, String Description, BuildContext context) async {
 
     try{
@@ -363,33 +336,39 @@ class _HomePageState extends State<HomePage> {
           Navigator.pop(context);
           if(res.contains('Ticket added successfully')){
             setState(() {
-              emailController = new TextEditingController(text: "");
               phnoController = new TextEditingController(text: "");
               domainController = new TextEditingController(text: "");
               dsController = new TextEditingController(text: "");
             });
-            Fluttertoast.showToast(
-                msg:res.replaceAll("{", "").replaceAll("}", ""),
-                toastLength: Toast.LENGTH_LONG,
-                gravity: ToastGravity.BOTTOM,
-                timeInSecForIosWeb: 1,
-                backgroundColor: Colors.green,
-                textColor: Colors.white,
-                fontSize: 15.0
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Row(
+                    children: [
+                      Icon(Icons.done_all,color: Colors.white,),
+                      Text('Ticket added successfully'),
+                    ],
+                  ),
+                  backgroundColor: green,
+                  behavior: SnackBarBehavior.floating,
+                )
             );
+            Navigator.pop(context);
           }
         }
         else {
           Navigator.pop(context);
           onNetworkChecking();
-          Fluttertoast.showToast(
-              msg:await response.reasonPhrase.toString(),
-              toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.red,
-              textColor: Colors.white,
-              fontSize: 15.0
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.announcement_rounded,color: Colors.white,),
+                    Text(response.reasonPhrase.toString()),
+                  ],
+                ),
+                backgroundColor:red,
+                behavior: SnackBarBehavior.floating,
+              )
           );
           print(response.reasonPhrase);
         }
@@ -397,7 +376,6 @@ class _HomePageState extends State<HomePage> {
         request.headers['Content-Type'] = 'multipart/form-data';
         request.fields.addAll
           ({
-          'Username': Username,
           'Email': Email,
           'Phonenumber': Phonenumber,
           'DomainName': DomainName,
@@ -417,36 +395,41 @@ class _HomePageState extends State<HomePage> {
           Navigator.pop(context);
           if(res.contains('Ticket added successfully')){
             setState(() {
-              emailController = new TextEditingController(text: "");
               phnoController = new TextEditingController(text: "");
               domainController = new TextEditingController(text: "");
               dsController = new TextEditingController(text: "");
               extensions = [];
               files = [];
             });
-
-            Fluttertoast.showToast(
-                msg:res.replaceAll("{", "").replaceAll("}", ""),
-                toastLength: Toast.LENGTH_LONG,
-                gravity: ToastGravity.BOTTOM,
-                timeInSecForIosWeb: 1,
-                backgroundColor: Colors.green,
-                textColor: Colors.white,
-                fontSize: 15.0
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Row(
+                    children: [
+                      Icon(Icons.done_all,color: Colors.white,),
+                      Text('Ticket added successfully'),
+                    ],
+                  ),
+                  backgroundColor: green,
+                  behavior: SnackBarBehavior.floating,
+                )
             );
+            Navigator.pop(context);
           }
         }
         else {
           Navigator.pop(context);
           onNetworkChecking();
-          Fluttertoast.showToast(
-              msg:await response.reasonPhrase.toString(),
-              toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.red,
-              textColor: Colors.white,
-              fontSize: 15.0
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.announcement_rounded,color: Colors.white,),
+                    Text(response.reasonPhrase.toString()),
+                  ],
+                ),
+                backgroundColor: Colors.lightGreen,
+                behavior: SnackBarBehavior.floating,
+              )
           );
           print(response.reasonPhrase);
         }
@@ -480,7 +463,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     counts = context.watch<Data>().getcounter();
-    TextEditingController userController = TextEditingController(text: "$currentUser");
+    TextEditingController emailController = TextEditingController(text:'$currentUser');
     return WillPopScope(
         onWillPop: () async{
           showDialog(
@@ -615,9 +598,11 @@ class _HomePageState extends State<HomePage> {
                                         TextFormField(
                                           enabled: false,
                                           decoration: const InputDecoration(
-                                            hintText: 'Enter a Username',
+                                            hintText: 'Enter a Email Id',
                                             labelText: 'Email Id',
                                           ),
+                                          controller:emailController,
+                                          keyboardType: TextInputType.emailAddress,
                                         ),
                                         TextFormField(
                                           decoration: const InputDecoration(
@@ -675,7 +660,6 @@ class _HomePageState extends State<HomePage> {
                                                 );
                                               }else{
                                                 AddNewTicket(
-                                                    userController.text.toString(),
                                                     emailController.text.toString(),
                                                     phnoController.text.toString(),
                                                     domainController.text.toString(),

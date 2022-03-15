@@ -1,4 +1,3 @@
-//code for send
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -39,6 +38,10 @@ class _UnRegTickets_ViewState extends State<UnRegTickets_View> {
 
   DateFormat formatter = DateFormat('dd-MM-yyyy hh:mm a');
   String extention = "*";
+
+  Color green =Color(0xff198D0F);
+  Color red = Color(0xffE33C3C);
+
 
   Future <void> getData() async{
     var pref = await SharedPreferences.getInstance();
@@ -146,7 +149,7 @@ class _UnRegTickets_ViewState extends State<UnRegTickets_View> {
 
 
   Future AddUnRegTicket() async {
-
+    showAlert(context);
     final request = http.MultipartRequest(
         'POST', Uri.parse('https://mindmadetech.in/api/tickets/new')
     );
@@ -167,27 +170,33 @@ class _UnRegTickets_ViewState extends State<UnRegTickets_View> {
     if (response.statusCode == 200) {
       Navigator.pop(context);
       if(res.contains('Ticket added successfully')){
-        Fluttertoast.showToast(
-            msg:'Ticket added successfully!',
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.green,
-            textColor: Colors.white,
-            fontSize: 15.0
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.done_all,color: Colors.white,),
+                Text('Ticket added successfully'),
+              ],
+            ),
+            backgroundColor:green,
+            behavior: SnackBarBehavior.floating,
+          )
         );
       }
     }
     else {
       Navigator.pop(context);
-      Fluttertoast.showToast(
-          msg:await response.reasonPhrase.toString(),
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 15.0
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.announcement_outlined,color: Colors.white,),
+                Text(response.reasonPhrase.toString()),
+              ],
+            ),
+            backgroundColor: red,
+            behavior: SnackBarBehavior.floating,
+          )
       );
       print(response.reasonPhrase);
     }
@@ -200,7 +209,6 @@ class _UnRegTickets_ViewState extends State<UnRegTickets_View> {
     try {
       final request = http.MultipartRequest(
           'POST', Uri.parse('https://mindmadetech.in/api/customer/new'));
-      print('mdkjhf');
       request.headers['Content-Type'] = 'multipart/form-data';
       request.fields.addAll({
         'Companyname': cmpyname,
@@ -219,50 +227,63 @@ class _UnRegTickets_ViewState extends State<UnRegTickets_View> {
         String res = await response.stream.bytesToString();
         print(res);
         if (res.contains("Username already Exists!")) {
-          Fluttertoast.showToast(
-              msg: 'Username already Exists!',
-              toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.red,
-              textColor: Colors.white,
-              fontSize: 15.0);
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.announcement,color: Colors.white,),
+                    Text('Username already Exists!'),
+                  ],
+                ),
+                backgroundColor:red,
+                behavior: SnackBarBehavior.floating,
+              )
+          );
           return response;
         } else {
-          Fluttertoast.showToast(
-              msg: 'Customer added successfully!',
-              toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.green,
-              textColor: Colors.white,
-              fontSize: 15.0
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.done_all,color: Colors.white,),
+                    Text('Customer added successfully!'),
+                  ],
+                ),
+                backgroundColor: green,
+                behavior: SnackBarBehavior.floating,
+              )
           );
         }
       } else {
-        //onNetworkChecking();
         print(await response.stream.bytesToString());
         print(response.statusCode);
         print(response.reasonPhrase);
-        Fluttertoast.showToast(
-            msg: response.reasonPhrase.toString(),
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 15.0);
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.announcement,color: Colors.white,),
+                  Text(response.reasonPhrase.toString(),),
+                ],
+              ),
+              backgroundColor: red,
+              behavior: SnackBarBehavior.floating,
+            )
+        );
       }
     }catch(ex){
-      //onNetworkChecking();
-      Fluttertoast.showToast(
-          msg: 'Something went wrong',
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 15.0);
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.announcement,color: Colors.white,),
+                Text('Something went wrong'),
+              ],
+            ),
+            backgroundColor: red,
+            behavior: SnackBarBehavior.floating,
+          )
+      );
       print(ex);
     }
   }
@@ -288,14 +309,17 @@ class _UnRegTickets_ViewState extends State<UnRegTickets_View> {
           setState(() {
             rejectStatusMail();
           });
-          Fluttertoast.showToast(
-              msg: 'Reject Successfully',
-              toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.green,
-              textColor: Colors.white,
-              fontSize: 15.0
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.close,color: Colors.white,),
+                    Text('Reject Successfully'),
+                  ],
+                ),
+                backgroundColor:red,
+                behavior: SnackBarBehavior.floating,
+              )
           );
         }else if("$status"=='Approved'){
           setState(() {
@@ -303,27 +327,34 @@ class _UnRegTickets_ViewState extends State<UnRegTickets_View> {
             AddUnRegTicket();
             approveStatusMail();
           });
-          Fluttertoast.showToast(
-              msg: 'Approved successfully!',
-              toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.red,
-              textColor: Colors.white,
-              fontSize: 15.0
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.done_all,color: Colors.white,),
+                    Text('Approved successfully!'),
+                  ],
+                ),
+                backgroundColor: green,
+                behavior: SnackBarBehavior.floating,
+              )
           );
         }
       }
     }catch(Exception){
       print(Exception);
-      Fluttertoast.showToast(
-          msg: 'Something went wrong',
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 15.0);
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.announcement_rounded,color: Colors.white,),
+                Text('Something went wrong'),
+              ],
+            ),
+            backgroundColor: red,
+            behavior: SnackBarBehavior.floating,
+          )
+      );
     }
   }
 
@@ -340,32 +371,48 @@ class _UnRegTickets_ViewState extends State<UnRegTickets_View> {
       ..ccRecipients.addAll([Address('surya@mindmade.in'),])
     // ..bccRecipients.add('bccAddress@example.com')
       ..subject = 'Your Ticket status ${formatter.format(DateTime.now())}'
-      ..text = 'Your Ticket is Approved ';
+    ..text = ("Dear Sir/Madam,\n\n"
+        "Greetings from MindMade Customer Support Team!!!\n"
+        "You have been registered as Client on MindMade Customer Support.\n"
+        "To Login,go to https://mm-customer-support-ten.vercel.app/ then enter the following information:\n\n"
+        "Email:$email\n"
+        "Password:$pass\n\n"
+        "You can change your password once you logged in.\n\n"
+        "Thanks & Regards,\n"
+        "Mindmade;"
+
+    );
     // ..html = "<h1>Test</h1>\n<p>Hey! Here's some HTML content</p>";
     try {
       await send(equivalentMessage, smtpServer);
       print('Message sent: ' + send.toString());
-      Fluttertoast.showToast(
-          msg: 'Approve send via mail',
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-          fontSize: 15.0
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.done_all,color: Colors.white,),
+                Text('Approve send via mail'),
+              ],
+            ),
+            backgroundColor: green,
+            behavior: SnackBarBehavior.floating,
+          )
       );
     } on MailerException catch (e) {
       print('Message not sent.');
       for (var p in e.problems) {
         print('Problem: ${p.code}: ${p.msg}');
-        Fluttertoast.showToast(
-            msg: 'Failed to send Approve',
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.green,
-            textColor: Colors.white,
-            fontSize: 15.0
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.close,color: Colors.white,),
+                  Text('Failed to send Approve'),
+                ],
+              ),
+              backgroundColor:red,
+              behavior: SnackBarBehavior.floating,
+            )
         );
       }
     }
@@ -390,27 +437,33 @@ class _UnRegTickets_ViewState extends State<UnRegTickets_View> {
     try {
       await send(equivalentMessage, smtpServer);
       print('Message sent: ' + send.toString());
-      Fluttertoast.showToast(
-          msg: 'Rejection send via mail',
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-          fontSize: 15.0
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.announcement_rounded,color: Colors.white,),
+                Text('Rejection send via mail'),
+              ],
+            ),
+            backgroundColor: red,
+            behavior: SnackBarBehavior.floating,
+          )
       );
     } on MailerException catch (e) {
       print('Message not sent.');
       for (var p in e.problems) {
         print('Problem: ${p.code}: ${p.msg}');
-        Fluttertoast.showToast(
-            msg: 'Failed to send Reject',
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.green,
-            textColor: Colors.white,
-            fontSize: 15.0
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.close,color: Colors.white,),
+                  Text('Failed to send Reject'),
+                ],
+              ),
+              backgroundColor: red,
+              behavior: SnackBarBehavior.floating,
+            )
         );
       }
     }
@@ -418,15 +471,26 @@ class _UnRegTickets_ViewState extends State<UnRegTickets_View> {
   //
 
 
-
-
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     getData();
-    print('$registerId');
-    print('$status');
+    print(registerId);
+    print(status);
+    print(email);
+    print(pass);
+    print ("Dear Sir/Madam,\n\n"
+        "Greetings from MindMade Customer Support Team!!!\n"
+        "You have been registered as Client on MindMade Customer Support.\n"
+        "To Login,go to https://mm-customer-support-ten.vercel.app/ then enter the following information:\n\n"
+        "Email:$email\n"
+        "Password:$pass\n\n"
+        "You can change your password once you logged in.\n\n"
+        "Thanks & Regards,\n"
+        "Mindmade;"
+
+    );
   }
   @override
   Widget build(BuildContext context) {
@@ -461,7 +525,7 @@ class _UnRegTickets_ViewState extends State<UnRegTickets_View> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        child:Text(UserName[0].toUpperCase()+UserName.substring(1),style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,color: Colors.white),),
+                        child:Text(cmpyname[0].toUpperCase()+cmpyname.substring(1),style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,color: Colors.white),),
                       ),
                       Container(
                         padding: EdgeInsets.only(top: 5),

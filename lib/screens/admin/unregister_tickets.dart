@@ -55,7 +55,6 @@ class _UnRegister_TicketsState extends State<UnRegister_Tickets> {
       if(usertype=='admin'){
         response =
         await http.get(Uri.parse("https://mindmadetech.in/api/unregisteredcustomer/list"));
-      //  print(unRegTickets[0].UserName);
       }else{
         return null;
       }
@@ -147,13 +146,10 @@ class _UnRegister_TicketsState extends State<UnRegister_Tickets> {
   }
 
   Future<void> ticketsDataToView(int index) async {
-    print('username');
-    print(unRegTickets[index].UserName);
     var pref = await SharedPreferences.getInstance();
     pref.remove('registerId');
     pref.remove('cmpname');
     pref.remove('cliname');
-    pref.remove('UserName');
     pref.remove('pass');
     pref.remove('logo');
     pref.remove('email');
@@ -169,7 +165,6 @@ class _UnRegister_TicketsState extends State<UnRegister_Tickets> {
     pref.setString('registerId',unRegTickets[index].registerId??'');
     pref.setString('cmpyname',unRegTickets[index].companyname??'');
     pref.setString('cliname',unRegTickets[index].clientname??'');
-    pref.setString('UserName',unRegTickets[index].UserName??'');
     pref.setString('pass',unRegTickets[index].password??'');
     pref.setString('logo',unRegTickets[index].logo??'');
     pref.setString('email',unRegTickets[index].email??'');
@@ -206,7 +201,6 @@ class _UnRegister_TicketsState extends State<UnRegister_Tickets> {
       ),
       body: SingleChildScrollView(
         child: Container(
-         // padding: EdgeInsets.only(bottom: 10),
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
           child: RefreshIndicator(
@@ -237,7 +231,6 @@ class _UnRegister_TicketsState extends State<UnRegister_Tickets> {
                   ListView.builder(
                     itemCount: unRegTickets.length,
                       shrinkWrap: true,
-                     // physics: NeverScrollableScrollPhysics(),
                       itemBuilder: (BuildContext context,int index){
                     return Column(
                       children: [
@@ -251,10 +244,9 @@ class _UnRegister_TicketsState extends State<UnRegister_Tickets> {
                               radius:30,
                               backgroundImage: NetworkImage(unRegTickets[index].logo),
                             ),
-                           // title:Text(unRegTickets[index].UserName),
-                               title: Text(unRegTickets[index].UserName!=null?unRegTickets[index].UserName[0].toUpperCase()+unRegTickets[index].UserName.substring(1):'unnamed', style: TextStyle(
-                                   fontSize: 17.5),),
-                            subtitle: Text(unRegTickets[index].createdOn!=null?unRegTickets[index].createdOn:'not found'),
+                               title: Text(unRegTickets[index].companyname.isNotEmpty?unRegTickets[index].companyname[0].toUpperCase()+unRegTickets[index].companyname.substring(1):'unnamed',
+                                 style: TextStyle(fontSize: 17.5),),
+                            subtitle: Text(unRegTickets[index].createdOn.isNotEmpty?unRegTickets[index].createdOn:'value not found'),
                             trailing: IconButton(
                               onPressed: () {
                                 ticketsDataToView(index);
@@ -290,7 +282,6 @@ class GetUnreg {
   String registerId ='' ;
   String companyname='';
   String clientname='';
-  String UserName='';
   String password='';
   String logo='';
   String email='';
@@ -306,7 +297,6 @@ class GetUnreg {
       {required this.registerId,
         required this.companyname,
         required this.clientname,
-        required this.UserName,
         required this.password,
         required this.logo,
         required this.email,
@@ -322,7 +312,6 @@ class GetUnreg {
     registerId = json['registerId'].toString();
     companyname = json['Companyname'];
     clientname = json['Clientname'];
-    UserName = json['Username'];
     password = json['Password'];
     logo = json['Logo'];
     email = json['Email'];
@@ -340,7 +329,6 @@ class GetUnreg {
     data['registerId'] = this.registerId;
     data['Companyname'] = this.companyname;
     data['Clientname'] = this.clientname;
-    data['Username'] = this.UserName;
     data['Password'] = this.password;
     data['Logo'] = this.logo;
     data['Email'] = this.email;

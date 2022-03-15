@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:mmcustomerservice/screens/admin/Customer.dart';
+import 'package:mmcustomerservice/screens/admin/ad_ticketnew.dart';
 import 'package:mmcustomerservice/screens/admin/notifyScreen.dart';
-import 'package:mmcustomerservice/screens/admin/register.dart';
 import 'package:mmcustomerservice/screens/admin/unregister_tickets.dart';
 import 'package:mmcustomerservice/screens/data.dart';
 import 'package:mmcustomerservice/screens/login.dart';
 import 'package:mmcustomerservice/screens/admin/team.dart';
+import 'package:mmcustomerservice/screens/profile.dart';
 import 'package:mmcustomerservice/screens/ticketpage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
@@ -29,10 +30,6 @@ class _MainMenusState extends State<MainMenus> {
     required this.currentUser,
   });
 
-  bool isHover = false;
-  bool isHover1 = false;
-  bool isHover2 = false;
-  bool isHover3 = false;
   bool usersMenu = false;
   bool teamMenu = false;
   bool ticketMenu = false;
@@ -55,7 +52,6 @@ class _MainMenusState extends State<MainMenus> {
         return "Good Night";
       }
     }
-
   @override
   void initState() {
     // TODO: implement initState
@@ -210,6 +206,16 @@ class _MainMenusState extends State<MainMenus> {
                   ),
                 ),
 
+                Visibility(
+                    visible: usertype=='customer'?true:false,
+                    child: ListTile(
+                      onTap: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=>ProfilePage()));
+                      },
+                      title: Text('Profile',style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 15),),
+                      leading:Icon(Icons.face_retouching_natural,size: 27,),
+                    )
+                ),
 
                 Visibility(
                   visible: ticketMenu,
@@ -259,13 +265,11 @@ class _MainMenusState extends State<MainMenus> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => Register()),
+                                builder: (context) => AdticketNew()),
                           );
                         },
                         leading: Icon(Icons.add,size: 27,),
-                        title: Text('Add New Ticket',style: TextStyle(
-                            color: Colors.black,fontWeight: FontWeight.bold,fontSize: 15
-                        ),),
+                        title: Text('Add New Ticket',style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 15),),
                       ),
                       Container(
                         margin: EdgeInsets.only(left: 10 , right: 10),
@@ -275,7 +279,6 @@ class _MainMenusState extends State<MainMenus> {
                     ],
                   ),
                 ),
-
                 ListTile(
                   onTap: (){
                     logout(context);

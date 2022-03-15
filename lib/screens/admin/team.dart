@@ -5,8 +5,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:mmcustomerservice/screens/admin/teamview.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class TeamList extends StatefulWidget {
   const TeamList({Key? key}) : super(key: key);
@@ -16,11 +17,14 @@ class TeamList extends StatefulWidget {
 }
 
 class _TeamListState extends State<TeamList> {
+
   //region Var
   String dropdownValue = "Design";
-  final List<String> datas = ["Seo", "Design", "Development", "Server"];
+  final List<String> datas = ["SEO", "Design", "Development", "Server"];
   TextEditingController UserController = TextEditingController();
   TextEditingController PassController = TextEditingController();
+  TextEditingController phoneCtrl = TextEditingController();
+  TextEditingController phoneCtrlnew = TextEditingController();
   TextEditingController searchController = new TextEditingController();
   String searchText = "";
   List<GetTeam> teamList = [];
@@ -28,10 +32,11 @@ class _TeamListState extends State<TeamList> {
   String createdBy = '';
   bool retryVisible = false;
   bool clearSearch = false;
-  String sortString = "user";
+  String sortString = "all";
+  List<GetTeam> searchList = [];
   bool isVisible = true;
+  DateFormat formatter = DateFormat('dd-MM-yyyy hh:mm a');
   bool isSorted = false;
-
   //endregion Var
 
   //region Functions
@@ -96,7 +101,7 @@ class _TeamListState extends State<TeamList> {
                   },
                       child: Text('No', style: TextStyle(fontSize: 16),)),
                   TextButton(onPressed: () {
-                    deleteAlbum(teamList[index].teamId);
+                    deleteAlbum(searchList[index].teamId);
                     Navigator.pop(context);
                   },
                       child: Text('Yes', style: TextStyle(fontSize: 16),))
@@ -111,8 +116,9 @@ class _TeamListState extends State<TeamList> {
     return showDialog(
         context: context,
         builder: (context) {
-          TextEditingController  UserController = TextEditingController(text: teamList[index].Username);
-          TextEditingController PassController = TextEditingController(text: teamList[index].Password);
+          TextEditingController  UserController = TextEditingController(text: searchList[index].Username);
+          TextEditingController PassController = TextEditingController(text: searchList[index].Password);
+          phoneCtrl = new TextEditingController(text:searchList[index].phone );
           return Container(
               width: double.infinity,
               child: AlertDialog(
@@ -125,17 +131,26 @@ class _TeamListState extends State<TeamList> {
                       children: <Widget>[
                         TextFormField(
                           decoration: const InputDecoration(
-                            hintText: 'Enter a Username',
-                            labelText: 'Username',
+                            hintText: 'Enter Mail id',
+                            labelText: 'Mail',
                           ),
                           controller: UserController,
                         ),
                         TextFormField(
                           decoration: const InputDecoration(
                             hintText: 'Password here',
-                            labelText: 'Passowrd',
+                            labelText: 'Password',
                           ),
                           controller: PassController,
+                        ),
+                        TextFormField(
+                          keyboardType: TextInputType.phone,
+                          maxLength: 10,
+                          decoration: const InputDecoration(
+                            hintText: 'Phone number',
+                            labelText: 'Phone',
+                          ),
+                          controller: phoneCtrl,
                         ),
                         DropdownButtonFormField(
                           value: dropdownValue,
@@ -170,10 +185,25 @@ class _TeamListState extends State<TeamList> {
                       style: TextStyle(color: Colors.white, fontSize: 18),
                     ),
                     onPressed: () {
-                      updateTeam(UserController.text.toString(),
-                          PassController.text.toString(),dropdownValue.toLowerCase(),index);
-                      Navigator.pop(context);
-
+                      if(UserController.text.isEmpty||PassController.text.isEmpty||phoneCtrl.text.isEmpty){
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Row(
+                                children: [
+                                  Icon(Icons.close_outlined,color: Colors.white,),
+                                  Text(' Fields not be empty!'),
+                                ],
+                              ),
+                              backgroundColor: Color(0xffE33C3C),
+                              behavior: SnackBarBehavior.floating,
+                            )
+                        );
+                      }else{
+                        updateTeam(UserController.text.toString(),
+                            PassController.text.toString(),phoneCtrl.text.toString(),dropdownValue.toLowerCase(),index);
+                        Navigator.pop(context);
+                      }
                     },
                     color: Colors.blueAccent,
                     focusColor: Colors.white,
@@ -184,9 +214,8 @@ class _TeamListState extends State<TeamList> {
         });
   }
 
-
-  showAlert(BuildContext context) {
-    return showDialog(
+  void showAlert(BuildContext context) {
+    showDialog(
         context: context,
         barrierDismissible: false,
         builder: (context) {
@@ -254,6 +283,16 @@ class _TeamListState extends State<TeamList> {
               height: 600,
               width: double.infinity,
               child: AlertDialog(
+                title: Column(
+                  children: [
+                    Text('Add New Team Member'),
+                    Container(
+                      height: 0.5,
+                      color: Colors.blue,
+                      margin: EdgeInsets.only(top : 15),
+                    )
+                  ],
+                ),
                 scrollable: true,
                 content: Form(
                   child: Container(
@@ -262,18 +301,28 @@ class _TeamListState extends State<TeamList> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         TextFormField(
+                          keyboardType: TextInputType.emailAddress,
                           decoration: const InputDecoration(
-                            hintText: 'Enter a Username',
-                            labelText: 'Username',
+                            hintText: 'Enter mail id',
+                            labelText: 'Mail id',
                           ),
                           controller: UserController,
                         ),
                         TextFormField(
                           decoration: const InputDecoration(
                             hintText: 'Password here',
-                            labelText: 'Passowrd',
+                            labelText: 'Password',
                           ),
                           controller: PassController,
+                        ),
+                        TextFormField(
+                          keyboardType: TextInputType.phone,
+                          maxLength: 10,
+                          decoration: const InputDecoration(
+                            hintText: 'Phone number',
+                            labelText: 'Phone',
+                          ),
+                          controller: phoneCtrlnew,
                         ),
                         DropdownButtonFormField(
                           value: dropdownValue,
@@ -308,20 +357,32 @@ class _TeamListState extends State<TeamList> {
                         "Add",
                         style: TextStyle(color: Colors.white, fontSize: 18),
                       ),
-                      onPressed: () async {
+                      onPressed: () {
                         String Username = UserController.text;
                         String Password = PassController.text;
-                        print(Username);
-                        print(Password);
-                        print(dropdownValue.toString());
-                        setState(() {
+                        if(Username.isEmpty||Password.isEmpty||phoneCtrlnew.text.isEmpty||phoneCtrlnew.text.length<10){
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Row(
+                                  children: [
+                                    Icon(Icons.close_outlined,color: Colors.white,),
+                                    Text(' Fields not be empty!'),
+                                  ],
+                                ),
+                                backgroundColor: Color(0xffE33C3C),
+                                behavior: SnackBarBehavior.floating,
+                              )
+                          );
+                        }else{
                           Addteam(
                             Username,
                             Password,
+                            phoneCtrlnew.text.toString(),
                             dropdownValue.toString(),
                           );
-                        });
-                        Navigator.pop(context);
+                          Navigator.pop(context);
+                        }
                       },
                       color: Colors.blueAccent,
                       focusColor: Colors.white)
@@ -330,7 +391,7 @@ class _TeamListState extends State<TeamList> {
         });
   }
 
-  Future<void> Addteam(String Username, String Password, String Team) async {
+  Future<void> Addteam(String Username, String Password,String phone, String Team) async {
     showAlert(context);
     try {
       var url = Uri.parse('https://mindmadetech.in/api/team/new');
@@ -339,23 +400,48 @@ class _TeamListState extends State<TeamList> {
             'Content-Type': 'application/json; charset=UTF-8',
           },
           body: jsonEncode(<String, String>{
-            'Username': Username,
-            'Password': Password,
-            'Team': Team,
-            'Createdon': DateTime.now().toString(),
-            'Createdby': '$createdBy'
+            "Email" : Username.toString(),
+            "Password" : Password.toString(),
+            "Team" : Team.toString(),
+            "Phonenumber":phone.toString(),
+            "ModifiedOn":formatter.format(DateTime.now()),
+            "ModifiedBy":createdBy,
           }));
       if (response.statusCode == 200) {
-        Navigator.pop(context);
-        refreshListener();
-        Fluttertoast.showToast(
-            msg: 'Team Created successfully!',
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.green,
-            textColor: Colors.white,
-            fontSize: 15.0);
+        if(response.body.contains( "Team added successfully")){
+          Navigator.pop(context);
+          setState(() {
+            refreshListener();
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.done_all,color: Colors.white,),
+                    Text(' Team created!'),
+                  ],
+                ),
+                backgroundColor: Colors.green,
+                behavior: SnackBarBehavior.floating,
+              )
+          );
+        }
+        else{
+          print(response.body);
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.close_outlined,color: Colors.white,),
+                    Text(' E-mail already exists!'),
+                  ],
+                ),
+                backgroundColor: Color(0xffE33C3C),
+                behavior: SnackBarBehavior.floating,
+              )
+          );
+        }
       } else {
         Navigator.pop(context);
         onNetworkChecking();
@@ -369,7 +455,7 @@ class _TeamListState extends State<TeamList> {
   Future<void> getPref() async {
     var pref = await SharedPreferences.getInstance();
     if (pref != null) {
-      createdBy = pref.getString('username')!;
+      createdBy = pref.getString('usertypeMail')!;
     }
     print("Created by = " + createdBy);
   }
@@ -389,54 +475,29 @@ class _TeamListState extends State<TeamList> {
 
   @override
   Widget build(BuildContext context) {
+    if(searchText.isNotEmpty){
+      setState(() {
+        searchList = teamList.where((element) => element.email.toString()
+            .toLowerCase().contains(searchText.toString().toLowerCase())).toList();
+      });
+    }else{
+      setState(() {
+        searchList = teamList.toList();
+      });
+    }
+    searchList = searchList.reversed.toList();
+
     return Scaffold(
       appBar: AppBar(
-          backgroundColor: Color(0Xff146bf7),
-          title: Container(
-            //search
-            child: TextField(
-              style: TextStyle(color: Colors.white),
-              cursorColor: Colors.white,
-              controller: searchController,
-              onChanged: (value) {
-                setState(() {
-                  searchText = value;
-                  if (searchText.length > 0) {
-                    clearSearch = true;
-                  } else {
-                    clearSearch = false;
-                  }
-                });
-              },
-              decoration: InputDecoration(
-                  hintStyle: TextStyle(color: Colors.white),
-                  hintText: 'Search...',
-                  border: InputBorder.none,
-                  prefixIcon: Icon(
-                    Icons.search_rounded,
-                    color: Colors.white,
-                    size: 26,
-                  ),
-                  suffixIcon: Visibility(
-                    visible: clearSearch,
-                    child: IconButton(
-                      color: Colors.white,
-                      iconSize: 20,
-                      icon: Icon(
-                        Icons.close,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          searchText = "";
-                          searchController.clear();
-                          FocusScope.of(context).unfocus();
-                          clearSearch = false;
-                        });
-                      },
-                    ),
-                  )),
-            ),
+          leading: IconButton(
+            onPressed: (){Navigator.pop(context);},
+            icon:Icon(CupertinoIcons.back),
+            iconSize: 30,
+            splashColor: Colors.purpleAccent,
           ),
+          centerTitle: true,
+          backgroundColor: Color(0Xff146bf7),
+          title: Text("Team"),
           actions: [
             PopupMenuButton(
                 icon: Icon(Icons.filter_alt_outlined),
@@ -451,8 +512,7 @@ class _TeamListState extends State<TeamList> {
                     onTap: () {
                       setState(() {
                         sortString = "design";
-                        isVisible = false;
-                        isSorted = true;
+
                         print(sortString);
                         FocusScope.of(context).unfocus();
                       });
@@ -475,8 +535,6 @@ class _TeamListState extends State<TeamList> {
                       setState(() {
                         FocusScope.of(context).unfocus();
                         sortString = "development";
-                        isVisible = false;
-                        isSorted = true;
                         print(sortString);
                       });
                     },
@@ -495,8 +553,7 @@ class _TeamListState extends State<TeamList> {
                     onTap: () {
                       setState(() {
                         sortString = "seo";
-                        isVisible = false;
-                        isSorted = true;
+
                         print(sortString);
 
                       });
@@ -516,8 +573,6 @@ class _TeamListState extends State<TeamList> {
                     onTap: () {
                       setState(() {
                         sortString = "server";
-                        isVisible = false;
-                        isSorted = true;
                         print(sortString);
 
                       });
@@ -537,10 +592,7 @@ class _TeamListState extends State<TeamList> {
                     onTap: () {
                       setState(() {
                         sortString="all";
-                        isVisible = true;
-                        isSorted = false;
                         print(sortString);
-
                       });
                     },
                     child: Row(
@@ -570,6 +622,57 @@ class _TeamListState extends State<TeamList> {
       ),
       body: SingleChildScrollView(
         child: Column(children: <Widget>[
+
+          Container(
+            margin: EdgeInsets.all(10),
+            height: 45,
+            child: TextField(
+              style: TextStyle(color: Colors.black),
+              cursorColor: Colors.black,
+              controller: searchController,
+              onChanged: (value) {
+                setState(() {
+                  searchText = value;
+                  if (searchText.length > 0) {
+                    clearSearch = true;
+                  } else {
+                    clearSearch = false;
+                  }
+                });
+              },
+              decoration: InputDecoration(
+                  contentPadding: EdgeInsets.all(5),
+                  hintStyle: TextStyle(color: Colors.black),
+                  hintText: 'Search...',
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10)
+                  ),
+                  prefixIcon: Icon(
+                    Icons.search_rounded,
+                    color: Colors.black54,
+                    size: 26,
+                  ),
+                  suffixIcon: Visibility(
+                    visible: clearSearch,
+                    child: IconButton(
+                      color: Colors.black54,
+                      iconSize: 24,
+                      icon: Icon(
+                          Icons.cancel_outlined
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          searchText = "";
+                          searchController.clear();
+                          FocusScope.of(context).unfocus();
+                          clearSearch = false;
+                        });
+                      },
+                    ),
+                  )),
+            ),
+          ),
+
           Visibility(
             visible: retryVisible,
             child: Padding(
@@ -585,85 +688,184 @@ class _TeamListState extends State<TeamList> {
             ),
           ),
 
-          Text(
-            "Team members",
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 20,
-              fontWeight: FontWeight.w500
-            ),
-          ),
-
-          Visibility(
-              visible: isVisible,
-              child:Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height *0.85,
-                  child: RefreshIndicator(
-                    onRefresh: refreshListener,
-                    backgroundColor: Colors.blue,
-                    color: Colors.white,
-                    child: ListView.builder(
-                        itemCount: teamList.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return (teamList[index].Isdeleted == "n")
-                              ? (teamList[index]
-                              .Username
-                              .toLowerCase()
-                              .contains(searchText))
+          Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height *0.81,
+              child: RefreshIndicator(
+                  onRefresh: refreshListener,
+                  backgroundColor: Colors.blue,
+                  color: Colors.white,
+                  child: searchList.length>0?
+                  ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: searchList.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return
+                          sortString=="all"
                               ? Column(
                               children: <Widget>[
                                 Container(
                                   child: ExpansionTile(
                                     leading:CircleAvatar(
                                       backgroundColor:
-                                      Colors.primaries[Random().nextInt(Colors.primaries.length)],
-                                       radius: 27,
+                                      Colors.lightGreen,
+                                      radius: 27,
                                       child: Text(
-                                          teamList[index].Username[0].toUpperCase(),
-                                          style: TextStyle(fontSize:22,fontWeight: FontWeight.bold,color: Colors.white),
+                                        searchList[index].email[0].toUpperCase(),
+                                        style: TextStyle(fontSize:22,fontWeight: FontWeight.bold,color: Colors.white),
                                       ),
                                     ),
                                     title: Text(
-                                      teamList[index]
-                                          .Username[0]
-                                          .toUpperCase() +
-                                          teamList[index].Username.substring(1),
+                                      searchList[index].email,
+                                      maxLines:1,
                                       style: TextStyle(fontSize: 17.5),
                                     ),
                                     subtitle: Text(
-                                      teamList[index].Team,
+                                      searchList[index].Team,
+                                      style: TextStyle(
+                                          fontSize: 15, color: Colors.black45),
+                                    ),
+                                    children: <Widget>[
+                                      Container(
+                                        decoration:BoxDecoration(
+                                            color:Colors.blue[50],
+                                            borderRadius: BorderRadius.circular(17)
+                                        ),
+                                        margin:EdgeInsets.all(10),
+                                        child: Column(
+                                          children: [
+                                            ListTile(
+                                              title: Text('Id & Team',
+                                                  style: TextStyle(
+                                                      fontSize: 15, color: Colors.black45)),
+                                              subtitle: Text(
+                                                searchList[index].teamId + " & " +searchList[index].Team,
+                                                style: TextStyle(
+                                                    fontSize: 16, color: Colors.black),
+                                              ),
+                                            ),
+                                            ListTile(
+                                              title: Text('Email',
+                                                  style: TextStyle(
+                                                      fontSize: 15, color: Colors.black45)),
+                                              subtitle: Text(
+                                                searchList[index].email,
+                                                style: TextStyle(
+                                                    fontSize: 16, color: Colors.black),
+                                              ),
+
+                                            ),
+                                            ListTile(
+                                              title: Text('Password',
+                                                  style: TextStyle(
+                                                      fontSize: 15, color: Colors.black45)),
+                                              subtitle: Text(
+                                                searchList[index].Password,
+                                                style: TextStyle(
+                                                    fontSize: 16, color: Colors.black),
+                                              ),
+                                            ),
+                                            ListTile(
+                                              onTap:(){
+                                                launch("tel://${searchList[index].phone}");
+                                              },
+                                              title: Text('Phone',
+                                                  style: TextStyle(
+                                                      fontSize: 15, color: Colors.black45)),
+                                              subtitle: Text(
+                                                searchList[index].phone,
+                                                style: TextStyle(
+                                                    fontSize: 16, color: Colors.black
+                                                ),
+                                              ),
+                                            ),
+                                            ListTile(
+                                              leading:Container(
+                                                margin: EdgeInsets.all(10),
+                                                decoration: BoxDecoration(
+                                                    color: Colors.blueAccent[100],
+                                                    borderRadius: BorderRadius.circular(20)
+                                                ),
+                                                width:222,
+                                                child: Row(
+                                                  children: [
+                                                    FlatButton(
+                                                        onPressed: (){
+                                                          edittm(context,index);
+                                                        },
+                                                        child: Row(
+                                                          children: [
+                                                            Icon(Icons.edit_outlined , size: 25,color: Colors.red,),
+                                                            Text(" Edit   ",style: TextStyle(
+                                                                fontSize: 16, color: Colors.white)),
+                                                          ],
+                                                        )
+                                                    ),
+                                                    Container(width: 3,color: Colors.white,),
+                                                    FlatButton(
+                                                        onPressed: (){
+                                                          deletetmDailog(context,index);
+                                                        },
+                                                        child: Row(
+                                                          children: [
+                                                            Icon(Icons.delete_outline , size: 25,color: Colors.red,),
+                                                            Text(" Delete",style: TextStyle(
+                                                                fontSize: 16, color: Colors.white)),
+                                                          ],
+                                                        )
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ]) :
+                          searchList[index].Team.toLowerCase()=="$sortString"
+                              ?Column(
+                              children: <Widget>[
+                                Container(
+                                  child: ExpansionTile(
+                                    leading:CircleAvatar(
+                                      backgroundColor:
+                                      Colors.blueAccent,
+                                      radius: 27,
+                                      child: Text(
+                                        searchList[index].email[0].toUpperCase(),
+                                        style: TextStyle(fontSize:22,fontWeight: FontWeight.bold,color: Colors.white),
+                                      ),
+                                    ),
+                                    title: Text(
+                                      searchList[index].email,
+                                      maxLines:1,
+                                      style: TextStyle(fontSize: 17.5),
+                                    ),
+                                    subtitle: Text(
+                                      searchList[index].Team,
                                       style: TextStyle(
                                           fontSize: 15, color: Colors.black45),
                                     ),
                                     children: <Widget>[
                                       ListTile(
-                                        title: Text('TeamId',
+                                        title: Text('Id & Team',
                                             style: TextStyle(
                                                 fontSize: 15, color: Colors.black45)),
                                         subtitle: Text(
-                                          teamList[index].teamId,
+                                          searchList[index].teamId + " & " +searchList[index].Team,
                                           style: TextStyle(
                                               fontSize: 16, color: Colors.black),
                                         ),
                                       ),
                                       ListTile(
-                                        title: Text('Team',
+                                        title: Text('Email',
                                             style: TextStyle(
                                                 fontSize: 15, color: Colors.black45)),
                                         subtitle: Text(
-                                          teamList[index].Team,
-                                          style: TextStyle(
-                                              fontSize: 16, color: Colors.black),
-                                        ),
-
-                                      ),
-                                      ListTile(
-                                        title: Text('Username',
-                                            style: TextStyle(
-                                                fontSize: 15, color: Colors.black45)),
-                                        subtitle: Text(
-                                          teamList[index].Username,
+                                          searchList[index].email,
                                           style: TextStyle(
                                               fontSize: 16, color: Colors.black),
                                         ),
@@ -674,27 +876,59 @@ class _TeamListState extends State<TeamList> {
                                             style: TextStyle(
                                                 fontSize: 15, color: Colors.black45)),
                                         subtitle: Text(
-                                          teamList[index].Password,
+                                          searchList[index].Password,
                                           style: TextStyle(
                                               fontSize: 16, color: Colors.black),
                                         ),
                                       ),
                                       ListTile(
+                                        onTap:(){
+                                          launch("tel://${searchList[index].phone}");
+                                        },
+                                        title: Text('Phone',
+                                            style: TextStyle(
+                                                fontSize: 15, color: Colors.black45)),
+                                        subtitle: Text(
+                                          searchList[index].phone,
+                                          style: TextStyle(
+                                              fontSize: 16, color: Colors.black
+                                          ),
+                                        ),
+                                      ),
+                                      ListTile(
                                         leading:Container(
-                                          width:100,
+                                          margin: EdgeInsets.all(10),
+                                          decoration: BoxDecoration(
+                                              color: Colors.red[100],
+                                              borderRadius: BorderRadius.circular(20)
+                                          ),
+                                          width:222,
                                           child: Row(
                                             children: [
-                                              IconButton(
-                                                icon: Icon(Icons.edit , size: 30,color: Colors.blueAccent,),
-                                                onPressed: () {
-                                                  edittm(context,index);
-                                                },
+                                              FlatButton(
+                                                  onPressed: (){
+                                                    edittm(context,index);
+                                                  },
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(Icons.edit_outlined , size: 25,color: Colors.deepPurple,),
+                                                      Text(" Edit   ",style: TextStyle(
+                                                          fontSize: 16, color: Colors.black)),
+                                                    ],
+                                                  )
                                               ),
-                                              IconButton(
-                                                icon: Icon(Icons.delete, size: 30,color: Colors.red),
-                                                onPressed: () {
-                                                  deletetmDailog(context,index);
-                                                },
+                                              Container(width: 3,color: Colors.white,),
+                                              FlatButton(
+                                                  onPressed: (){
+                                                    deletetmDailog(context,index);
+                                                  },
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(Icons.delete_outline , size: 25,color: Colors.red,),
+                                                      Text(" Delete",style: TextStyle(
+                                                          fontSize: 16, color: Colors.black)),
+                                                    ],
+                                                  )
                                               ),
                                             ],
                                           ),
@@ -703,162 +937,162 @@ class _TeamListState extends State<TeamList> {
                                     ],
                                   ),
                                 ),
-                              ])
-                              : Container()
-                              : Container();
-                        }),
-                  ))
-          ),
-          Visibility(
-              visible: isSorted,
-              child:Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height *0.85,
-                  child: RefreshIndicator(
-                    onRefresh: refreshListener,
-                    backgroundColor: Colors.blue,
-                    color: Colors.white,
-                    child: ListView.builder(
-                        itemCount: teamList.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return (teamList[index].Team=="$sortString")
-                              ? (teamList[index]
-                              .Username
-                              .toLowerCase()
-                              .contains(searchText))
-                              ? Column(
-                              children: <Widget>[
-                                Container(
-                                  child:ExpansionTile(
-                                    leading:CircleAvatar(
-                                      backgroundColor:
-                                      Colors.primaries[Random().nextInt(Colors.primaries.length)],
-                                      radius: 27,
-                                      child: Text(
-                                        teamList[index].Username[0].toUpperCase(),
-                                        style: TextStyle(fontSize:22,fontWeight: FontWeight.bold,color: Colors.white),
-                                      ),
-                                    ),
-                                    title: Text(
-                                      teamList[index]
-                                          .Username[0]
-                                          .toUpperCase() +
-                                          teamList[index].Username.substring(1),
-                                      style: TextStyle(fontSize: 17.5),
-                                    ),
-                                    subtitle: Text(
-                                      teamList[index].Team,
-                                      style: TextStyle(
-                                          fontSize: 15, color: Colors.black45),
-                                    ),
-                                    children: <Widget>[
-                                      ListTile(
-                                        title: Text('TeamId',
-                                            style: TextStyle(
-                                                fontSize: 15, color: Colors.black45)),
-                                        subtitle: Text(
-                                          teamList[index].teamId,
-                                          style: TextStyle(
-                                              fontSize: 16, color: Colors.black),
-                                        ),
-                                      ),
-                                      ListTile(
-                                        title: Text('Team',
-                                            style: TextStyle(
-                                                fontSize: 15, color: Colors.black45)),
-                                        subtitle: Text(
-                                          teamList[index].Team,
-                                          style: TextStyle(
-                                              fontSize: 16, color: Colors.black),
-                                        ),
+                              ]
+                          ):
+                          Container();
+                      }):Center(
+                    child: Container(
+                      padding: EdgeInsets.only(top: 15),
+                      child: Text(
+                        'No data found!',
+                        style: TextStyle(
+                            fontSize: 25, color: Colors.deepPurple),
+                      ),
+                    ),
+                  )
+              ))
 
-                                      ),
-                                      ListTile(
-                                        title: Text('Username',
-                                            style: TextStyle(
-                                                fontSize: 15, color: Colors.black45)),
-                                        subtitle: Text(
-                                          teamList[index].Username,
-                                          style: TextStyle(
-                                              fontSize: 16, color: Colors.black),
-                                        ),
-
-                                      ),
-                                      ListTile(
-                                        title: Text('Password',
-                                            style: TextStyle(
-                                                fontSize: 15, color: Colors.black45)),
-                                        subtitle: Text(
-                                          teamList[index].Password,
-                                          style: TextStyle(
-                                              fontSize: 16, color: Colors.black),
-                                        ),
-                                      ),
-                                      ListTile(
-                                        leading:Container(
-                                          width:100,
-                                          child: Row(
-                                            children: [
-                                              IconButton(
-                                                icon: Icon(Icons.edit , size: 30,color: Colors.blueAccent,),
-                                                onPressed: () {
-                                                  edittm(context,index);
-                                                },
-                                              ),
-                                              IconButton(
-                                                icon: Icon(Icons.delete, size: 30,color: Colors.red),
-                                                onPressed: () {
-                                                  deletetmDailog(context,index);
-                                                },
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )])
-                              : Container():Container();
-                        }),
-                  ))
-          ),
         ]),
       ),
     );
   }
 
+  //delete tm
+  Future<void> deleteAlbum(String teamId) async {
+    showAlert(context);
+    try{
+      final  response = await http.put(
+          Uri.parse('https://mindmadetech.in/api/team/delete/$teamId'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: jsonEncode(<String, String>{
+            'Isdeleted': "y",
+          }
+          ));
+      if (response.statusCode == 200) {
+        if(response.body.contains("Is deleted : y")){
+          Navigator.pop(context);
+          setState(() {
+            refreshListener();
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.done_all,color: Colors.white,),
+                    Text(' Team Deleted!'),
+                  ],
+                ),
+                backgroundColor: Colors.green,
+                behavior: SnackBarBehavior.floating,
+              )
+          );
+        }else{
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.wifi_outlined,color: Colors.white,),
+                    Text(' Unable to delete team!'),
+                  ],
+                ),
+                backgroundColor: Colors.red[300],
+                behavior: SnackBarBehavior.floating,
+              )
+          );
+        }
+      } else {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.wifi_outlined,color: Colors.white,),
+                  Text(' Something went wrong!'),
+                ],
+              ),
+              backgroundColor: Colors.red[300],
+              behavior: SnackBarBehavior.floating,
+            )
+        );
+      }
+    }catch(error){
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.wifi_outlined,color: Colors.white,),
+                Text(' Something went wrong!'),
+              ],
+            ),
+            backgroundColor: Colors.red[300],
+            behavior: SnackBarBehavior.floating,
+          )
+      );
+    }
+
+  }
   //update tm
-  Future<void> updateTeam(String name, String Pass, String tm,int index) async {
-    String teamId = teamList[index].teamId;
+  Future<void> updateTeam(String name, String Pass,String mobile, String tm,int index) async {
+    showAlert(context);
+    String teamId = searchList[index].teamId;
     final response = await http.put(
       Uri.parse('https://mindmadetech.in/api/team/update/$teamId'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(<String, String>{
-        'Username': name,
-        'Password': Pass,
-        'Team':tm
+        "Email" : name.toString(),
+        "Password" : Pass.toString(),
+        "Team" : tm.toString(),
+        "Phonenumber":mobile.toString(),
+        "ModifiedOn":formatter.format(DateTime.now()),
+        "ModifiedBy":createdBy,
       }),
     );
 
     if (response.statusCode == 200) {
-      print( teamList[index].Username );
-      Fluttertoast.showToast(
-          msg: 'Updated Successfully',
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-          fontSize: 15.0
-      );
-      setState((){
-        teamList[index].Username = name;
-        teamList[index].Password= Pass;
-        teamList[index].Team= tm;
-      });
+      if(response.body.contains('Updated Successfully')){
+        Navigator.pop(context);
+        setState((){
+          searchList[index].email = name;
+          searchList[index].Password= Pass;
+          searchList[index].Team= tm;
+          searchList[index].phone= mobile;
+          refreshListener();
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.done_all,color: Colors.white,),
+                  Text(' Edits saved!'),
+                ],
+              ),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+            )
+        );
+      }else{
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.close_outlined,color: Colors.white,),
+                  Text(' Failed to save edits!'),
+                ],
+              ),
+              backgroundColor: Colors.red[300],
+              behavior: SnackBarBehavior.floating,
+            )
+        );
+      }
     } else {
+      Navigator.pop(context);
       Fluttertoast.showToast(
           msg: 'Failed to Update Team!',
           toastLength: Toast.LENGTH_LONG,
@@ -866,48 +1100,10 @@ class _TeamListState extends State<TeamList> {
           timeInSecForIosWeb: 1,
           backgroundColor: Colors.red,
           textColor: Colors.white,
-          fontSize: 15.0);
-      setState((){
-        teamList[index].Username = name;
-        teamList[index].Password= Pass;
-        teamList[index].Team= tm;
-      });
+          fontSize: 15.0
+      );
       throw Exception('Failed to update album.');
     }
-  }
-}
-//delete tm
-Future<GetTeam> deleteAlbum(String teamId) async {
-  final  response = await http.put(
-      Uri.parse('https://mindmadetech.in/api/team/delete/$teamId'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{
-        'Isdeleted': "y",
-      }
-      ));
-
-  if (response.statusCode == 200) {
-    Fluttertoast.showToast(
-        msg: 'Team detials deleted Successfully',
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 15.0);
-    return GetTeam.fromJson(jsonDecode(response.body));
-  } else {
-    Fluttertoast.showToast(
-        msg: 'Failed to Delete Team Detials!',
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 15.0);
-    throw Exception('Failed to delete album.');
   }
 }
 
@@ -915,23 +1111,42 @@ class GetTeam {
   String teamId;
   String Username;
   String Password;
+  String email;
+  String phone;
   String Team;
+  String createdOn;
+  String createdBy;
+  String modOn;
+  String modBy;
   String Isdeleted;
 
   GetTeam(
       {required this.teamId,
+        required this.email,
         required this.Username,
         required this.Password,
+        required this.phone,
+        required this.createdOn,
+        required this.createdBy,
+        required this.modOn,
+        required this.modBy,
         required this.Team,
         required this.Isdeleted});
 
   factory GetTeam.fromJson(Map<String, dynamic> json) {
     return GetTeam(
         teamId: json['teamId'].toString(),
+        email: json['Email'].toString(),
+        phone: json['Phonenumber'].toString(),
         Username: json['Username'].toString(),
         Password: json['Password'].toString(),
+        createdOn: json['CreatedOn'].toString(),
+        createdBy: json['CreatedBy'].toString(),
+        modOn: json['ModifiedOn'].toString(),
+        modBy: json['ModifiedBy'].toString(),
         Team: json['Team'].toLowerCase().toString(),
         Isdeleted: json['Isdeleted'].toString());
   }
 }
+
 
