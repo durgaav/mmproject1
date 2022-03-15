@@ -83,6 +83,7 @@ class _MainMenusState extends State<MainMenus> {
 
   @override
   Widget build(BuildContext context) {
+    // precacheImage(AssetImage("assets/images/drawerpic.jpg"), context);
     greetsUsr = currentUser.split(" ").first;
     var counts = context.watch<Data>().getcounter();
     String count = '';

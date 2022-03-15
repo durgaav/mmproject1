@@ -325,6 +325,7 @@ class _TicketsState extends State<Tickets> {
   }
   @override
   Widget build(BuildContext context) {
+
     List completed = ticketDetails.where((element) => element.status.toLowerCase() == "completed").toList();
     if(searchText.isNotEmpty){
       setState(() {
@@ -508,7 +509,7 @@ class _TicketsState extends State<Tickets> {
           child: Column(
               children: <Widget>[
                 usertype!='customer'?
-                     Container(
+              Container(
                   margin: EdgeInsets.all(10),
                   height: 45,
                   child: TextField(
@@ -529,7 +530,9 @@ class _TicketsState extends State<Tickets> {
                       contentPadding: EdgeInsets.all(5),
                         hintStyle: TextStyle(color: Colors.black),
                         hintText: 'Search...',
-                        border: OutlineInputBorder(),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)
+                        ),
                         prefixIcon: Icon(
                           Icons.search_rounded,
                           color: Colors.black54,
@@ -555,7 +558,7 @@ class _TicketsState extends State<Tickets> {
                         )),
                   ),
                 )
-                    :Container(
+             :Container(
                   height: 50,
                   padding: EdgeInsets.all(10),
                   child: Text('${completed.length} completed tickets',style: TextStyle(
@@ -575,6 +578,7 @@ class _TicketsState extends State<Tickets> {
                         ),
                         onTap: () => setState(() {
                           fetchTickets();
+                          fetchTeams();
                         })),
                   ),
                 ),
@@ -591,7 +595,8 @@ class _TicketsState extends State<Tickets> {
                         shrinkWrap: true,
                         itemCount: searchList.length,
                         itemBuilder: (BuildContext context, int index) {
-                          return sortString.toLowerCase()=="all"?Column(
+                          return sortString.toLowerCase()=="all"?
+                          Column(
                            children: <Widget>[
                              ListTile(
                                   onTap: () {
@@ -880,7 +885,7 @@ class _TicketsState extends State<Tickets> {
                           fontSize: 25, color: Colors.deepPurple),
                     ),
                   ),
-                )
+                ),
               ]),
         ),
       ),

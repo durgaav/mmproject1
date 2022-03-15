@@ -239,7 +239,13 @@ class _TicketViewPageState extends State<TicketViewPage> {
                           color: Colors.green,
                           onPressed: (){
                             Navigator.pop(context);
-                            sendCompleteMail();
+                            if(Status.toLowerCase()!="completed"||Status.isEmpty){
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Ticket is not completed'))
+                              );
+                            }else{
+                              sendCompleteMail();
+                            }
                             },
                           child: Row(
                             children: [
@@ -351,7 +357,6 @@ class _TicketViewPageState extends State<TicketViewPage> {
           content: Text('Sending Mail To Team(s)....'),
         )
     );
-
     try{
       String username = 'durgadevi@mindmade.in';
       String password = 'Appu#001';
@@ -370,7 +375,8 @@ class _TicketViewPageState extends State<TicketViewPage> {
       try {
         await send(equivalentMessage, smtpServer);
         print('Message sent: ' + send.toString());
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
           content: Row(
             children: [
               Icon(
@@ -397,7 +403,7 @@ class _TicketViewPageState extends State<TicketViewPage> {
                 Text('  Mail send failed!'),
               ],
             ),
-            backgroundColor:Colors.red[200],
+            backgroundColor:Colors.red,
             behavior: SnackBarBehavior.floating,
           ));
         }
@@ -410,7 +416,6 @@ class _TicketViewPageState extends State<TicketViewPage> {
           )
       );
     }
-
   }
 
   void confirmDialogTeamRe(){
@@ -654,7 +659,8 @@ class _TicketViewPageState extends State<TicketViewPage> {
             timeInSecForIosWeb: 1,
             backgroundColor: Colors.green,
             textColor: Colors.white,
-            fontSize: 15.0);
+            fontSize: 15.0
+        );
         Navigator.pop(context);
         setState(() {
           if (val == "Started") {
@@ -736,10 +742,14 @@ class _TicketViewPageState extends State<TicketViewPage> {
       Navigator.pop(context);
       if(response.body.contains("Team array's data are temporarily deleted")){
         setState(() {
-          ids = [];
-          teamsIndex = [];
+          if(ids.isNotEmpty){
+            ids = [];
+            teamsIndex = [];
+          }else{
+            ids = [];
+            teamsIndex = [];
+          }
           print("here is idss..."+ids.toString() + teamsIndex.toString());
-
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Row(
               children: [
@@ -753,7 +763,6 @@ class _TicketViewPageState extends State<TicketViewPage> {
             backgroundColor: Color(0xff198D0F),
             behavior: SnackBarBehavior.floating,
           ));
-
         });
       }else{
         Navigator.pop(context);
@@ -761,7 +770,7 @@ class _TicketViewPageState extends State<TicketViewPage> {
           content: Row(
             children: [
               Icon(
-                Icons.done_all,
+                Icons.wifi_outlined,
                 color: Colors.white,
               ),
               Text('  Failed to Re-assign!'),
@@ -778,7 +787,7 @@ class _TicketViewPageState extends State<TicketViewPage> {
         content: Row(
           children: [
             Icon(
-              Icons.done_all,
+              Icons.wifi_outlined,
               color: Colors.white,
             ),
             Text('  Something went wrong!'),
@@ -996,9 +1005,6 @@ class _TicketViewPageState extends State<TicketViewPage> {
   }
 
   void loadAssignedTeam() {
-    // if(teams.isEmpty){
-    //   print('empty assign...');
-    // }else{
     setState(() {
       for (int i = 0; i < teams.length; i++) {
         ids.add(teams[i].teamId);
@@ -1012,7 +1018,6 @@ class _TicketViewPageState extends State<TicketViewPage> {
       teamsIndex.removeWhere((element) => element == -1);
       teamsIndex = teamsIndex.toSet().toList();
     });
-
   }
 
   //endregion Functions
@@ -1174,8 +1179,6 @@ class _TicketViewPageState extends State<TicketViewPage> {
                       onPressed: () {
                         setState(() {
                           confirmDialogTeamRe();
-                          // ids = [];
-                          // teamsIndex = [];
                         });
                       },
                       child: Row(

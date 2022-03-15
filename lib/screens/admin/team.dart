@@ -6,7 +6,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:mmcustomerservice/screens/admin/teamview.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -18,10 +17,9 @@ class TeamList extends StatefulWidget {
 }
 
 class _TeamListState extends State<TeamList> {
-
   //region Var
   String dropdownValue = "Design";
-  final List<String> datas = ["Seo", "Design", "Development", "Server"];
+  final List<String> datas = ["SEO", "Design", "Development", "Server"];
   TextEditingController UserController = TextEditingController();
   TextEditingController PassController = TextEditingController();
   TextEditingController phoneCtrl = TextEditingController();
@@ -33,7 +31,8 @@ class _TeamListState extends State<TeamList> {
   String createdBy = '';
   bool retryVisible = false;
   bool clearSearch = false;
-  String sortString = "user";
+  String sortString = "all";
+  List<GetTeam> searchList = [];
   bool isVisible = true;
   DateFormat formatter = DateFormat('dd-MM-yyyy hh:mm a');
   bool isSorted = false;
@@ -101,7 +100,7 @@ class _TeamListState extends State<TeamList> {
                   },
                       child: Text('No', style: TextStyle(fontSize: 16),)),
                   TextButton(onPressed: () {
-                    deleteAlbum(teamList[index].teamId);
+                    deleteAlbum(searchList[index].teamId);
                     Navigator.pop(context);
                   },
                       child: Text('Yes', style: TextStyle(fontSize: 16),))
@@ -116,9 +115,9 @@ class _TeamListState extends State<TeamList> {
     return showDialog(
         context: context,
         builder: (context) {
-          TextEditingController  UserController = TextEditingController(text: teamList[index].Username);
-          TextEditingController PassController = TextEditingController(text: teamList[index].Password);
-          phoneCtrl = new TextEditingController(text:teamList[index].phone );
+          TextEditingController  UserController = TextEditingController(text: searchList[index].Username);
+          TextEditingController PassController = TextEditingController(text: searchList[index].Password);
+          phoneCtrl = new TextEditingController(text:searchList[index].phone );
           return Container(
               width: double.infinity,
               child: AlertDialog(
@@ -214,7 +213,6 @@ class _TeamListState extends State<TeamList> {
         });
   }
 
-
   void showAlert(BuildContext context) {
     showDialog(
         context: context,
@@ -284,6 +282,16 @@ class _TeamListState extends State<TeamList> {
               height: 600,
               width: double.infinity,
               child: AlertDialog(
+                title: Column(
+                  children: [
+                    Text('Add New Team Member',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16),),
+                    Container(
+                      height: 0.5,
+                      color: Colors.blue,
+                      margin: EdgeInsets.only(top : 15),
+                    )
+                  ],
+                ),
                 scrollable: true,
                 content: Form(
                   child: Container(
@@ -466,55 +474,29 @@ class _TeamListState extends State<TeamList> {
 
   @override
   Widget build(BuildContext context) {
-    teamList = teamList.reversed.toList();
+    if(searchText.isNotEmpty){
+      setState(() {
+        searchList = teamList.where((element) => element.email.toString()
+            .toLowerCase().contains(searchText.toString().toLowerCase())).toList();
+      });
+    }else{
+      setState(() {
+        searchList = teamList.toList();
+      });
+    }
+    searchList = searchList.reversed.toList();
+
     return Scaffold(
       appBar: AppBar(
-          backgroundColor: Color(0Xff146bf7),
-          title: Container(
-            //search
-            child: TextField(
-              style: TextStyle(color: Colors.white),
-              cursorColor: Colors.white,
-              controller: searchController,
-              onChanged: (value) {
-                setState(() {
-                  searchText = value;
-                  if (searchText.length > 0) {
-                    clearSearch = true;
-                  } else {
-                    clearSearch = false;
-                  }
-                });
-              },
-              decoration: InputDecoration(
-                  hintStyle: TextStyle(color: Colors.white),
-                  hintText: 'Search...',
-                  border: InputBorder.none,
-                  prefixIcon: Icon(
-                    Icons.search_rounded,
-                    color: Colors.white,
-                    size: 26,
-                  ),
-                  suffixIcon: Visibility(
-                    visible: clearSearch,
-                    child: IconButton(
-                      color: Colors.white,
-                      iconSize: 20,
-                      icon: Icon(
-                        Icons.close,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          searchText = "";
-                          searchController.clear();
-                          FocusScope.of(context).unfocus();
-                          clearSearch = false;
-                        });
-                      },
-                    ),
-                  )),
-            ),
+          leading: IconButton(
+            onPressed: (){Navigator.pop(context);},
+            icon:Icon(CupertinoIcons.back),
+            iconSize: 30,
+            splashColor: Colors.purpleAccent,
           ),
+          centerTitle: true,
+          backgroundColor: Color(0Xff146bf7),
+          title: Text("Team"),
           actions: [
             PopupMenuButton(
                 icon: Icon(Icons.filter_alt_outlined),
@@ -529,8 +511,7 @@ class _TeamListState extends State<TeamList> {
                     onTap: () {
                       setState(() {
                         sortString = "design";
-                        isVisible = false;
-                        isSorted = true;
+
                         print(sortString);
                         FocusScope.of(context).unfocus();
                       });
@@ -553,8 +534,6 @@ class _TeamListState extends State<TeamList> {
                       setState(() {
                         FocusScope.of(context).unfocus();
                         sortString = "development";
-                        isVisible = false;
-                        isSorted = true;
                         print(sortString);
                       });
                     },
@@ -573,8 +552,7 @@ class _TeamListState extends State<TeamList> {
                     onTap: () {
                       setState(() {
                         sortString = "seo";
-                        isVisible = false;
-                        isSorted = true;
+
                         print(sortString);
 
                       });
@@ -594,8 +572,6 @@ class _TeamListState extends State<TeamList> {
                     onTap: () {
                       setState(() {
                         sortString = "server";
-                        isVisible = false;
-                        isSorted = true;
                         print(sortString);
 
                       });
@@ -615,10 +591,7 @@ class _TeamListState extends State<TeamList> {
                     onTap: () {
                       setState(() {
                         sortString="all";
-                        isVisible = true;
-                        isSorted = false;
                         print(sortString);
-
                       });
                     },
                     child: Row(
@@ -648,6 +621,57 @@ class _TeamListState extends State<TeamList> {
       ),
       body: SingleChildScrollView(
         child: Column(children: <Widget>[
+
+          Container(
+            margin: EdgeInsets.all(10),
+            height: 45,
+            child: TextField(
+              style: TextStyle(color: Colors.black),
+              cursorColor: Colors.black,
+              controller: searchController,
+              onChanged: (value) {
+                setState(() {
+                  searchText = value;
+                  if (searchText.length > 0) {
+                    clearSearch = true;
+                  } else {
+                    clearSearch = false;
+                  }
+                });
+              },
+              decoration: InputDecoration(
+                  contentPadding: EdgeInsets.all(5),
+                  hintStyle: TextStyle(color: Colors.black),
+                  hintText: 'Search...',
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10)
+                  ),
+                  prefixIcon: Icon(
+                    Icons.search_rounded,
+                    color: Colors.black54,
+                    size: 26,
+                  ),
+                  suffixIcon: Visibility(
+                    visible: clearSearch,
+                    child: IconButton(
+                      color: Colors.black54,
+                      iconSize: 24,
+                      icon: Icon(
+                          Icons.cancel_outlined
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          searchText = "";
+                          searchController.clear();
+                          FocusScope.of(context).unfocus();
+                          clearSearch = false;
+                        });
+                      },
+                    ),
+                  )),
+            ),
+          ),
+
           Visibility(
             visible: retryVisible,
             child: Padding(
@@ -662,55 +686,41 @@ class _TeamListState extends State<TeamList> {
                       })),
             ),
           ),
-          Padding(
-            padding:EdgeInsets.only(top:8.0,bottom: 8.0),
-            child: Text(
-              "Team members",
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 20,
-                fontWeight: FontWeight.w500
-              ),
-            ),
-          ),
-          Visibility(
-              visible: isVisible,
-              child:Container(
+
+          Container(
                   width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height *0.83,
+                  height: MediaQuery.of(context).size.height *0.81,
                   child: RefreshIndicator(
                     onRefresh: refreshListener,
                     backgroundColor: Colors.blue,
                     color: Colors.white,
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                        itemCount: teamList.length,
+                    child: searchList.length>0?
+                    ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: searchList.length,
                         itemBuilder: (BuildContext context, int index) {
-                          return (teamList[index].Isdeleted == "n")
-                              ? (teamList[index]
-                              .Username
-                              .toLowerCase()
-                              .contains(searchText))
+                          return
+                              sortString=="all"
                               ? Column(
                               children: <Widget>[
                                 Container(
                                   child: ExpansionTile(
                                     leading:CircleAvatar(
                                       backgroundColor:
-                                      Colors.primaries[Random().nextInt(Colors.primaries.length)],
+                                      Colors.lightGreen,
                                        radius: 27,
                                       child: Text(
-                                          teamList[index].email[0].toUpperCase(),
+                                          searchList[index].email[0].toUpperCase(),
                                           style: TextStyle(fontSize:22,fontWeight: FontWeight.bold,color: Colors.white),
                                       ),
                                     ),
                                     title: Text(
-                                      teamList[index].email,
+                                      searchList[index].email,
                                       maxLines:1,
                                       style: TextStyle(fontSize: 17.5),
                                     ),
                                     subtitle: Text(
-                                      teamList[index].Team,
+                                      searchList[index].Team,
                                       style: TextStyle(
                                           fontSize: 15, color: Colors.black45),
                                     ),
@@ -728,7 +738,7 @@ class _TeamListState extends State<TeamList> {
                                                   style: TextStyle(
                                                       fontSize: 15, color: Colors.black45)),
                                               subtitle: Text(
-                                                teamList[index].teamId + " & " +teamList[index].Team,
+                                                searchList[index].teamId + " & " +searchList[index].Team,
                                                 style: TextStyle(
                                                     fontSize: 16, color: Colors.black),
                                               ),
@@ -738,7 +748,7 @@ class _TeamListState extends State<TeamList> {
                                                   style: TextStyle(
                                                       fontSize: 15, color: Colors.black45)),
                                               subtitle: Text(
-                                                teamList[index].email,
+                                                searchList[index].email,
                                                 style: TextStyle(
                                                     fontSize: 16, color: Colors.black),
                                               ),
@@ -749,20 +759,20 @@ class _TeamListState extends State<TeamList> {
                                                   style: TextStyle(
                                                       fontSize: 15, color: Colors.black45)),
                                               subtitle: Text(
-                                                teamList[index].Password,
+                                                searchList[index].Password,
                                                 style: TextStyle(
                                                     fontSize: 16, color: Colors.black),
                                               ),
                                             ),
                                             ListTile(
                                               onTap:(){
-                                                launch("tel://${teamList[index].phone}");
+                                                launch("tel://${searchList[index].phone}");
                                               },
                                               title: Text('Phone',
                                                   style: TextStyle(
                                                       fontSize: 15, color: Colors.black45)),
                                               subtitle: Text(
-                                                teamList[index].phone,
+                                                searchList[index].phone,
                                                 style: TextStyle(
                                                     fontSize: 16, color: Colors.black
                                                 ),
@@ -813,49 +823,28 @@ class _TeamListState extends State<TeamList> {
                                     ],
                                   ),
                                 ),
-                              ])
-                              : Container()
-                              : Container();
-                        }),
-                  ))
-          ),
-          Visibility(
-              visible: isSorted,
-              child:Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height *0.83,
-                  child: RefreshIndicator(
-                    onRefresh: refreshListener,
-                    backgroundColor: Colors.blue,
-                    color: Colors.white,
-                    child: ListView.builder(
-                        itemCount: teamList.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return (teamList[index].Team=="$sortString")
-                              ? (teamList[index]
-                              .email
-                              .toLowerCase()
-                              .contains(searchText))
-                              ? Column(
+                              ]) :
+                              searchList[index].Team.toLowerCase()=="$sortString"
+                              ?Column(
                               children: <Widget>[
                                 Container(
                                   child: ExpansionTile(
                                     leading:CircleAvatar(
                                       backgroundColor:
-                                      Colors.primaries[Random().nextInt(Colors.primaries.length)],
+                                      Colors.blueAccent,
                                       radius: 27,
                                       child: Text(
-                                        teamList[index].email[0].toUpperCase(),
+                                        searchList[index].email[0].toUpperCase(),
                                         style: TextStyle(fontSize:22,fontWeight: FontWeight.bold,color: Colors.white),
                                       ),
                                     ),
                                     title: Text(
-                                      teamList[index].email,
+                                      searchList[index].email,
                                       maxLines:1,
                                       style: TextStyle(fontSize: 17.5),
                                     ),
                                     subtitle: Text(
-                                      teamList[index].Team,
+                                      searchList[index].Team,
                                       style: TextStyle(
                                           fontSize: 15, color: Colors.black45),
                                     ),
@@ -865,7 +854,7 @@ class _TeamListState extends State<TeamList> {
                                             style: TextStyle(
                                                 fontSize: 15, color: Colors.black45)),
                                         subtitle: Text(
-                                          teamList[index].teamId + " & " +teamList[index].Team,
+                                          searchList[index].teamId + " & " +searchList[index].Team,
                                           style: TextStyle(
                                               fontSize: 16, color: Colors.black),
                                         ),
@@ -875,7 +864,7 @@ class _TeamListState extends State<TeamList> {
                                             style: TextStyle(
                                                 fontSize: 15, color: Colors.black45)),
                                         subtitle: Text(
-                                          teamList[index].email,
+                                          searchList[index].email,
                                           style: TextStyle(
                                               fontSize: 16, color: Colors.black),
                                         ),
@@ -886,20 +875,20 @@ class _TeamListState extends State<TeamList> {
                                             style: TextStyle(
                                                 fontSize: 15, color: Colors.black45)),
                                         subtitle: Text(
-                                          teamList[index].Password,
+                                          searchList[index].Password,
                                           style: TextStyle(
                                               fontSize: 16, color: Colors.black),
                                         ),
                                       ),
                                       ListTile(
                                         onTap:(){
-                                          launch("tel://${teamList[index].phone}");
+                                          launch("tel://${searchList[index].phone}");
                                         },
                                         title: Text('Phone',
                                             style: TextStyle(
                                                 fontSize: 15, color: Colors.black45)),
                                         subtitle: Text(
-                                          teamList[index].phone,
+                                          searchList[index].phone,
                                           style: TextStyle(
                                               fontSize: 16, color: Colors.black
                                           ),
@@ -948,11 +937,20 @@ class _TeamListState extends State<TeamList> {
                                   ),
                                 ),
                               ]
-                              )
-                              : Container():Container();
-                        }),
+                          ):
+                               Container();
+                        }):Center(
+                      child: Container(
+                        padding: EdgeInsets.only(top: 15),
+                        child: Text(
+                          'No data found!',
+                          style: TextStyle(
+                              fontSize: 25, color: Colors.deepPurple),
+                        ),
+                      ),
+                    )
                   ))
-          ),
+
         ]),
       ),
     );
@@ -1039,7 +1037,7 @@ class _TeamListState extends State<TeamList> {
   //update tm
   Future<void> updateTeam(String name, String Pass,String mobile, String tm,int index) async {
     showAlert(context);
-    String teamId = teamList[index].teamId;
+    String teamId = searchList[index].teamId;
     final response = await http.put(
       Uri.parse('https://mindmadetech.in/api/team/update/$teamId'),
       headers: <String, String>{
@@ -1059,10 +1057,10 @@ class _TeamListState extends State<TeamList> {
       if(response.body.contains('Updated Successfully')){
         Navigator.pop(context);
         setState((){
-          teamList[index].email = name;
-          teamList[index].Password= Pass;
-          teamList[index].Team= tm;
-          teamList[index].phone= mobile;
+          searchList[index].email = name;
+          searchList[index].Password= Pass;
+          searchList[index].Team= tm;
+          searchList[index].phone= mobile;
           refreshListener();
         });
         ScaffoldMessenger.of(context).showSnackBar(

@@ -1,14 +1,12 @@
 
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:http/http.dart' as http;
 import 'package:mmcustomerservice/screens/admin/register.dart';
 import 'package:mmcustomerservice/screens/email_activity.dart';
 import 'package:mmcustomerservice/screens/homepage.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
@@ -297,7 +295,7 @@ class _LoginPageState extends State<LoginPage> {
                         TextButton(
                             onPressed: (){
                               Navigator.push(context,
-                              MaterialPageRoute(builder: (context)=> EmailACtivity())
+                                  MaterialPageRoute(builder: (context)=> EmailACtivity())
                               );
                             },
                             child:Text('Forget password')
@@ -332,4 +330,5 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
+
 
