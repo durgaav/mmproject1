@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:http/http.dart' as http;
 import 'package:mmcustomerservice/screens/admin/register.dart';
@@ -19,14 +20,6 @@ class _LoginPageState extends State<LoginPage> {
 
   //region Global variables
   final _formKey = GlobalKey<FormState>();
-
-  //region Validator
-  final mailValidator =
-  MultiValidator([RequiredValidator(errorText: 'Cannot be blank')]);
-
-  final passValidator =
-  MultiValidator([RequiredValidator(errorText: 'Cannot be blank')]);
-  //endregion
 
   //login controller
   TextEditingController mailController = TextEditingController();
@@ -224,7 +217,6 @@ class _LoginPageState extends State<LoginPage> {
                                   color: Colors.black45),
                               hintText: 'Email',
                             ),
-                            validator: mailValidator,
                             keyboardType: TextInputType.emailAddress,
                           ),
                         ),
@@ -233,7 +225,6 @@ class _LoginPageState extends State<LoginPage> {
                               left: 25, top: 20, right: 25),
                           child: TextFormField(
                             controller: password,
-                            validator: passValidator,
                             obscureText: _obscured,
                             decoration:  InputDecoration(
                               border: UnderlineInputBorder(),
@@ -258,7 +249,15 @@ class _LoginPageState extends State<LoginPage> {
                             margin: EdgeInsets.only(top: 30, bottom: 10),
                             child: ElevatedButton(
                               onPressed: () {
-                                if(mailController.text.toString() == ''||password.text.toString()==''){
+                                bool emailValid = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                                    .hasMatch(mailController.toString());
+                                print(emailValid);
+                                if(emailValid!=true){
+                                  Fluttertoast.showToast(
+                                    msg: 'Enter a valid email id',
+                                    backgroundColor: Colors.red,
+                                  );
+                                }if(mailController.text.toString() == ''||password.text.toString()==''){
                                   FocusScope.of(context).unfocus();
                                   ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(

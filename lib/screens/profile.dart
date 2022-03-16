@@ -210,33 +210,28 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         ),
                       ),
+                      //send
                       Positioned(
                           top:530,
                           left: 170,
-                          child: Container(
-                            width: 160,height: 50,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color: Colors.white
+                          child:RaisedButton(
+                            onPressed: (){
+                              Navigator.push(context, MaterialPageRoute(builder: (context)=>ChangePassword()));
+                            },
+                            child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children:[
+                        Icon(Icons.lock_outlined),
+                        Text('Change password'),
+                      ]
+                          ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20)
                             ),
-                            child: GestureDetector(
-                              onTap: (){
-                                Navigator.push(context, MaterialPageRoute(
-                                    builder: (context)=>ChangePassword()
-                                ));
-                              },
-                              child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children:[
-                                    Icon(Icons.lock_outlined),
-                                    Text('Change password'),
-                                  ]
-                              ),
-                            ),
+                            color: Colors.white,
                           )
                       )
-
+                      //
                     ],
                   )
                 ],
@@ -247,4 +242,3 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 }
-

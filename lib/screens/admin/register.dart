@@ -134,8 +134,8 @@ class _RegisterState extends State<Register> {
               SnackBar(
                 content: Row(
                   children: [
-                    Icon(Icons.done_all),
-                    Text('Ticket Created Successfuly'),
+                    Icon(Icons.done_all,color: Colors.white,),
+                    Text('   Ticket Created Successfuly'),
                   ],
                 ),
                 backgroundColor: green,
