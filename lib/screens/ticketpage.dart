@@ -359,6 +359,12 @@ class _TicketsState extends State<Tickets> {
               ? Text('Tickets')
               : Text('My Tickets'),
           actions: [
+            IconButton(
+                onPressed: (){
+                  refreshListener();
+                },
+                icon: Icon(Icons.refresh_outlined)
+            ),
             PopupMenuButton(
                 icon: Icon(Icons.filter_alt_outlined),
                 itemBuilder: (context) => [
@@ -593,7 +599,6 @@ class _TicketsState extends State<Tickets> {
                   height: MediaQuery.of(context).size.height * 0.81,
                   child:DraggableScrollbar.rrect(
                     backgroundColor: Colors.blue,
-                    alwaysVisibleScrollThumb: true,
                     controller: scrollController,
                     child: ListView.builder(
                       controller: scrollController,
