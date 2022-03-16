@@ -57,7 +57,11 @@ class _TicketsState extends State<Tickets> {
 
     //notification to seen
     if(searchList[index].notification=="unseen"){
-      clearNotify(searchList[index].ticketsId.toString(), index);
+      if(usertype=='admin'){
+        clearNotify(searchList[index].ticketsId.toString(), index);
+      }else{
+        print("not a user!");
+      }
     }
 
     for (int i = 0; i < searchList[index].files.length; i++) {

@@ -194,7 +194,7 @@ class _HomePageState extends State<HomePage> {
         setState(() {
           usertype = userType;
           currentUser = currentUserStr;
-          Counttk();
+          fetchAllTick();
           fetchAllCounting();
         });
       }
@@ -488,8 +488,6 @@ class _HomePageState extends State<HomePage> {
     Future.delayed(
         Duration.zero, () async {
       screenVisibility();
-      fetchAllTick();
-      showfiles();
     });
   }
   @override
@@ -850,7 +848,7 @@ class _HomePageState extends State<HomePage> {
                                             mainAxisAlignment: MainAxisAlignment.center,
                                             crossAxisAlignment: CrossAxisAlignment.center,
                                             children: [
-                                              Icon(Icons.change_circle_outlined ,size: 40,color: Colors.white,),
+                                              Icon(CupertinoIcons.clock ,size: 40,color: Colors.white,),
                                               SizedBox(height: 10,),
                                               Text('No Of \nInprogress',
                                                 textAlign: TextAlign.center
