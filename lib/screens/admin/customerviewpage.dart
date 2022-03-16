@@ -309,7 +309,6 @@ class _ViewPageState extends State<ViewPage> {
       if (response.statusCode == 200) {
         String res = await response.stream.bytesToString();
         if(res.contains("Customer details updated successfully")){
-          _image == File("");
           Navigator.of(context,rootNavigator: true).pop();
           Navigator.of(context,rootNavigator: true).pop();
           ScaffoldMessenger.of(context).showSnackBar(
@@ -337,6 +336,7 @@ class _ViewPageState extends State<ViewPage> {
             Createdby= Createdby;
             Modifiedon= formatter.format(DateTime.now());
             Modifiedby= createdBy;
+            _image == File("");
           });
         }else{
           _image == File("");
@@ -688,14 +688,14 @@ class _ViewPageState extends State<ViewPage> {
                         ListTile(
                             leading: Icon(CupertinoIcons.time_solid ),
                             title: Text("Modified on", style: TextStyle(fontSize: 15, color: Colors.black45),),
-                            subtitle:Modifiedon.isEmpty?Text('Not yet modified.',
+                            subtitle:Modifiedon=="null"?Text('Not yet modified.',
                               style: TextStyle(fontSize: 18, color: Color(0XFF333333)),):
                             Text(Modifiedon, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),)
                         ),
                         ListTile(
                             leading: Icon(CupertinoIcons.doc_person),
                             title: Text("Modified by", style: TextStyle(fontSize: 15, color: Colors.black45),),
-                            subtitle:Modifiedby.isEmpty?Text('Not yet modified.',
+                            subtitle:Modifiedby=="null"?Text('Not yet modified.',
                               style: TextStyle(fontSize: 18, color: Color(0XFF333333)),):
                             Text(Modifiedby, style: TextStyle(fontSize: 18, color: Color(0XFF333333)),)
                         ),

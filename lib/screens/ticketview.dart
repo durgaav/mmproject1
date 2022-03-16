@@ -1271,14 +1271,6 @@ class _TicketViewPageState extends State<TicketViewPage> {
                         ),
                       ),
                       ListTile(
-                        title: Text('Email',
-                            style: TextStyle(fontSize: 15, color: Colors.black45)),
-                        subtitle: Text(
-                          '$Email',
-                          style: TextStyle(fontSize: 16, color: Colors.black),
-                        ),
-                      ),
-                      ListTile(
                         title: Text('Domain name',
                             style: TextStyle(fontSize: 15, color: Colors.black45)),
                         subtitle: Text(

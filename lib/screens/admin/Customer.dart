@@ -93,7 +93,6 @@ class _CustomerState extends State<Customer> {
                               backgroundColor: Colors.white,
                               backgroundImage: FileImage(File('$imgPath')),
                             )),
-
                       ],
                     ),
                     TextField(
@@ -150,29 +149,36 @@ class _CustomerState extends State<Customer> {
                                   style: TextStyle(color: Colors.white),
                                 ),
                                 onPressed: () {
-                                  if (compName.text.isEmpty ||
+                                  bool emailValid = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                                      .hasMatch(mailId.text.toString());
+                                  print(emailValid);
+                                  if(emailValid!=true){
+                                    Fluttertoast.showToast(
+                                      msg: 'Enter a valid email id',
+                                      backgroundColor: Colors.red,
+                                    );
+                                  }else if (compName.text.isEmpty ||
                                       passWd.text.isEmpty ||
                                       mailId.text.isEmpty ||
                                       phnNum.text.length < 10 ||
                                       clientNm.text.isEmpty||_image.path.isEmpty) {
-
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text('Fields cannot be blank!'),
-                                          backgroundColor: Colors.red,
-                                        )
-                                    );
+                                      Fluttertoast.showToast(
+                                        msg: "Please fill all the details/Select profile image.",
+                                        toastLength: Toast.LENGTH_LONG,
+                                        timeInSecForIosWeb: 1,
+                                        backgroundColor: Colors.red,
+                                        textColor: Colors.white,
+                                        fontSize: 18.0
+                                     );
                                   } else {
-
+                                    Navigator.pop(context);
                                     AddNewUser(
                                         compName.text.toString(),
                                         passWd.text.toString(),
                                         mailId.text.toString(),
                                         phnNum.text.toString(),
                                         clientNm.text.toString(),
-                                        context
                                     );
-                                    sendMailToClient();
                                   }
                                 },
                                 color: Colors.blue,
@@ -199,7 +205,7 @@ class _CustomerState extends State<Customer> {
   }
 
 //send mail
-  void sendMailToClient() async {
+  void sendMailToClient(String mail , String pass) async {
     try {
       setState(() {
         mailId.text.toString();
@@ -209,7 +215,6 @@ class _CustomerState extends State<Customer> {
       print(passWd);
       String username = 'durgadevi@mindmade.in';
       String password = 'Appu#001';
-
       final smtpServer = gmail(username, password);
       final equivalentMessage = Message()
         ..from = Address(username, 'DurgaDevi')
@@ -217,7 +222,14 @@ class _CustomerState extends State<Customer> {
         ..ccRecipients.addAll([Address('surya@mindmade.in'),])
       // ..bccRecipients.add('bccAddress@example.com')
         ..subject = 'Your Credentials ${formatter.format(DateTime.now())}'
-        ..text = '* Username: ${mailId.text.toString()} \n* Password:${passWd.text.toString()}';
+        ..text = 'Dear Sir/Madam,\n\n'
+            'Greetings from MindMade Customer Support Team!!! \n'
+            'You have been registered as Client on MindMade Customer Support.\n'
+            'To Login,go to https://mm-customer-support-ten.vercel.app/ then enter the following information:\n\n'
+            'Email : ${mail}\n'
+            'Password : ${pass}\n\n'
+            'You can change your password once you logged in.\n\n'
+            'Thanks & Regards, \nMindMade';
       // ..html = "<h1>Test</h1>\n<p>Hey! Here's some HTML content</p>";
       await send(equivalentMessage, smtpServer);
       print('Message sent: ' + send.toString());
@@ -244,7 +256,7 @@ class _CustomerState extends State<Customer> {
   }
 
   //Default loader
-  showAlert(BuildContext context) {
+  showAlert() {
     return showDialog(
         context: context,
         barrierDismissible: false,
@@ -268,8 +280,9 @@ class _CustomerState extends State<Customer> {
   }
 
   //Add new customer logic
-  Future AddNewUser(String comp,String pass, String mail, String phn, String client,BuildContext context) async {
-    showAlert(context);
+  Future AddNewUser(String comp,String pass, String mail, String phn, String client) async {
+    showAlert();
+    // https://mindmadetech.in/public/images/file-1645099812344.png
     print(_image);
     try {
       final request = http.MultipartRequest(
@@ -287,30 +300,39 @@ class _CustomerState extends State<Customer> {
       request.files.add(await http.MultipartFile.fromPath('file', _image.path,
           filename: Path.basename(_image.path),
           contentType: MediaType.parse("image/$extention")));
+
       http.StreamedResponse response = await request.send();
       if (response.statusCode == 200) {
+        print({
+          'Companyname': comp,
+          'Clientname': client,
+          'Password': pass,
+          'Email': mail,
+          'Phonenumber': phn,
+          'CreatedOn': formatter.format(DateTime.now()),
+          'CreatedBy': '$createdBy'
+        });
         String res = await response.stream.bytesToString();
-        if (res.contains("Username already Exists!")) {
-          Navigator.of(context, rootNavigator: true).pop();
-          Navigator.of(context, rootNavigator: true).pop();
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Row(
-                  children: [
-                    Icon(Icons.close,color: Colors.white,),
-                    Text(' EmailId already Exists!'),
-                  ],
-                ),
-                backgroundColor:red,
-                behavior: SnackBarBehavior.floating,
-              )
-          );
-          Navigator.pop(context);
-          return response;
+        print(res);
+        String s = '{"statusCode":400,"message":"Email already Exists!"}';
+        if (res.contains(s)) {
+            Navigator.pop(context);
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Row(
+                    children: [
+                      Icon(Icons.close,color: Colors.white,),
+                      Text(' EmailId already Exists!'),
+                    ],
+                  ),
+                  backgroundColor:red,
+                  behavior: SnackBarBehavior.floating,
+                )
+            );
         } else {
           Navigator.pop(context);
           setState(() {
+            sendMailToClient(mail.toString(), pass.toString());
             searchController = new TextEditingController(text: "");
             compName = new TextEditingController(text: "");
             passWd = new TextEditingController(text: "");
@@ -320,7 +342,7 @@ class _CustomerState extends State<Customer> {
             _image=File('');
             fetchCustomer();
           });
-          Navigator.pop(context);
+
           ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Row(
@@ -331,12 +353,11 @@ class _CustomerState extends State<Customer> {
                 ),
                 backgroundColor: green,
                 behavior: SnackBarBehavior.floating,
-              )
+              ),
           );
         }
       } else {
         Navigator.pop(context);
-        onNetworkChecking();
         print(await response.stream.bytesToString());
         print(response.statusCode);
         print(response.reasonPhrase);
@@ -353,9 +374,7 @@ class _CustomerState extends State<Customer> {
             )
         );
       }
-
     } catch(ex){
-      onNetworkChecking();
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -373,7 +392,7 @@ class _CustomerState extends State<Customer> {
   }
   //Getting customer list
   Future<void> fetchCustomer() async {
-    showAlert(context);
+    showAlert();
     try{
       http.Response response =
       await http.get(Uri.parse("https://mindmadetech.in/api/customer/list"));
@@ -384,6 +403,9 @@ class _CustomerState extends State<Customer> {
           retryVisible = false;
           Navigator.pop(context);
           data = b.map((e) => GetCustomer.fromJson(e)).toList();
+          setState(() {
+            data = data.reversed.toList();
+          });
         });
       }else{
         setState(() {
@@ -534,7 +556,6 @@ class _CustomerState extends State<Customer> {
 
   @override
   Widget build(BuildContext context) {
-    data = data.reversed.toList();
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {

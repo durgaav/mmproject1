@@ -170,12 +170,11 @@ class _AdticketNewState extends State<AdticketNew> {
 
   //add new ticket
   Future AddNewTicket(String Email, String Phonenumber,
-      String DomainName, String Description, BuildContext context) async {
+      String DomainName, String Description) async {
     showAlert(context);
       var pref = await SharedPreferences.getInstance();
       String  currentuser = pref.getString('usertype')??'';
-    String currentUserStr = pref.getString('usertypeMail')  ?? '';
-
+      String currentUserStr = pref.getString('usertypeMail')  ?? '';
     try{
       final request = http.MultipartRequest(
           'POST', Uri.parse('https://mindmadetech.in/api/tickets/new')
@@ -196,8 +195,9 @@ class _AdticketNewState extends State<AdticketNew> {
         http.StreamedResponse response = await request.send();
         String res = await response.stream.bytesToString();
         if (response.statusCode == 200) {
-          Navigator.pop(context);
-          if(res.contains('Ticket added successfully')){
+          print(res);
+          if(res.contains('{"statusCode":200,"message":"Submitted Successfully"}')){
+            Navigator.pop(context);
             setState(() {
               emailController = new TextEditingController(text: "");
               phnoController = new TextEditingController(text: "");
@@ -209,7 +209,7 @@ class _AdticketNewState extends State<AdticketNew> {
                   content: Row(
                     children: [
                       Icon(Icons.done_all,color: Colors.white,),
-                      Text('   Ticket added successfully'),
+                      Text(' Ticket added successfully'),
                     ],
                   ),
                   backgroundColor:green,
@@ -220,7 +220,6 @@ class _AdticketNewState extends State<AdticketNew> {
         }
         else {
           Navigator.pop(context);
-          onNetworkChecking();
           ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Row(
@@ -257,7 +256,7 @@ class _AdticketNewState extends State<AdticketNew> {
         http.StreamedResponse response = await request.send();
         String res = await response.stream.bytesToString();
         if (response.statusCode == 200) {
-          if(res.contains('   Ticket added successfully')){
+          if(res.contains('{"statusCode":200,"message":"Submitted Successfully"}')){
             setState(() {
               emailController = new TextEditingController(text: "");
               phnoController = new TextEditingController(text: "");
@@ -290,7 +289,7 @@ class _AdticketNewState extends State<AdticketNew> {
                 content: Row(
                   children: [
                     Icon(Icons.announcement_outlined,color: Colors.white,),
-                    Text(   response.reasonPhrase.toString()),
+                    Text(  response.reasonPhrase.toString()),
                   ],
                 ),
                 backgroundColor:red,
@@ -419,7 +418,7 @@ class _AdticketNewState extends State<AdticketNew> {
                                         emailController.text.toString(),
                                         phnoController.text.toString(),
                                         domainController.text.toString(),
-                                        dsController.text.toString(), context );
+                                        dsController.text.toString() );
                                   }
                                 },
                                   style: ElevatedButton.styleFrom(
