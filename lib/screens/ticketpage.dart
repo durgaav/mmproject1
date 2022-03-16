@@ -8,6 +8,7 @@ import 'package:mmcustomerservice/screens/admin/team.dart';
 import 'package:mmcustomerservice/screens/ticketview.dart';
 import 'package:mmcustomerservice/ticketsModel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 
 class Tickets extends StatefulWidget {
   String usertype = '';
@@ -43,6 +44,7 @@ class _TicketsState extends State<Tickets> {
   List filtered = [];
   String choice = '';
   int teamId = 0;
+  ScrollController scrollController = new ScrollController();
   List teamListToPass = [];
   ScrollController barControll = ScrollController();
   //retry
@@ -417,7 +419,7 @@ class _TicketsState extends State<Tickets> {
                         ),
                         Padding(
                           padding: const EdgeInsets.only(left: 6),
-                          child: Text("In progress"),
+                          child: Text("In Progress"),
                         ),
                       ],
                     ),
@@ -589,294 +591,293 @@ class _TicketsState extends State<Tickets> {
                 searchList.length > 0 ?
                 Container(
                   height: MediaQuery.of(context).size.height * 0.81,
-                  child:Scrollbar(
-                    controller: barControll,
-                    thickness: 6,
-                    showTrackOnHover: true,
-                    isAlwaysShown: true,
+                  child:DraggableScrollbar.rrect(
+                    backgroundColor: Colors.blue,
+                    alwaysVisibleScrollThumb: true,
+                    controller: scrollController,
                     child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: searchList.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return sortString.toLowerCase()=="all"?
-                          Column(
-                              children: <Widget>[
-                                ListTile(
-                                  onTap: () {
-                                    passDataToView(index);
-                                  },
-                                  leading: Container(
-                                    child: Stack(children: <Widget>[
-                                      CircleAvatar(
-                                        radius: 35,
-                                        backgroundColor:
-                                        Colors.cyan,
-                                        child: Text(
-                                          searchList[index]
-                                              .email !=
-                                              ''
-                                              ? searchList[index]
-                                              .email[0]
-                                              .toUpperCase()
-                                              : "Un named"[0]
-                                              .toUpperCase(),
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 25,
-                                              fontWeight:
-                                              FontWeight.w900),
-                                        ),
-                                      ),
-                                      searchList[index]
-                                          .status
-                                          .toString()
-                                          .toLowerCase() ==
-                                          "completed"
-                                          ? Positioned(
-                                          left: 50,
-                                          top: 35,
-                                          child: CircleAvatar(
-                                            radius: 9,
-                                            backgroundColor:
-                                            Colors.white,
-                                            child: CircleAvatar(
-                                              backgroundColor:
-                                              Colors.green,
-                                              radius: 8,
-                                            ),
-                                          ))
-                                          : searchList[index]
-                                          .status
-                                          .toString()
-                                          .toLowerCase() ==
-                                          "inprogress"
-                                          ? Positioned(
-                                          left: 50,
-                                          top: 35,
-                                          child: CircleAvatar(
-                                            radius: 9,
-                                            backgroundColor:
-                                            Colors.white,
-                                            child: CircleAvatar(
-                                              backgroundColor:
-                                              Colors
-                                                  .yellowAccent,
-                                              radius: 8,
-                                            ),
-                                          ))
-                                          : searchList[index]
-                                          .status
-                                          .toString()
-                                          .toLowerCase() ==
-                                          "new"
-                                          ? Positioned(
-                                          left: 50,
-                                          top: 35,
-                                          child:
-                                          CircleAvatar(
-                                            radius: 9,
-                                            backgroundColor:
-                                            Colors
-                                                .white,
-                                            child:
-                                            CircleAvatar(
-                                              backgroundColor:
-                                              Colors
-                                                  .blue,
-                                              radius: 8,
-                                            ),
-                                          ))
-                                          : searchList[index]
-                                          .status
-                                          .toString()
-                                          .toLowerCase() ==
-                                          "started"
-                                          ? Positioned(
-                                          left: 50,
-                                          top: 35,
-                                          child:
-                                          CircleAvatar(
-                                            radius: 9,
-                                            backgroundColor:
-                                            Colors
-                                                .white,
-                                            child:
-                                            CircleAvatar(
-                                              backgroundColor:
-                                              Colors
-                                                  .red,
-                                              radius: 8,
-                                            ),
-                                          ))
-                                          : SizedBox()
-                                    ]),
-                                  ),
-                                  title:searchList[index].email.isNotEmpty?
-                                  Text(searchList[index].email,
-                                    style:
-                                    TextStyle(fontSize: 15.5,
-                                        fontWeight:searchList[index].notification=="unseen"?FontWeight.bold:normal),
-                                    maxLines: 1,
-                                  ):Text('Un specified'),
-                                  subtitle:searchList[index].status.isNotEmpty?
-                                  Text(searchList[index].status):Text('Un specified'),
-                                  trailing: IconButton(
-                                    onPressed: () {
+                      controller: scrollController,
+                          itemCount: searchList.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return sortString.toLowerCase()=="all"?
+                            Column(
+                                children: <Widget>[
+                                  ListTile(
+                                    onTap: () {
                                       passDataToView(index);
                                     },
-                                    icon: Icon(
-                                      Icons.arrow_right,
-                                      size: 35,
-                                      color: Colors.blueAccent,
+                                    leading: Container(
+                                      child: Stack(children: <Widget>[
+                                        CircleAvatar(
+                                          radius: 35,
+                                          backgroundColor:
+                                          Colors.cyan,
+                                          child: Text(
+                                            searchList[index]
+                                                .email !=
+                                                ''
+                                                ? searchList[index]
+                                                .email[0]
+                                                .toUpperCase()
+                                                : "Un named"[0]
+                                                .toUpperCase(),
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 25,
+                                                fontWeight:
+                                                FontWeight.w900),
+                                          ),
+                                        ),
+                                        searchList[index]
+                                            .status
+                                            .toString()
+                                            .toLowerCase() ==
+                                            "completed"
+                                            ? Positioned(
+                                            left: 50,
+                                            top: 35,
+                                            child: CircleAvatar(
+                                              radius: 9,
+                                              backgroundColor:
+                                              Colors.white,
+                                              child: CircleAvatar(
+                                                backgroundColor:
+                                                Colors.green,
+                                                radius: 8,
+                                              ),
+                                            ))
+                                            : searchList[index]
+                                            .status
+                                            .toString()
+                                            .toLowerCase() ==
+                                            "inprogress"
+                                            ? Positioned(
+                                            left: 50,
+                                            top: 35,
+                                            child: CircleAvatar(
+                                              radius: 9,
+                                              backgroundColor:
+                                              Colors.white,
+                                              child: CircleAvatar(
+                                                backgroundColor:
+                                                Colors
+                                                    .yellowAccent,
+                                                radius: 8,
+                                              ),
+                                            ))
+                                            : searchList[index]
+                                            .status
+                                            .toString()
+                                            .toLowerCase() ==
+                                            "new"
+                                            ? Positioned(
+                                            left: 50,
+                                            top: 35,
+                                            child:
+                                            CircleAvatar(
+                                              radius: 9,
+                                              backgroundColor:
+                                              Colors
+                                                  .white,
+                                              child:
+                                              CircleAvatar(
+                                                backgroundColor:
+                                                Colors
+                                                    .blue,
+                                                radius: 8,
+                                              ),
+                                            ))
+                                            : searchList[index]
+                                            .status
+                                            .toString()
+                                            .toLowerCase() ==
+                                            "started"
+                                            ? Positioned(
+                                            left: 50,
+                                            top: 35,
+                                            child:
+                                            CircleAvatar(
+                                              radius: 9,
+                                              backgroundColor:
+                                              Colors
+                                                  .white,
+                                              child:
+                                              CircleAvatar(
+                                                backgroundColor:
+                                                Colors
+                                                    .red,
+                                                radius: 8,
+                                              ),
+                                            ))
+                                            : SizedBox()
+                                      ]),
+                                    ),
+                                    title:searchList[index].email.isNotEmpty?
+                                    Text(searchList[index].email,
+                                      style:
+                                      TextStyle(fontSize: 15.5,
+                                          fontWeight:searchList[index].notification=="unseen"?FontWeight.bold:normal),
+                                      maxLines: 1,
+                                    ):Text('Un specified'),
+                                    subtitle:searchList[index].status.isNotEmpty?
+                                    Text(searchList[index].status):Text('Un specified'),
+                                    trailing: IconButton(
+                                      onPressed: () {
+                                        passDataToView(index);
+                                      },
+                                      icon: Icon(
+                                        Icons.arrow_right,
+                                        size: 35,
+                                        color: Colors.blueAccent,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                Container(
-                                  height: 0.5,
-                                  margin: EdgeInsets.only(left: 10 , right: 10),
-                                  color: Colors.blue[100],
-                                ),
-                              ]
-                          ):
-                          searchList[index].status.toString().toLowerCase() == sortString?
-                          Column(children: <Widget>[
-                            ListTile(
-                              onTap: () {
-                                passDataToView(index);
-                              },
-                              leading: Container(
-                                child: Stack(children: <Widget>[
-                                  CircleAvatar(
-                                    radius: 35,
-                                    backgroundColor:
-                                    Colors.blueGrey,
-                                    child: Text(
-                                      searchList[index]
-                                          .email.isNotEmpty
-                                          ? searchList[index]
-                                          .email[0]
-                                          .toUpperCase()
-                                          : "Un named"[0]
-                                          .toUpperCase(),
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 25,
-                                          fontWeight:
-                                          FontWeight.w900),
-                                    ),
+                                  Container(
+                                    height: 0.5,
+                                    margin: EdgeInsets.only(left: 10 , right: 10),
+                                    color: Colors.blue[100],
                                   ),
-                                  searchList[index]
-                                      .status
-                                      .toString()
-                                      .toLowerCase() ==
-                                      "completed"
-                                      ? Positioned(
-                                      left: 50,
-                                      top: 35,
-                                      child: CircleAvatar(
-                                        radius: 9,
-                                        backgroundColor:
-                                        Colors.white,
-                                        child: CircleAvatar(
-                                          backgroundColor:
-                                          Colors.green,
-                                          radius: 8,
-                                        ),
-                                      ))
-                                      : searchList[index]
-                                      .status
-                                      .toString()
-                                      .toLowerCase() ==
-                                      "inprogress"
-                                      ? Positioned(
-                                      left: 50,
-                                      top: 35,
-                                      child: CircleAvatar(
-                                        radius: 9,
-                                        backgroundColor:
-                                        Colors.white,
-                                        child: CircleAvatar(
-                                          backgroundColor:
-                                          Colors
-                                              .yellowAccent,
-                                          radius: 8,
-                                        ),
-                                      ))
-                                      : searchList[index]
-                                      .status
-                                      .toString()
-                                      .toLowerCase() ==
-                                      "new"
-                                      ? Positioned(
-                                      left: 50,
-                                      top: 35,
-                                      child:
-                                      CircleAvatar(
-                                        radius: 9,
-                                        backgroundColor:
-                                        Colors
-                                            .white,
-                                        child:
-                                        CircleAvatar(
-                                          backgroundColor:
-                                          Colors
-                                              .blue,
-                                          radius: 8,
-                                        ),
-                                      ))
-                                      : searchList[index]
-                                      .status
-                                      .toString()
-                                      .toLowerCase() ==
-                                      "started"
-                                      ? Positioned(
-                                      left: 50,
-                                      top: 35,
-                                      child:
-                                      CircleAvatar(
-                                        radius: 9,
-                                        backgroundColor:
-                                        Colors
-                                            .white,
-                                        child:
-                                        CircleAvatar(
-                                          backgroundColor:
-                                          Colors
-                                              .red,
-                                          radius: 8,
-                                        ),
-                                      ))
-                                      : SizedBox()
-                                ]),
-                              ),
-                              title:searchList[index].email.isNotEmpty?
-                              Text(
-                                searchList[index].email.toString(),
-                                maxLines: 1,
-                                style:
-                                TextStyle(fontSize: 15,color: Colors.black),
-                              ):Text('Un specified'),
-                              subtitle:searchList[index].status.isNotEmpty?
-                              Text(searchList[index].status):Text('Un specified'),
-                              trailing: IconButton(
-                                onPressed: () {
+                                ]
+                            ):
+                            searchList[index].status.toString().toLowerCase() == sortString?
+                            Column(children: <Widget>[
+                              ListTile(
+                                onTap: () {
                                   passDataToView(index);
                                 },
-                                icon: Icon(
-                                  Icons.arrow_right,
-                                  size: 35,
-                                  color: Colors.blueAccent,
+                                leading: Container(
+                                  child: Stack(children: <Widget>[
+                                    CircleAvatar(
+                                      radius: 35,
+                                      backgroundColor:
+                                      Colors.blueGrey,
+                                      child: Text(
+                                        searchList[index]
+                                            .email.isNotEmpty
+                                            ? searchList[index]
+                                            .email[0]
+                                            .toUpperCase()
+                                            : "Un named"[0]
+                                            .toUpperCase(),
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 25,
+                                            fontWeight:
+                                            FontWeight.w900),
+                                      ),
+                                    ),
+                                    searchList[index]
+                                        .status
+                                        .toString()
+                                        .toLowerCase() ==
+                                        "completed"
+                                        ? Positioned(
+                                        left: 50,
+                                        top: 35,
+                                        child: CircleAvatar(
+                                          radius: 9,
+                                          backgroundColor:
+                                          Colors.white,
+                                          child: CircleAvatar(
+                                            backgroundColor:
+                                            Colors.green,
+                                            radius: 8,
+                                          ),
+                                        ))
+                                        : searchList[index]
+                                        .status
+                                        .toString()
+                                        .toLowerCase() ==
+                                        "inprogress"
+                                        ? Positioned(
+                                        left: 50,
+                                        top: 35,
+                                        child: CircleAvatar(
+                                          radius: 9,
+                                          backgroundColor:
+                                          Colors.white,
+                                          child: CircleAvatar(
+                                            backgroundColor:
+                                            Colors
+                                                .yellowAccent,
+                                            radius: 8,
+                                          ),
+                                        ))
+                                        : searchList[index]
+                                        .status
+                                        .toString()
+                                        .toLowerCase() ==
+                                        "new"
+                                        ? Positioned(
+                                        left: 50,
+                                        top: 35,
+                                        child:
+                                        CircleAvatar(
+                                          radius: 9,
+                                          backgroundColor:
+                                          Colors
+                                              .white,
+                                          child:
+                                          CircleAvatar(
+                                            backgroundColor:
+                                            Colors
+                                                .blue,
+                                            radius: 8,
+                                          ),
+                                        ))
+                                        : searchList[index]
+                                        .status
+                                        .toString()
+                                        .toLowerCase() ==
+                                        "started"
+                                        ? Positioned(
+                                        left: 50,
+                                        top: 35,
+                                        child:
+                                        CircleAvatar(
+                                          radius: 9,
+                                          backgroundColor:
+                                          Colors
+                                              .white,
+                                          child:
+                                          CircleAvatar(
+                                            backgroundColor:
+                                            Colors
+                                                .red,
+                                            radius: 8,
+                                          ),
+                                        ))
+                                        : SizedBox()
+                                  ]),
+                                ),
+                                title:searchList[index].email.isNotEmpty?
+                                Text(
+                                  searchList[index].email.toString(),
+                                  maxLines: 1,
+                                  style:
+                                  TextStyle(fontSize: 15,color: Colors.black),
+                                ):Text('Un specified'),
+                                subtitle:searchList[index].status.isNotEmpty?
+                                Text(searchList[index].status):Text('Un specified'),
+                                trailing: IconButton(
+                                  onPressed: () {
+                                    passDataToView(index);
+                                  },
+                                  icon: Icon(
+                                    Icons.arrow_right,
+                                    size: 35,
+                                    color: Colors.blueAccent,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Container(
-                              height: 0.5,
-                              margin: EdgeInsets.only(left: 10 , right: 10),
-                              color: Colors.blue[100],
-                            ),
-                          ]):
-                          Container();
-                        }),
+                              Container(
+                                height: 0.5,
+                                margin: EdgeInsets.only(left: 10 , right: 10),
+                                color: Colors.blue[100],
+                              ),
+                            ]):
+                            Container();
+                          }),
                   ),
                 ):
                 Center(

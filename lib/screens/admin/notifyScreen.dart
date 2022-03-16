@@ -81,6 +81,7 @@ class _NotifScreenState extends State<NotifScreen> {
         }
         ticketDetails = body.map((e) => TicketModel.fromJson(e)).toList();
         setState(() {
+          ticketDetails = ticketDetails.reversed.toList();
           count = body.length;
           context.read<Data>().setCount(count);
           if (body.length == 0) {
@@ -390,9 +391,12 @@ class _NotifScreenState extends State<NotifScreen> {
                                       ,),
                                     // subtitle: Text(snapshot.data![index].email,style:
                                     // TextStyle(color: Colors.red,fontSize: 13)),
-                                    trailing: Text(ticketDetails[index].ticketsId.toString()
-                                        ,style:
-                                        TextStyle(fontWeight: bold,fontSize: 12)
+                                    trailing: CircleAvatar(
+                                      backgroundColor: Colors.blue,
+                                      child: Text(ticketDetails[index].ticketsId.toString()
+                                          ,style:
+                                          TextStyle(fontWeight: bold,fontSize: 12,color: Colors.white)
+                                      ),
                                     ),
                                   ),
                                   Divider(

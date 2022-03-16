@@ -403,6 +403,9 @@ class _CustomerState extends State<Customer> {
           retryVisible = false;
           Navigator.pop(context);
           data = b.map((e) => GetCustomer.fromJson(e)).toList();
+          setState(() {
+            data = data.reversed.toList();
+          });
         });
       }else{
         setState(() {
@@ -553,9 +556,6 @@ class _CustomerState extends State<Customer> {
 
   @override
   Widget build(BuildContext context) {
-    setState(() {
-      data = data.reversed.toList();
-    });
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
