@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:mime/mime.dart';
 import 'package:path/path.dart' as Path;
@@ -320,133 +321,144 @@ class _AdticketNewState extends State<AdticketNew> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-        backgroundColor: Color(0Xff146bf7),
-      title: Text('New Ticket'),
+          centerTitle: true,
+          leading: IconButton(
+            onPressed: (){Navigator.pop(context);},
+            icon:Icon(CupertinoIcons.back),
+            iconSize: 30,
+            splashColor: Colors.purpleAccent,
+          ),
+          backgroundColor: Color(0Xff146bf7),
+        title: Text('New Ticket',style: TextStyle(fontFamily: 'Poppins'),),
         ),
       body:Container(
-        child:   Column(
-          children: [
-            Text('Create New Ticket',style: TextStyle(
-                fontSize: 20
-            ),),
-            SizedBox(
-              height: 20,
-            ),
-            SingleChildScrollView(
-                child: Form(
-                    child:Container(
-                      margin: EdgeInsets.symmetric(horizontal: 20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          TextFormField(
-                              decoration: const InputDecoration(
-                                hintText: 'Enter a Email Id',
-                                labelText: 'Email Id',
-                              ),
-                              controller:emailController,
-                            keyboardType: TextInputType.emailAddress,
-                          ),
-                          TextFormField(
-                            decoration: const InputDecoration(
-                              hintText: 'Enter Number',
-                              labelText: 'Phone Number',
-                            ),
-                            controller: phnoController,
-                            keyboardType: TextInputType.phone,
-                            maxLength: 10,
-
-                          ),
-                          TextFormField(
-                            decoration: const InputDecoration(
-                              hintText: 'Enter a Domain Name',
-                              labelText: 'Domain Name',
-                            ),
-                            controller: domainController,
-                            keyboardType: TextInputType.url,
-                          ),
-                          TextFormField(
-                            decoration: InputDecoration(
-                                hintText: 'Enter your Issue here',
-                                labelText: 'Description'
-                            ),
-                            maxLines: 100,
-                            minLines: 3,
-                            controller: dsController,
-                            keyboardType: TextInputType.text,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              ElevatedButton(onPressed: () async {
-                                setState(() {
-                                  showfiles();
-                                });
-                                picker();
-                              },
-                                style: ElevatedButton.styleFrom(
-                                  shape: StadiumBorder(),
-                                  onPrimary: Colors.white,
+        child:   SingleChildScrollView(
+          child: Column(
+            children: [
+              SizedBox(
+                height: 20,
+              ),
+              Text('Create New Ticket',style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold
+              ),),
+              SizedBox(
+                height: 20,
+              ),
+              Form(
+                      child:Container(
+                        margin: EdgeInsets.symmetric(horizontal: 20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            TextFormField(
+                                decoration: const InputDecoration(
+                                  hintText: 'Enter a Email Id',
+                                  labelText: 'Email Id',
                                 ),
-                                child: Text('Choose file...',style: TextStyle(fontSize: 17),),
+                                controller:emailController,
+                              keyboardType: TextInputType.emailAddress,
+                            ),
+                            TextFormField(
+                              decoration: const InputDecoration(
+                                hintText: 'Enter Number',
+                                labelText: 'Phone Number',
                               ),
+                              controller: phnoController,
+                              keyboardType: TextInputType.phone,
+                              maxLength: 10,
 
-                              ElevatedButton(onPressed: () {
-                                if(emailController.text.isEmpty||
-                                    phnoController.text.isEmpty||
-                                    domainController.text.isEmpty||
-                                    dsController.text.isEmpty||phnoController.text.length<10){
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text('Fields cannot be blank'),
-                                        backgroundColor: red,
-                                      )
-                                  );
-                                }else{
-                                  AddNewTicket(
-                                      emailController.text.toString(),
-                                      phnoController.text.toString(),
-                                      domainController.text.toString(),
-                                      dsController.text.toString(), context );
-                                }
-                              },
-                                style: ElevatedButton.styleFrom(
-                                  shape: StadiumBorder(),
-                                  onPrimary: Colors.white,
-                                ),child: Text("submit",style: TextStyle(fontSize: 17),),),
-                            ],
-                          ),
+                            ),
+                            TextFormField(
+                              decoration: const InputDecoration(
+                                hintText: 'Enter a Domain Name',
+                                labelText: 'Domain Name',
+                              ),
+                              controller: domainController,
+                              keyboardType: TextInputType.url,
+                            ),
+                            TextFormField(
+                              decoration: InputDecoration(
+                                  hintText: 'Enter your Issue here',
+                                  labelText: 'Description'
+                              ),
+                              maxLines: 100,
+                              minLines: 3,
+                              controller: dsController,
+                              keyboardType: TextInputType.text,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                ElevatedButton(onPressed: () async {
+                                  setState(() {
+                                    showfiles();
+                                  });
+                                  picker();
+                                },
+                                  style: ElevatedButton.styleFrom(
+                                    shape: StadiumBorder(),
+                                    onPrimary: Colors.white,
+                                  ),
+                                  child: Text('Choose file...',style: TextStyle(fontSize: 17),),
+                                ),
 
-                          Container(
-                            child: ListView.builder(
-                                physics: NeverScrollableScrollPhysics(),
-                                shrinkWrap: true,
-                                itemCount: files.length,
-                                itemBuilder: (BuildContext context , index){
-                                  return ListTile(
-                                    leading: Icon(Icons.image,color: Colors.green,size: 40,),
-                                    title: Text(files[index].path.split('/').last,style: TextStyle(fontSize: 14),),
-                                    trailing: IconButton(
-                                      onPressed: (){
-                                        print('hi');
-                                        setState(() {
-                                          files.removeAt(index);
-                                          if (files.length == -1) {
-                                            imageremove = false;
-                                          }
-                                        });
-                                      },
-                                      icon: Icon(Icons.close,color: Colors.red,size: 30,),
-                                    ),
-                                  );
-                                }),
-                          ),
-                        ],
-                      ),
-                    )
-                )
-            )
-          ],
+                                ElevatedButton(onPressed: () {
+                                  if(emailController.text.isEmpty||
+                                      phnoController.text.isEmpty||
+                                      domainController.text.isEmpty||
+                                      dsController.text.isEmpty||phnoController.text.length<10){
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text('Fields cannot be blank'),
+                                          backgroundColor: red,
+                                        )
+                                    );
+                                  }else{
+                                    AddNewTicket(
+                                        emailController.text.toString(),
+                                        phnoController.text.toString(),
+                                        domainController.text.toString(),
+                                        dsController.text.toString(), context );
+                                  }
+                                },
+                                  style: ElevatedButton.styleFrom(
+                                    shape: StadiumBorder(),
+                                    onPrimary: Colors.white,
+                                  ),child: Text("submit",style: TextStyle(fontSize: 17),),),
+                              ],
+                            ),
+
+                            Container(
+                              child: ListView.builder(
+                                  physics: NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemCount: files.length,
+                                  itemBuilder: (BuildContext context , index){
+                                    return ListTile(
+                                      leading: Icon(Icons.image,color: Colors.green,size: 40,),
+                                      title: Text(files[index].path.split('/').last,style: TextStyle(fontSize: 14),),
+                                      trailing: IconButton(
+                                        onPressed: (){
+                                          print('hi');
+                                          setState(() {
+                                            files.removeAt(index);
+                                            if (files.length == -1) {
+                                              imageremove = false;
+                                            }
+                                          });
+                                        },
+                                        icon: Icon(Icons.close,color: Colors.red,size: 30,),
+                                      ),
+                                    );
+                                  }),
+                            ),
+                          ],
+                        ),
+                      )
+                  )
+            ],
+          ),
         ),
       )
     );

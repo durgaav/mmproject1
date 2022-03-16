@@ -106,7 +106,6 @@ class _TicketViewPageState extends State<TicketViewPage> {
   //endregion Variables
 
   //region Dialogs
-
   Future<void> updateStatusDialog(BuildContext context) async {
     return showDialog(
         context: context,
@@ -741,29 +740,25 @@ class _TicketViewPageState extends State<TicketViewPage> {
     if(response.statusCode==200){
       Navigator.pop(context);
       if(response.body.contains("Team array's data are temporarily deleted")){
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Row(
+            children: [
+              Icon(
+                Icons.done_all,
+                color: Colors.white,
+              ),
+              Text('  Assigned teams removed!'),
+            ],
+          ),
+          backgroundColor: Color(0xff198D0F),
+          behavior: SnackBarBehavior.floating,
+        ));
         setState(() {
-          if(ids.isNotEmpty){
             ids = [];
             teamsIndex = [];
-          }else{
-            ids = [];
-            teamsIndex = [];
-          }
-          print("here is idss..."+ids.toString() + teamsIndex.toString());
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Row(
-              children: [
-                Icon(
-                  Icons.done_all,
-                  color: Colors.white,
-                ),
-                Text('  Assigned teams removed!'),
-              ],
-            ),
-            backgroundColor: Color(0xff198D0F),
-            behavior: SnackBarBehavior.floating,
-          ));
+            teams=[];
         });
+        print("here is ids..."+ids.toString() + teamsIndex.toString());
       }else{
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -1061,9 +1056,6 @@ class _TicketViewPageState extends State<TicketViewPage> {
             child: Icon(Icons.mail),
             onPressed: () {
               completeMailAlert();
-              //Mail send
-              //mailDialog(context);
-              // sendMail();
             },
           ),
         )

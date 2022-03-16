@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mmcustomerservice/screens/admin/unreg_tickets_view.dart';
@@ -196,7 +197,14 @@ class _UnRegister_TicketsState extends State<UnRegister_Tickets> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Tickets List'),
+        centerTitle: true,
+        leading: IconButton(
+          onPressed: (){Navigator.pop(context);},
+          icon:Icon(CupertinoIcons.back),
+          iconSize: 30,
+          splashColor: Colors.purpleAccent,
+        ),
+        title: Text('Un Reg Tickets'),
         backgroundColor: Color(0Xff146bf7),
       ),
       body: SingleChildScrollView(

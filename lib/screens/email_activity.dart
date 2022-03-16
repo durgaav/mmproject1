@@ -176,14 +176,19 @@ class _EmailACtivityState extends State<EmailACtivity> {
     try {
       String username = 'durgadevi@mindmade.in';
       String password = 'Appu#001';
-
       final smtpServer = gmail(username, password);
       final equivalentMessage = Message()
         ..from = Address(username, 'DurgaDevi')
         ..recipients.add(Address("surya@mindmade.in"))
         ..ccRecipients.addAll([Address('durgadevi@mindmade.in'),])
         ..subject = 'Subject'
-        ..text = 'Generated Password $genPass';
+        ..text = 'Dear Sir/Madam,\n\n'
+            'Greetings from MindMade Customer Support Team!!! \n'
+            'We have received a request to reset the password for your account.\n\n'
+            'Your System generated Password: $genPass\n\n'
+            'To Login,go to https://mm-customer-support-ten.vercel.app/ then enter the Appropriate Email and above Password.\n\n'
+            'You can change your password once you logged in.\n\n'
+            'Thanks & Regards,\nMindMade';
       await send(equivalentMessage, smtpServer);
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -223,72 +228,103 @@ class _EmailACtivityState extends State<EmailACtivity> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Email verify'),
+        centerTitle: true,
+        title: Text('Forget Password'),
+        leading: IconButton(
+          onPressed: (){Navigator.pop(context);},
+          icon:Icon(CupertinoIcons.back),
+          iconSize: 30,
+          splashColor: Colors.purpleAccent,
+        ),
       ),
-      body: Column(
-        children: [
-          Container(
-            height: 55,
-            margin: EdgeInsets.all(15),
-            child: TextField(
-              keyboardType: TextInputType.emailAddress,
-              controller: emailId,
-              decoration: InputDecoration(
-                prefixIcon: Icon(Icons.alternate_email_outlined),
-                hintText: 'Enter registered e-mail',
-                border: OutlineInputBorder(),
-                suffixIcon: IconButton(
-                  onPressed: (){
-                    FocusScope.of(context).unfocus();
-                    setState(() {
-                      emailId.text = "";
-                    });
-                  },
-                  icon: Icon(Icons.close_rounded),
-                )
-              ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Image(
+              height: 220,
+                image: AssetImage('assets/images/forgetpass.png')
             ),
-          ),
-          Container(
-            alignment: Alignment.center,
-            width: 110,
-            child: Container(
-              height: 45,
-              child: RaisedButton(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
-                  color: Colors.blueAccent,
-                  onPressed: (){
-                     FocusScope.of(context).unfocus();
-                     if(emailId.text.isEmpty){
-                       ScaffoldMessenger.of(context).showSnackBar(
-                           SnackBar(
-                             content: Row(
-                               children: [
-                                 Icon(Icons.alternate_email_outlined,color: Colors.white,),
-                                 Text('  Type your registered mail!'),
-                               ],
-                             ),
-                             backgroundColor: Color(0xffE33C3C),
-                             behavior: SnackBarBehavior.floating,
-                           )
-                       );
-                     }else{
-                       sendingRequest(emailId.text.toString());
-                     }
 
-                  },
-                  child:Row(
-                    children: [
-                      Icon(Icons.done_all , color: Colors.white,),
-                      Text('  Verify'  , style: TextStyle(color: Colors.white,),)
-                    ],
-                  ),
+            Container(
+              height: 55,
+              margin: EdgeInsets.all(15),
+              child: TextField(
+                keyboardType: TextInputType.emailAddress,
+                controller: emailId,
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.alternate_email_outlined),
+                  hintText: 'Enter registered e-mail',
+                  border: OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    onPressed: (){
+                      FocusScope.of(context).unfocus();
+                      setState(() {
+                        emailId.text = "";
+                      });
+                    },
+                    icon: Icon(Icons.close_rounded),
+                  )
+                ),
               ),
             ),
-          )
-        ],
+            Container(
+              margin: EdgeInsets.only(top: 20),
+              alignment: Alignment.center,
+              width: 110,
+              child: Container(
+                height: 45,
+                child: RaisedButton(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                    color: Colors.blueAccent,
+                    onPressed: (){
+                       FocusScope.of(context).unfocus();
+                       bool emailValid = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                           .hasMatch(emailId.text.toString());
+                       print(emailValid);
+                       if(emailValid!=true){
+                         ScaffoldMessenger.of(context).showSnackBar(
+                             SnackBar(
+                               content: Row(
+                                 children: [
+                                   Icon(Icons.alternate_email_outlined,color: Colors.white,),
+                                   Text('  Enter a valid email id!'),
+                                 ],
+                               ),
+                               backgroundColor: Color(0xffE33C3C),
+                               behavior: SnackBarBehavior.floating,
+                             )
+                         );
+                       }
+                       else if(emailId.text.isEmpty){
+                         ScaffoldMessenger.of(context).showSnackBar(
+                             SnackBar(
+                               content: Row(
+                                 children: [
+                                   Icon(Icons.alternate_email_outlined,color: Colors.white,),
+                                   Text('  Field is empty!'),
+                                 ],
+                               ),
+                               backgroundColor: Color(0xffE33C3C),
+                               behavior: SnackBarBehavior.floating,
+                             )
+                         );
+                       }else{
+                         sendingRequest(emailId.text.toString());
+                       }
+                    },
+                    child:Row(
+                      children: [
+                        Icon(Icons.done_all , color: Colors.white,),
+                        Text('  Verify'  , style: TextStyle(color: Colors.white,),)
+                      ],
+                    ),
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
