@@ -39,6 +39,7 @@ class _MainMenusState extends State<MainMenus> {
   String greetings = '';
   String greetsUsr='';
   bool nonRegister = false;
+  List<GetUnreg> unRegnewCount = [];
 
   String greetingMessage() {
       if (timeNow <= 12) {
@@ -62,7 +63,6 @@ class _MainMenusState extends State<MainMenus> {
     greetingMessage();
 
     print("Current user........"+currentUser);
-
     setState(() {
       greetings = greetingMessage();
       Future.delayed(Duration.zero, () async {
@@ -79,9 +79,7 @@ class _MainMenusState extends State<MainMenus> {
       });
     });
   }
-
-
-
+  
   @override
   Widget build(BuildContext context) {
     greetsUsr = currentUser.split(" ").first;

@@ -68,6 +68,7 @@ class _UnRegister_TicketsState extends State<UnRegister_Tickets> {
           //tap again - visible
           body = jsonDecode(response.body);
           unRegTickets = body.map((e) => GetUnreg.fromJson(e)).toList();
+          unRegTickets = unRegTickets.reversed.toList();
         });
       }
       else {

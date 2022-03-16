@@ -507,7 +507,6 @@ class _CustomerState extends State<Customer> {
     pref.setString('cus_pass',data[index].Password??'');
     pref.setString('email',data[index].Email??'');
     pref.setString('phno',data[index].Phonenumber??'');
-    pref.setString('address',data[index].Address??'');
     pref.setString('Cname',data[index].Companyname??'');
     pref.setString('Logo',data[index].Logo??'');
     pref.setString('Clientname',data[index].Clientname??'');
@@ -717,26 +716,24 @@ class _CustomerState extends State<Customer> {
 }
 
 class GetCustomer {
-  String usersId;
-  String Password;
-  String Email;
-  String Phonenumber;
-  String Address;
-  String Companyname;
-  String Logo;
-  String Clientname;
-  String Createdon;
-  String Createdby;
-  String Modifiedon;
-  String Modifiedby;
-  String Isdeleted;
+  String usersId='';
+  String Password='';
+  String Email='';
+  String Phonenumber='';
+  String Companyname='';
+  String Logo='';
+  String Clientname='';
+  String Createdon='';
+  String Createdby='';
+  String Modifiedon='';
+  String Modifiedby='';
+  String Isdeleted='';
 
   GetCustomer(
       {required this.usersId,
         required this.Password,
         required this.Email,
         required this.Phonenumber,
-        required this.Address,
         required this.Companyname,
         required this.Logo,
         required this.Clientname,
@@ -752,7 +749,6 @@ class GetCustomer {
         Password: json['Password'].toString(),
         Email: json['Email'].toString(),
         Phonenumber: json['Phonenumber'].toString(),
-        Address: json['Address'].toString(),
         Companyname: json['Companyname'].toString(),
         Logo: json['Logo'].toString(),
         Clientname: json['Clientname'].toString(),

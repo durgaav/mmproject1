@@ -250,14 +250,14 @@ class _LoginPageState extends State<LoginPage> {
                             child: ElevatedButton(
                               onPressed: () {
                                 bool emailValid = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-                                    .hasMatch(mailController.toString());
+                                    .hasMatch(mailController.text.toString());
                                 print(emailValid);
                                 if(emailValid!=true){
                                   Fluttertoast.showToast(
                                     msg: 'Enter a valid email id',
                                     backgroundColor: Colors.red,
                                   );
-                                }if(mailController.text.toString() == ''||password.text.toString()==''){
+                                }else if(mailController.text.toString() == ''||password.text.toString()==''){
                                   FocusScope.of(context).unfocus();
                                   ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(

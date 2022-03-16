@@ -194,7 +194,7 @@ class _HomePageState extends State<HomePage> {
         setState(() {
           usertype = userType;
           currentUser = currentUserStr;
-          fetchAllTick();
+          Counttk();
           fetchAllCounting();
         });
       }
@@ -319,7 +319,7 @@ class _HomePageState extends State<HomePage> {
 
 //add new ticket
   Future AddNewTicket(String Email, String Phonenumber,
-      String DomainName, String Description) async {
+      String DomainName, String Description, BuildContext context) async {
     showAlert(context);
     try{
       final request = http.MultipartRequest(
@@ -338,8 +338,7 @@ class _HomePageState extends State<HomePage> {
         http.StreamedResponse response = await request.send();
         String res = await response.stream.bytesToString();
         if (response.statusCode == 200) {
-          print(res);
-          if(res.contains('{"statusCode":200,"message":"Submitted Successfully"}')){
+          if(res.contains('Ticket added successfully')){
             Navigator.pop(context);
             setState(() {
               phnoController = new TextEditingController(text: "");
@@ -351,7 +350,7 @@ class _HomePageState extends State<HomePage> {
                   content: Row(
                     children: [
                       Icon(Icons.done_all,color: Colors.white,),
-                      Text(' Ticket Submitted Successfully'),
+                      Text('Ticket added successfully'),
                     ],
                   ),
                   backgroundColor: green,
@@ -364,11 +363,11 @@ class _HomePageState extends State<HomePage> {
                 SnackBar(
                   content: Row(
                     children: [
-                      Icon(Icons.close,color: Colors.white,),
-                      Text(" Error Occurred!"),
+                      Icon(Icons.done_all,color: Colors.white,),
+                      Text('Error occurred'),
                     ],
                   ),
-                  backgroundColor: red,
+                  backgroundColor: green,
                   behavior: SnackBarBehavior.floating,
                 )
             );
@@ -382,15 +381,14 @@ class _HomePageState extends State<HomePage> {
                 content: Row(
                   children: [
                     Icon(Icons.announcement_rounded,color: Colors.white,),
-                    Text(response.reasonPhrase.toString(),style: TextStyle(
-                      fontSize: 14,color: Colors.white
-                    ),),
+                    Text(response.reasonPhrase.toString()),
                   ],
                 ),
                 backgroundColor:red,
                 behavior: SnackBarBehavior.floating,
               )
           );
+          print(response.reasonPhrase);
         }
       }else{
         request.headers['Content-Type'] = 'multipart/form-data';
@@ -399,6 +397,7 @@ class _HomePageState extends State<HomePage> {
           'Email': Email,
           'Phonenumber': Phonenumber,
           'DomainName': DomainName,
+          'Projectcode':'$proCode',
           'Description': Description,
           'Cus_CreatedOn':formatter.format(DateTime.now()),
         });
@@ -412,7 +411,7 @@ class _HomePageState extends State<HomePage> {
         String res = await response.stream.bytesToString();
         if (response.statusCode == 200) {
           Navigator.pop(context);
-          if(res.contains('{"statusCode":200,"message":"Submitted Successfully"}')){
+          if(res.contains('Ticket added successfully')){
             setState(() {
               phnoController = new TextEditingController(text: "");
               domainController = new TextEditingController(text: "");
@@ -425,7 +424,7 @@ class _HomePageState extends State<HomePage> {
                   content: Row(
                     children: [
                       Icon(Icons.done_all,color: Colors.white,),
-                      Text(' Ticket Submitted Successfully'),
+                      Text('Ticket added successfully'),
                     ],
                   ),
                   backgroundColor: green,
@@ -443,9 +442,7 @@ class _HomePageState extends State<HomePage> {
                 content: Row(
                   children: [
                     Icon(Icons.announcement_rounded,color: Colors.white,),
-                    Text(response.reasonPhrase.toString(),style: TextStyle(
-                        fontSize: 14,color: Colors.white
-                    ),),
+                    Text(response.reasonPhrase.toString()),
                   ],
                 ),
                 backgroundColor: Colors.lightGreen,
@@ -491,6 +488,8 @@ class _HomePageState extends State<HomePage> {
     Future.delayed(
         Duration.zero, () async {
       screenVisibility();
+      fetchAllTick();
+      showfiles();
     });
   }
   @override
@@ -610,14 +609,14 @@ class _HomePageState extends State<HomePage> {
                 child:SingleChildScrollView(
                   child: Column(
                     children: [
-                      usertype=="customer"?
+                      (users == true)?
                       Column(
                         children: [
                           SizedBox(
                             height: 20,
                           ),
                           Text('Create New Ticket',style: TextStyle(
-                              fontSize: 20,fontWeight: FontWeight.bold,color: Colors.blue
+                              fontSize: 20
                           ),),
                           SizedBox(
                             height: 20,
@@ -697,8 +696,7 @@ class _HomePageState extends State<HomePage> {
                                                     emailController.text.toString(),
                                                     phnoController.text.toString(),
                                                     domainController.text.toString(),
-                                                    dsController.text.toString()
-                                                );
+                                                    dsController.text.toString(), context );
                                               }
                                             },
                                               style: ElevatedButton.styleFrom(
@@ -852,7 +850,7 @@ class _HomePageState extends State<HomePage> {
                                             mainAxisAlignment: MainAxisAlignment.center,
                                             crossAxisAlignment: CrossAxisAlignment.center,
                                             children: [
-                                              Icon(CupertinoIcons.clock ,size: 40,color: Colors.white,),
+                                              Icon(Icons.change_circle_outlined ,size: 40,color: Colors.white,),
                                               SizedBox(height: 10,),
                                               Text('No Of \nInprogress',
                                                 textAlign: TextAlign.center

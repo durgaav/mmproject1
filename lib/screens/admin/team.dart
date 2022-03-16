@@ -5,6 +5,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mailer/mailer.dart';
+import 'package:mailer/smtp_server/gmail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -410,6 +412,56 @@ class _TeamListState extends State<TeamList> {
         });
   }
 
+  void sendmailTm(String mail, String pass) async{
+    try {
+      setState(() {
+        mailController.text.toString();
+        PassController.text.toString();
+      });
+      print(mailController);
+      print(PassController);
+      String username = 'durgadevi@mindmade.in';
+      String password = 'Appu#001';
+      final smtpServer = gmail(username, password);
+      final equivalentMessage = Message()
+        ..from = Address(username, 'DurgaDevi')
+        ..recipients.add(Address(mailController.text.toString()))
+        ..ccRecipients.addAll([Address('surya@mindmade.in'),])
+      // ..bccRecipients.add('bccAddress@example.com')
+        ..subject = 'Your Credentials ${formatter.format(DateTime.now())}'
+        ..text = 'Dear Sir/Madam,\n\n'
+            'Greetings from MindMade Customer Support Team!!! \n'
+            'You have been registered as Team member on MindMade Customer Support.\n'
+            'To Login,go to https://mm-customer-support-ten.vercel.app/ then enter the following information:\n\n'
+            'Email : ${mail}\n'
+            'Password : ${pass}\n\n'
+            'You can change your password once you logged in.\n\n'
+            'Thanks & Regards, \nMindMade';
+      // ..html = "<h1>Test</h1>\n<p>Hey! Here's some HTML content</p>";
+      await send(equivalentMessage, smtpServer);
+      print('Message sent: ' + send.toString());
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Team Credentials send via mail'),
+            backgroundColor: Colors.lightGreen,
+            behavior: SnackBarBehavior.floating,
+          )
+      );
+    } on MailerException catch (e) {
+      print('Message not sent.');
+      for (var p in e.problems) {
+        print('Problem: ${p.code}: ${p.msg}');
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to send credentials!'),
+              backgroundColor: Colors.red[200],
+              behavior: SnackBarBehavior.floating,
+            )
+        );
+      }
+    }
+  }
+
   Future<void> Addteam(String emailId, String Password,String phone, String Team) async {
     showAlert(context);
     try {
@@ -428,6 +480,7 @@ class _TeamListState extends State<TeamList> {
           }));
       if (response.statusCode == 200) {
         if(response.body.contains( "Team added successfully")){
+          sendmailTm(mailController.text.toString(),PassController.text.toString());
           Navigator.pop(context);
           setState(() {
             refreshListener();

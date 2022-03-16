@@ -9,7 +9,6 @@ import 'package:mmcustomerservice/screens/ticketview.dart';
 import 'package:mmcustomerservice/ticketsModel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:draggable_scrollbar/draggable_scrollbar.dart';
-
 class Tickets extends StatefulWidget {
   String usertype = '';
   String currentUser = '';

@@ -709,10 +709,6 @@ class _ViewPageState extends State<ViewPage> {
         ));
 
   }
-
-
-
-
 }
 //background design using paint
 class MyClipper extends CustomClipper<Path> {
