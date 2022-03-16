@@ -835,8 +835,8 @@ class _TeamListState extends State<TeamList> {
                                       Colors.blueAccent,
                                       radius: 27,
                                       child: Text(
-                                        searchList[index].email[0].toUpperCase(),
-                                        style: TextStyle(fontSize:22,fontWeight: FontWeight.bold,color: Colors.white),
+                                          searchList[index].email[0].toUpperCase(),
+                                          style: TextStyle(fontSize:22,fontWeight: FontWeight.bold,color: Colors.white),
                                       ),
                                     ),
                                     title: Text(
