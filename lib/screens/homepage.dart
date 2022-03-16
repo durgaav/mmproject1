@@ -38,7 +38,7 @@ class _HomePageState extends State<HomePage> {
   bool users = false;
   bool team = false;
   String currentUser = '';
-  String proCode = '';
+  String proCode = '00';
   bool notiIconVisi = false;
   var counts = 0;
   DateFormat formatter = DateFormat('dd-MM-yyyy hh:mm a');
